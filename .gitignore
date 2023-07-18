@@ -6,3 +6,5 @@
 *.skv
 settings.json
 .idea/
+__pycache__/
+*.pyc
