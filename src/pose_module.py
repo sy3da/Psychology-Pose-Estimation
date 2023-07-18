@@ -13,7 +13,7 @@ class PoseDetector():
 
 
 def main():
-    input_video = "Data/test_videos/test_video.mp4"
+    input_video = "Data/test_videos/1_walking_toward.mp4"
     video = cv2.VideoCapture(input_video)
     if not video.isOpened():
         print("Error opening video file:", input_video)
