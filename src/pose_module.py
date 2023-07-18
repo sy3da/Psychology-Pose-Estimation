@@ -8,7 +8,7 @@ import os
 class PoseDetector():
     def __init__(self) -> None:
         return
-    
+
     def get_landmarks(self, image, draw=False):
         return False, None
 
@@ -22,6 +22,13 @@ def main():
     if not video.isOpened():
         print("Error opening video file:", input_video)
         exit(1)
+
+    # BEGIN POSE DETECTOR CODE
+
+    mp_pose = mp.solutions.pose # type: ignore
+    pose = mp_pose.Pose()
+
+    # END POSE DETECTOR CODE
 
     previous_time = 0
     start_time = time.time()
@@ -37,7 +44,7 @@ def main():
 
         # Get pixel locations of all pose landmarks
         pose_detected, landmarks_pixels = detector.get_landmarks(image=frame, draw=True)
-        
+
         # if pose_detected:
         #     # Do something with the landmarks
 
@@ -53,7 +60,7 @@ def main():
 
         cv2.imshow("Image", frame)
         cv2.waitKey(1)
-    
+
     end_time = time.time()
     average_fps = (video.get(cv2.CAP_PROP_FRAME_COUNT) - 1) / (end_time - start_time)
     print(f"Average FPS: {average_fps}")
