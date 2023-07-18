@@ -5,3 +5,4 @@
 .env/
 *.skv
 settings.json
+.idea/
