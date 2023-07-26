@@ -1,5 +1,9 @@
 # Acquired from https://github.com/quanhua92/human-pose-estimation-opencv
 
+# python openpose.py --input test_videos/1_walking_toward.mp4
+# python openpose.py --input "../Data/ExampleData/20190807T151230_001/Baseline 1/Recording_1.mp4"
+# python openpose.py --input "../Data/ExampleData/20190807T151230_001/Baseline 1/Recording_2.mp4"
+
 # To use Inference Engine backend, specify location of plugins:
 # export LD_LIBRARY_PATH=/opt/intel/deeplearning_deploymenttoolkit/deployment_tools/external/mklml_lnx/lib:$LD_LIBRARY_PATH
 import cv2 as cv
