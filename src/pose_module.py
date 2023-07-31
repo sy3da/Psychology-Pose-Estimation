@@ -157,19 +157,27 @@ class PoseLandmarker():
 def main():
     # Get the directory where the running script is located
     script_directory = os.path.dirname(os.path.realpath(__file__))
-    input_video = os.path.join(script_directory, "test_videos", "1_walking_toward.mp4")
+    # input_video = os.path.join(script_directory, "test_videos", "1_walking_toward.mp4")
     # input_video = os.path.join(script_directory, "test_videos", "6_two_people_walking_towards.mp4")
-    # input_video = os.path.join(os.path.dirname(script_directory), "Data", "ExampleData", "20190807T151230_001", "Baseline 1", "Recording_1.mp4")
+    input_video = os.path.join(os.path.dirname(script_directory), "Data", "ExampleData", "20190807T151230_001", "Baseline 1", "Recording_1.mp4")
     # input_video = os.path.join(os.path.dirname(script_directory), "Data", "ExampleData", "20190807T151230_001", "Baseline 1", "Recording_2.mp4")
     video = cv2.VideoCapture(input_video)
     if not video.isOpened():
         print("Error opening video file:", input_video)
         exit(1)
 
-    previous_time = 0
-    start_time = time.time()
+    # # Create VideoWriter object
+    # output_video_path = "1_walking_toward_grayscale.mp4"  # Change the filename and path as per your requirement
+    # fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec for the output video
+    # input_fps = video.get(cv2.CAP_PROP_FPS)  # Get the original FPS of the input video
+    # frame_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+    # frame_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    # video_writer = cv2.VideoWriter(output_video_path, fourcc, input_fps, (frame_width, frame_height))
 
     detector = PoseLandmarker()
+
+    previous_time = 0
+    start_time = time.time()
 
     # Loop through video frames
     while video.isOpened():
@@ -177,6 +185,12 @@ def main():
         ret, frame = video.read()
         if not ret:
             break
+
+        # # Convert frame to grayscale
+        # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        # # Stack grayscale frame three times along the channel axis to create a 3-channel grayscale frame
+        # frame = cv2.merge((frame, frame, frame))
 
         # Get pixel locations of all pose landmarks
         pose_detected, contains_invalid_landmarks, landmarks_pixels = detector.get_landmarks(image=frame, draw=True)
@@ -197,11 +211,17 @@ def main():
         cv2.imshow("Image", frame)
         cv2.waitKey(1)
 
+        # Write frame to the output video
+        # video_writer.write(frame)
+
     end_time = time.time()
     average_fps = (video.get(cv2.CAP_PROP_FRAME_COUNT) - 1) / (end_time - start_time)
     print(f"Average FPS: {average_fps}")
 
     video.release()
+
+    # Release the video writer
+    # video_writer.release()
 
 
 if __name__ == "__main__":
