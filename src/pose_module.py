@@ -61,6 +61,7 @@ class PoseLandmarker():
         Note:
             The input image should be in BGR format, as OpenCV loads images/videos in BGR format by default.
             The returned landmarks_pixels array contains the pixel coordinates (x, y) for each pose landmark.
+            If a landmark is not detected, its corresponding pixel coordinates will be (-1, -1).
 
         References:
             - Pose Landmarks Key: https://developers.google.com/static/mediapipe/images/solutions/pose_landmarks_index.png
