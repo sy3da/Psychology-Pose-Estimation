@@ -1,0 +1,3 @@
+This sample software has not yet been verified in terms of functionality and potential vulnerabilities.
+
+Quality is not guaranteed.
