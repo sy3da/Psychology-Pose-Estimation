@@ -177,17 +177,6 @@ class BinToCsv():
         filepath = os.path.join(self.input_dir, filename + '.bin')
         x_all, y_all, z_all, confidence_all = self._read_binary_file(filepath)
 
-        # # Get number of frames (columns) in this video clip
-        # # num_frames = np.size(gray_all, 1)
-        # num_frames = np.shape(confidence_all)[1]
-
-        # # Each array is currently (height*width, num_frames) = (480*640, num_frames) = (307200, num_frames)
-        # # Reshape to (height, width, num_frames) = (480, 640, num_frames)
-        # x_all = x_all.reshape([self.image_height, self.image_width, num_frames])
-        # y_all = y_all.reshape([self.image_height, self.image_width, num_frames])
-        # z_all = z_all.reshape([self.image_height, self.image_width, num_frames])
-        # confidence_all = confidence_all.reshape([self.image_height, self.image_width, num_frames])
-
         # Get number of frames in this video clip
         num_frames = np.shape(confidence_all)[2]
 
