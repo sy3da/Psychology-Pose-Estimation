@@ -8,3 +8,4 @@ settings.json
 .idea/
 __pycache__/
 *.pyc
+Data/skvs/example_skvs/
