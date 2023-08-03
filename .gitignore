@@ -4,6 +4,7 @@
 .Ruserdata
 .env/
 *.skv
+*.bin
 settings.json
 .idea/
 __pycache__/
