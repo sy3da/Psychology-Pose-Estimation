@@ -155,6 +155,14 @@ class BinToCsv():
         
         print("Hi")
 
+        # From Kinect output, we need:
+        # Hip_center
+        # Shoulder_center
+        # Use landmark 0 for head
+        # Try to map the rest to the best of my abilities
+
+        # Average 23 and 24 for Hip_Center
+
         return
     
     
