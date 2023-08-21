@@ -2,7 +2,7 @@
 <automotive_suite_params>
 	<iu456_camera>
 		<mode>0x2D01</mode>
-		<exposure_time>252</exposure_time>
+		<exposure_time>650</exposure_time>
 	</iu456_camera>
 	<skv_recorder>
 		<autosave_after_x_frames>600</autosave_after_x_frames>
