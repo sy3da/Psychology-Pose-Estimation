@@ -184,8 +184,26 @@ class BinToCsv():
         frame_confidence: np.ndarray,
         frame_grayscale_rgb: np.ndarray
     ) -> None:
+        """
+        Process the pose landmarks for a single frame.
+
+        Args:
+            landmarks_pixels: An (n, 2) array of landmark pixel coordinates.
+            frame_idx: The index of the current frame.
+            frame_x: An (n, d) array of x-coordinates.
+            frame_y: An (n, d) array of y-coordinates.
+            frame_z: An (n, d) array of z-coordinates.
+            frame_confidence: An (n, d) array of confidence values.
+            frame_grayscale_rgb: An (n, d, 3) array of RGB values.
+        """
         
-        print("Hi")
+        # Print x, y, and z values of landmark 11 (left shoulder)
+        landmark_11_coord_x, landmark_11_coord_y = landmarks_pixels[11]
+
+        # Use cv2 to put a blue 9x9 dot on the left shoulder
+        cv2.circle(frame_grayscale_rgb, (landmark_11_coord_x, landmark_11_coord_y), 4, (255, 0, 0), -1)
+
+        print(f"Left shoulder frame #{frame_idx}: ({frame_x[landmark_11_coord_x][landmark_11_coord_y]}, {frame_y[landmark_11_coord_x][landmark_11_coord_y]}, {frame_z[landmark_11_coord_x][landmark_11_coord_y]})")
 
         # From Kinect output, we need:
         # Hip_center
