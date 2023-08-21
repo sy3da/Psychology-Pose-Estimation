@@ -56,6 +56,36 @@ class BinToCsv():
 
         return filelist
     
+    def _delete_trailing_black_frames(self, x_all: np.ndarray, y_all: np.ndarray, z_all: np.ndarray, confidence_all: np.ndarray):
+        """
+        Delete trailing black frames from x_all, y_all, z_all, and confidence_all
+
+        Args:
+            x_all (np.ndarray): (n,d) array of x-coordinates with shape = (height, width, num_frames) = (480, 640, num_frames)
+            y_all (np.ndarray): (n,d) array of y-coordinates with shape = (height, width, num_frames) = (480, 640, num_frames)
+            z_all (np.ndarray): (n,d) array of z-coordinates with shape = (height, width, num_frames) = (480, 640, num_frames)
+            confidence_all (np.ndarray): (n,d) array of confidence values with shape = (height, width, num_frames) = (480, 640, num_frames)
+        """
+        # Find the index of the last non-black frame
+        last_non_black_index = None
+
+        for frame_idx in range(confidence_all.shape[2] - 1, -1, -1):
+            if not np.all(confidence_all[:, :, frame_idx] == 0):
+                last_non_black_index = frame_idx
+                break
+        
+        if last_non_black_index is None:
+            # All frames are black, return empty arrays
+            return np.array([]), np.array([]), np.array([]), np.array([])
+        
+        # Delete trailing black frames
+        x_all = x_all[:, :, :last_non_black_index+1]
+        y_all = y_all[:, :, :last_non_black_index+1]
+        z_all = z_all[:, :, :last_non_black_index+1]
+        confidence_all = confidence_all[:, :, :last_non_black_index+1]
+
+        return x_all, y_all, z_all, confidence_all
+    
     def _read_binary_file(self, filepath: str) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Read a binary file containing x, y, z coordinates, and confidence values.
@@ -98,6 +128,8 @@ class BinToCsv():
         y_all = y_all.reshape([self.image_height, self.image_width, num_frames])
         z_all = z_all.reshape([self.image_height, self.image_width, num_frames])
         confidence_all = confidence_all.reshape([self.image_height, self.image_width, num_frames])
+
+        x_all, y_all, z_all, confidence_all = self._delete_trailing_black_frames(x_all, y_all, z_all, confidence_all)
 
         return x_all, y_all, z_all, confidence_all
     
