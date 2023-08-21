@@ -114,32 +114,32 @@ class BinToCsv():
             An (n, d) grayscale image containing grayscale intensity values in the range [0, 255].
         """
 
-        # brightness_scaling_factor = 4
+        brightness_scaling_factor = 4
         
-        # grayscale_img = confidence_array.astype(float)
-        # grayscale_img = grayscale_img * brightness_scaling_factor
-        # grayscale_img[np.where(grayscale_img > 255)] = 255
-        # grayscale_img = grayscale_img.astype('uint8')
+        grayscale_img = confidence_array.astype(float)
+        grayscale_img = grayscale_img * brightness_scaling_factor
+        grayscale_img[np.where(grayscale_img > 255)] = 255
+        grayscale_img = grayscale_img.astype('uint8')
 
-        # return grayscale_img
+        return grayscale_img
 
         # This is a new implementation that I believe should be more resilient to
         # changes in the lighting conditions of the scene.
 
-        # Normalize the confidence values to the range [0, 1]
-        min_val = np.min(confidence_array)
-        max_val = np.max(confidence_array)
-        difference = max_val - min_val
+        # # Normalize the confidence values to the range [0, 1]
+        # min_val = np.min(confidence_array)
+        # max_val = np.max(confidence_array)
+        # difference = max_val - min_val
 
-        if difference != 0:
-            normalized_data = (confidence_array - min_val) / difference
+        # if difference != 0:
+        #     normalized_data = (confidence_array - min_val) / difference
 
-            # Map the normalized data to the range [0, 255]
-            grayscale_image = (normalized_data * 255).astype(np.uint8)
+        #     # Map the normalized data to the range [0, 255]
+        #     grayscale_image = (normalized_data * 255).astype(np.uint8)
 
-            return grayscale_image
-        else:
-            return np.zeros(confidence_array.shape, dtype=np.uint8)
+        #     return grayscale_image
+        # else:
+        #     return np.zeros(confidence_array.shape, dtype=np.uint8)
     
 
     def _process_pose_landmarks(
