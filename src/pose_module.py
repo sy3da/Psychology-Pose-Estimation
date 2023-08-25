@@ -75,8 +75,8 @@ class PoseLandmarker():
 
         results = self.pose.process(image_rgb)
 
-        # landmarks_pixels is an array of shape (33, 2) with x, y coordinates (as pixels) for each landmark
-        landmarks_pixels = np.zeros((33, 2), dtype="int")
+        # landmarks_pixels is an array of shape (36, 2) with x, y coordinates (as pixels) for each landmark
+        landmarks_pixels = np.zeros((36, 2), dtype="int")
 
         pose_detected = False
         contains_invalid_landmarks = False
@@ -110,7 +110,99 @@ class PoseLandmarker():
                 # Store pixel coordinates in array
                 landmarks_pixels[id] = (x, y)
 
+            # Add shoulder_center landmark
+            landmarks_pixels = self._add_landmark_shoulder_center(landmarks_pixels, image, draw)
+
+            # Add hip_center landmark
+            landmarks_pixels = self._add_landmark_hip_center(landmarks_pixels, image, draw)
+
+            # Draw line between shoulder_center and hip_center landmarks
+            if draw:
+                image = self._draw_line_between_shoulder_center_and_hip_center(landmarks_pixels, image)
+
+            # Add spine landmark
+            landmarks_pixels = self._add_landmark_spine(landmarks_pixels, image, draw)
+
         return pose_detected, contains_invalid_landmarks, landmarks_pixels
+    
+    
+    def _add_landmark_shoulder_center(self, landmarks_pixels: np.ndarray, image: np.ndarray, draw: bool) -> np.ndarray:
+        # Verify that landmarks 11 and 12 are not invalid
+        if np.all(landmarks_pixels[11] == [-1, -1]) or np.all(landmarks_pixels[12] == [-1, -1]):
+            # Left and right shoulder landmarks are invalid, so shoulder_center landmark is invalid
+            # TODO: Maybe try to create shoulder_center landmark by using some other available landmarks
+            landmarks_pixels[33] = (-1, -1)
+
+            return landmarks_pixels
+        
+        # Left and right shoulder landmarks are valid
+        
+        # Create shoulder_center landmark by averaging the left and right shoulder landmarks
+        landmarks_pixels[33] = (int((landmarks_pixels[11][0] + landmarks_pixels[12][0]) / 2),
+                                int((landmarks_pixels[11][1] + landmarks_pixels[12][1]) / 2))
+        
+        if draw:
+            # Overlay orange dot on shoulder_center landmark to verify pixel coordinates
+            cv2.circle(image, landmarks_pixels[33], 5, (0, 165, 255), cv2.FILLED)
+        
+        return landmarks_pixels
+    
+
+    def _add_landmark_hip_center(self, landmarks_pixels: np.ndarray, image: np.ndarray, draw: bool) -> np.ndarray:
+        # Verify that landmarks 23 and 24 are not invalid
+        if np.all(landmarks_pixels[23] == (-1, -1)) or np.all(landmarks_pixels[24] == (-1, -1)):
+            # Left and right hip landmarks are invalid, so hip_center landmark is invalid
+            landmarks_pixels[34] = (-1, -1)
+
+            return landmarks_pixels
+        
+        # Left and right hip landmarks are valid
+        
+        # Create hip_center landmark by averaging the left and right hip landmarks
+        landmarks_pixels[34] = (int((landmarks_pixels[23][0] + landmarks_pixels[24][0]) / 2),
+                                int((landmarks_pixels[23][1] + landmarks_pixels[24][1]) / 2))
+        
+        if draw:
+            # Overlay green dot on hip_center landmark to verify pixel coordinates
+            cv2.circle(image, landmarks_pixels[34], 5, (0, 255, 0), cv2.FILLED)
+
+        return landmarks_pixels
+    
+
+    def _draw_line_between_shoulder_center_and_hip_center(self, landmarks_pixels: np.ndarray, image: np.ndarray) -> np.ndarray:
+        # Verify that landmarks 33 and 34 are not invalid
+        if np.all(landmarks_pixels[33] == (-1, -1)) or np.all(landmarks_pixels[34] == (-1, -1)):
+            # shoulder_center and hip_center landmarks are invalid, so don't draw line
+            return image
+        
+        # shoulder_center and hip_center landmarks are valid
+
+        # Draw line between shoulder_center and hip_center landmarks
+        cv2.line(image, landmarks_pixels[33], landmarks_pixels[34], (255, 0, 255), 2)
+        
+        return image
+    
+
+    def _add_landmark_spine(self, landmarks_pixels: np.ndarray, image: np.ndarray, draw: bool) -> np.ndarray:
+        # Verify that landmarks 33 and 34 are not invalid
+        if np.all(landmarks_pixels[33] == (-1, -1)) or np.all(landmarks_pixels[34] == (-1, -1)):
+            # shoulder_center and hip_center landmarks are invalid, so spine landmark is invalid
+            landmarks_pixels[35] = (-1, -1)
+
+            return landmarks_pixels
+        
+        # shoulder_center and hip_center landmarks are valid
+
+        # Calculate the coordinates of "spine" landmark that is 2/3 of the way down from the "shoulder_center" to the "hip_center"
+        landmarks_pixels[35] = (int(landmarks_pixels[33][0] + (landmarks_pixels[34][0] - landmarks_pixels[33][0]) * 2 / 3),
+                                int(landmarks_pixels[33][1] + (landmarks_pixels[34][1] - landmarks_pixels[33][1]) * 2 / 3))
+        
+        if draw:
+            # Overlay red dot on spine landmark to verify pixel coordinates
+            cv2.circle(image, landmarks_pixels[35], 5, (0, 0, 255), cv2.FILLED)
+
+        return landmarks_pixels
+
     
     def _is_valid_normalized_value(self, normalized_value: float) -> bool:
         """
