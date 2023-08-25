@@ -40,6 +40,7 @@ class PoseLandmarker():
 
         return
 
+
     def get_landmarks(self, image: np.ndarray, draw: bool = False) -> Tuple[bool, bool, np.ndarray]:
         """
         Detect pose and return pose landmarks for the given image.
@@ -243,6 +244,7 @@ class PoseLandmarker():
         """
         return (normalized_value > 0 or math.isclose(0, normalized_value)) and (normalized_value < 1 or math.isclose(1, normalized_value))
     
+
     def _normalized_to_pixel_coordinates(self, normalized_x: float, normalized_y: float,
                                          image_width: int, image_height: int) -> Tuple[int, int]:
         """
