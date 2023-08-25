@@ -127,7 +127,7 @@ def skv_to_bin(skvs_dir: str):
     # Convert all .skv video files in skvs_dir into .bin files using imx520_sample.exe and save to bins_dir
 
     # Get absolute path to imx520_sample.exe
-    imx520_sample_exe_path = os.path.join(os.getcwd(), "src/skv_to_mat/r2_3/imx520_sample.exe")
+    imx520_sample_exe_path = os.path.join(os.getcwd(), "src/skv_to_mat/r2_3_1/imx520_sample.exe")
     
     # Run imx520_sample.exe
     # ./imx520_sample.exe -i ./skvs/ -o ./skvs/mat/ -d
