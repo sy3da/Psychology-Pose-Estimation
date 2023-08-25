@@ -198,12 +198,18 @@ class BinToCsv():
         """
         
         # Print x, y, and z values of landmark 11 (left shoulder)
-        landmark_11_coord_x, landmark_11_coord_y = landmarks_pixels[11]
+        landmark_11_pixel_coord_x, landmark_11_pixel_coord_y = landmarks_pixels[11]
 
-        # Use cv2 to put a blue 9x9 dot on the left shoulder
-        cv2.circle(frame_grayscale_rgb, (landmark_11_coord_x, landmark_11_coord_y), 4, (255, 0, 0), -1)
+        # Verify that the pixel coordinates are valid
+        # if landmark_11_pixel_coord_x < 0 or landmark_11_pixel_coord_x >= self.image_height or landmark_11_pixel_coord_y < 0 or landmark_11_pixel_coord_y >= self.image_width:
+        # Use cv2 to put a blue dot on the left shoulder
+        cv2.circle(frame_grayscale_rgb, (landmark_11_pixel_coord_x, landmark_11_pixel_coord_y), 4, (255, 0, 0), -1)
 
-        print(f"Left shoulder frame #{frame_idx}: ({frame_x[landmark_11_coord_x][landmark_11_coord_y]}, {frame_y[landmark_11_coord_x][landmark_11_coord_y]}, {frame_z[landmark_11_coord_x][landmark_11_coord_y]})")
+        landmark_11_x_value = frame_x[landmark_11_pixel_coord_x][landmark_11_pixel_coord_y]
+        landmark_11_y_value = frame_y[landmark_11_pixel_coord_x][landmark_11_pixel_coord_y]
+        landmark_11_z_value = frame_z[landmark_11_pixel_coord_x][landmark_11_pixel_coord_y]
+
+        print(f"Left shoulder frame #{frame_idx}: ({landmark_11_x_value}, {landmark_11_y_value}, {landmark_11_z_value})")
 
         # From Kinect output, we need:
         # Hip_center

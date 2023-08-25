@@ -173,7 +173,7 @@ def process_args() -> argparse.Namespace:
 
     # If no args are provided, set all 3 bools to True
     if not any(vars(args).values()):
-        args.skv_to_bin = True
+        args.skv_to_bin = False
         args.bin_to_csv = True
     
     return args
