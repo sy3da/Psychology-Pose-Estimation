@@ -127,8 +127,11 @@ class PoseLandmarker():
     
     
     def _add_landmark_shoulder_center(self, landmarks_pixels: np.ndarray, image: np.ndarray, draw: bool) -> np.ndarray:
+        # Get image dimensions
+        image_height, image_width, image_channels = image.shape
+
         # Verify that landmarks 11 and 12 are not invalid
-        if np.all(landmarks_pixels[11] == [-1, -1]) or np.all(landmarks_pixels[12] == [-1, -1]):
+        if not self._is_valid_pixel_coordinate(landmarks_pixels[11], image_width, image_height) or not self._is_valid_pixel_coordinate(landmarks_pixels[12], image_width, image_height):
             # Left and right shoulder landmarks are invalid, so shoulder_center landmark is invalid
             # TODO: Maybe try to create shoulder_center landmark by using some other available landmarks
             landmarks_pixels[33] = (-1, -1)
@@ -149,8 +152,11 @@ class PoseLandmarker():
     
 
     def _add_landmark_hip_center(self, landmarks_pixels: np.ndarray, image: np.ndarray, draw: bool) -> np.ndarray:
+        # Get image dimensions
+        image_height, image_width, image_channels = image.shape
+
         # Verify that landmarks 23 and 24 are not invalid
-        if np.all(landmarks_pixels[23] == (-1, -1)) or np.all(landmarks_pixels[24] == (-1, -1)):
+        if not self._is_valid_pixel_coordinate(landmarks_pixels[23], image_width, image_height) or not self._is_valid_pixel_coordinate(landmarks_pixels[24], image_width, image_height):
             # Left and right hip landmarks are invalid, so hip_center landmark is invalid
             landmarks_pixels[34] = (-1, -1)
 
@@ -170,8 +176,11 @@ class PoseLandmarker():
     
 
     def _draw_line_between_shoulder_center_and_hip_center(self, landmarks_pixels: np.ndarray, image: np.ndarray) -> np.ndarray:
+        # Get image dimensions
+        image_height, image_width, image_channels = image.shape
+
         # Verify that landmarks 33 and 34 are not invalid
-        if np.all(landmarks_pixels[33] == (-1, -1)) or np.all(landmarks_pixels[34] == (-1, -1)):
+        if not self._is_valid_pixel_coordinate(landmarks_pixels[33], image_width, image_height) or not self._is_valid_pixel_coordinate(landmarks_pixels[34], image_width, image_height):
             # shoulder_center and hip_center landmarks are invalid, so don't draw line
             return image
         
@@ -184,8 +193,11 @@ class PoseLandmarker():
     
 
     def _add_landmark_spine(self, landmarks_pixels: np.ndarray, image: np.ndarray, draw: bool) -> np.ndarray:
+        # Get image dimensions
+        image_height, image_width, image_channels = image.shape
+        
         # Verify that landmarks 33 and 34 are not invalid
-        if np.all(landmarks_pixels[33] == (-1, -1)) or np.all(landmarks_pixels[34] == (-1, -1)):
+        if not self._is_valid_pixel_coordinate(landmarks_pixels[33], image_width, image_height) or not self._is_valid_pixel_coordinate(landmarks_pixels[34], image_width, image_height):
             # shoulder_center and hip_center landmarks are invalid, so spine landmark is invalid
             landmarks_pixels[35] = (-1, -1)
 
@@ -202,7 +214,22 @@ class PoseLandmarker():
             cv2.circle(image, landmarks_pixels[35], 5, (0, 0, 255), cv2.FILLED)
 
         return landmarks_pixels
+    
 
+    def _is_valid_pixel_coordinate(self, xy: Tuple[int, int], image_width: int, image_height: int) -> bool:
+        """
+        Checks if a pixel coordinate is valid (i.e. within the image bounds).
+    
+        Args:
+            xy (Tuple[int, int]): The pixel coordinates (x, y) to be checked.
+            image_width (int): The width of the image in pixels.
+            image_height (int): The height of the image in pixels.
+        
+        Returns:
+            bool: True if the pixel coordinates are within the image bounds, False otherwise.
+        """
+        return (xy[0] >= 0 and xy[0] < image_width) and (xy[1] >= 0 and xy[1] < image_height)
+    
     
     def _is_valid_normalized_value(self, normalized_value: float) -> bool:
         """
