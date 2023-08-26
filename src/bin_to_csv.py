@@ -300,9 +300,7 @@ class BinToCsv():
                 previous_time = current_time
                 cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
 
-                # TODO: Overlay frame number in top right corner
-                # cv2.putText(frame_grayscale_rgb, f'Frame {frame_idx + 1}', (20, 120), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
-
+                # Overlay frame number in top right corner
                 text = f'{frame_idx + 1}'
                 text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 1, 2)[0]
                 text_x = frame_grayscale_rgb.shape[1] - text_size[0] - 20  # Position text at the top right corner
