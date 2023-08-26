@@ -3,6 +3,7 @@ import numpy as np
 import numpy.typing as npt
 import time
 import cv2
+from typing import Tuple
 
 from .pose_module import PoseLandmarker
 
@@ -173,6 +174,21 @@ class BinToCsv():
         # else:
         #     return np.zeros(confidence_array.shape, dtype=np.uint8)
     
+    
+    def _is_valid_pixel_coordinate(self, xy: Tuple[int, int], image_width: int, image_height: int) -> bool:
+        """
+        Checks if a pixel coordinate is valid (i.e. within the image bounds).
+    
+        Args:
+            xy (Tuple[int, int]): The pixel coordinates (x, y) to be checked.
+            image_width (int): The width of the image in pixels.
+            image_height (int): The height of the image in pixels.
+        
+        Returns:
+            bool: True if the pixel coordinates are within the image bounds, False otherwise.
+        """
+        return (xy[0] >= 0 and xy[0] < image_width) and (xy[1] >= 0 and xy[1] < image_height)
+    
 
     def _process_pose_landmarks(
         self,
@@ -201,9 +217,9 @@ class BinToCsv():
         landmark_11_pixel_coord_x, landmark_11_pixel_coord_y = landmarks_pixels[11]
 
         # Verify that the pixel coordinates are valid
-        # if landmark_11_pixel_coord_x < 0 or landmark_11_pixel_coord_x >= self.image_height or landmark_11_pixel_coord_y < 0 or landmark_11_pixel_coord_y >= self.image_width:
-        # Use cv2 to put a blue dot on the left shoulder
-        cv2.circle(frame_grayscale_rgb, (landmark_11_pixel_coord_x, landmark_11_pixel_coord_y), 4, (255, 0, 0), -1)
+        if self._is_valid_pixel_coordinate((landmark_11_pixel_coord_x, landmark_11_pixel_coord_y), self.image_width, self.image_height):
+            # Use cv2 to put a blue dot on the left shoulder
+            cv2.circle(frame_grayscale_rgb, (landmark_11_pixel_coord_x, landmark_11_pixel_coord_y), 4, (255, 0, 0), -1)
 
         landmark_11_x_value = frame_x[landmark_11_pixel_coord_x][landmark_11_pixel_coord_y]
         landmark_11_y_value = frame_y[landmark_11_pixel_coord_x][landmark_11_pixel_coord_y]
