@@ -257,7 +257,8 @@ class BinToCsv():
         frame_y: np.ndarray,
         frame_z: np.ndarray,
         frame_confidence: np.ndarray,
-        frame_grayscale_rgb: np.ndarray
+        frame_grayscale_rgb: np.ndarray,
+        filename: str
     ) -> None:
         """
         Process the pose landmarks for a single frame.
@@ -270,6 +271,7 @@ class BinToCsv():
             frame_z: An (n, d) array of z-coordinates.
             frame_confidence: An (n, d) array of confidence values.
             frame_grayscale_rgb: An (n, d, 3) array of RGB values.
+            filename: The name of the file being processed.
         """
         
         # Print x, y, and z values of landmark 11 (left shoulder)
@@ -348,7 +350,7 @@ class BinToCsv():
 
             if pose_detected:
                 # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
-                self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb)
+                self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
 
             if self.visualize_Pose:
                 # Calculate and overlay FPS
