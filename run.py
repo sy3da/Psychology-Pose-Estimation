@@ -150,7 +150,7 @@ def bin_to_csv(skvs_dir: str):
     bins_dir = os.path.join(skvs_dir, "bins")
 
     # Run pose estimation pipeline on all .bin files in bins_dir and save output to csvs_dir
-    myBinToCsv = BinToCsv(input_dir=bins_dir, output_filename="my_csv", visualize_Pose=True)
+    myBinToCsv = BinToCsv(input_dir=bins_dir, output_filename="pose_data", visualize_Pose=True)
     myBinToCsv.run()
 
     return
