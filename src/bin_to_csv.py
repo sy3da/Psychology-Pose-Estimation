@@ -41,7 +41,27 @@ class BinToCsv():
         self.output_csv_file = open(self.output_csv_filepath, 'w')
 
         # Write header row
-        self.output_csv_file.write('filename,frame_num,Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Spine_X,Spine_Y,Spine_Z,Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Head_X,Head_Y,Head_Z,Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Foot_Right_X,Foot_Right_Y,Foot_Right_Z\n')
+        self.output_csv_file.write('filename,frame_num,'
+                                   'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,'
+                                   'Spine_X,Spine_Y,Spine_Z,'
+                                   'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,'
+                                   'Head_X,Head_Y,Head_Z,'
+                                   'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,'
+                                   'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,'
+                                   'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,'
+                                   'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,'
+                                   'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,'
+                                   'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,'
+                                   'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,'
+                                   'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,'
+                                   'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,'
+                                   'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,'
+                                   'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,'
+                                   'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,'
+                                   'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,'
+                                   'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,'
+                                   'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,'
+                                   'Foot_Right_X,Foot_Right_Y,Foot_Right_Z\n')
 
         # Set flag to indicate whether or not the class has been cleaned up
         # (either manually or automatically if the destructor was called by the garbage
