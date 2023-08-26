@@ -77,7 +77,8 @@ class PoseLandmarker():
         results = self.pose.process(image_rgb)
 
         # landmarks_pixels is an array of shape (36, 2) with x, y coordinates (as pixels) for each landmark
-        landmarks_pixels = np.zeros((36, 2), dtype="int")
+        # Initialize array with (-2, -2) for each landmark to indicate that the landmark has not been detected
+        landmarks_pixels = np.full((36, 2), -2, dtype="int")
 
         pose_detected = False
         contains_invalid_landmarks = False
