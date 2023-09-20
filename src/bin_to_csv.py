@@ -13,7 +13,7 @@ class BinToCsv():
     BinToCsv is a class that takes .bin files as input, runs them through the pose estimation pipeline,
     and saves the output to a .csv file.
     """
-    def __init__(self, input_dir: str, output_filename: str, image_width: int = 640, image_height: int = 480, visualize_Pose: bool = False):
+    def __init__(self, input_dir: str, output_filename_left: str, output_filename_right: str, image_width: int = 640, image_height: int = 480, visualize_Pose: bool = False):
         """
         Initialize BinToCsv object
 
@@ -27,7 +27,8 @@ class BinToCsv():
         self.input_dir = input_dir
 
         # Name of output .csv file
-        self.output_filename = output_filename
+        self.output_filename_left = output_filename_left
+        self.output_filename_right = output_filename_right
 
         # Define image width and height
         self.image_width = image_width
@@ -37,11 +38,13 @@ class BinToCsv():
         self.visualize_Pose = visualize_Pose
 
         # Create output csv file (overwrite if it already exists)
-        self.output_csv_filepath = os.path.join(self.input_dir, self.output_filename + '.csv')
-        self.output_csv_file = open(self.output_csv_filepath, 'w')
+        self.output_csv_filepath_left = os.path.join(self.input_dir, self.output_filename_left + '.csv')
+        self.output_csv_file_left = open(self.output_csv_filepath_left, 'w')
 
+        self.output_csv_filepath_right = os.path.join(self.input_dir, self.output_filename_right + '.csv')
+        self.output_csv_file_right = open(self.output_csv_filepath_right, 'w')
         # Write header row
-        self.output_csv_file.write('filename,frame_num,'
+        self.output_csv_file_right.write('filename,frame_num,'
                                    'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,'
                                    'Spine_X,Spine_Y,Spine_Z,'
                                    'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,'
@@ -92,7 +95,8 @@ class BinToCsv():
         """
         if not self.cleaned_up:
             # Close the output csv file
-            self.output_csv_file.close()
+            self.output_csv_file_left.close()
+            self.output_csv_file_right.close()
 
             self.cleaned_up = True
     
@@ -258,7 +262,8 @@ class BinToCsv():
         frame_z: np.ndarray,
         frame_confidence: np.ndarray,
         frame_grayscale_rgb: np.ndarray,
-        filename: str
+        filename: str,
+        side: str
     ) -> None:
         """
         Process the pose landmarks for a single frame.
@@ -316,9 +321,6 @@ class BinToCsv():
             xyz_values[landmark_idx][1] = frame_y[landmark_pixel_coord_x][landmark_pixel_coord_y]
             xyz_values[landmark_idx][2] = frame_z[landmark_pixel_coord_x][landmark_pixel_coord_y]
 
-        # Write the filename and frame_num to a new row in the output csv file
-        self.output_csv_file.write(f"{filename},{frame_idx},")
-
         # Landmarks of interest: (landmark_num: 'landmark_name_X,landmark_name_Y,landmark_name_Z,')
         # 34: 'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,'
         # 35: 'Spine_X,Spine_Y,Spine_Z,'
@@ -340,29 +342,57 @@ class BinToCsv():
         # 25: 'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,'
         # 27: 'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,'
         # 31: 'Foot_Right_X,Foot_Right_Y,Foot_Right_Z\n'
+        if side == 'left':
+            # Write the filename and frame_num to a new row in the output csv file
+            self.output_csv_file_left.write(f"{filename},{frame_idx},")
 
-        # Write the x, y, and z values for the landmarks of interest to the output csv file
-        self.output_csv_file.write(f"{xyz_values[34][0]},{xyz_values[34][1]},{xyz_values[34][2]},")
-        self.output_csv_file.write(f"{xyz_values[35][0]},{xyz_values[35][1]},{xyz_values[35][2]},")
-        self.output_csv_file.write(f"{xyz_values[33][0]},{xyz_values[33][1]},{xyz_values[33][2]},")
-        self.output_csv_file.write(f"{xyz_values[0][0]},{xyz_values[0][1]},{xyz_values[0][2]},")
-        self.output_csv_file.write(f"{xyz_values[12][0]},{xyz_values[12][1]},{xyz_values[12][2]},")
-        self.output_csv_file.write(f"{xyz_values[14][0]},{xyz_values[14][1]},{xyz_values[14][2]},")
-        self.output_csv_file.write(f"{xyz_values[16][0]},{xyz_values[16][1]},{xyz_values[16][2]},")
-        self.output_csv_file.write(f"{xyz_values[20][0]},{xyz_values[20][1]},{xyz_values[20][2]},")
-        self.output_csv_file.write(f"{xyz_values[11][0]},{xyz_values[11][1]},{xyz_values[11][2]},")
-        self.output_csv_file.write(f"{xyz_values[13][0]},{xyz_values[13][1]},{xyz_values[13][2]},")
-        self.output_csv_file.write(f"{xyz_values[15][0]},{xyz_values[15][1]},{xyz_values[15][2]},")
-        self.output_csv_file.write(f"{xyz_values[19][0]},{xyz_values[19][1]},{xyz_values[19][2]},")
-        self.output_csv_file.write(f"{xyz_values[24][0]},{xyz_values[24][1]},{xyz_values[24][2]},")
-        self.output_csv_file.write(f"{xyz_values[26][0]},{xyz_values[26][1]},{xyz_values[26][2]},")
-        self.output_csv_file.write(f"{xyz_values[28][0]},{xyz_values[28][1]},{xyz_values[28][2]},")
-        self.output_csv_file.write(f"{xyz_values[32][0]},{xyz_values[32][1]},{xyz_values[32][2]},")
-        self.output_csv_file.write(f"{xyz_values[23][0]},{xyz_values[23][1]},{xyz_values[23][2]},")
-        self.output_csv_file.write(f"{xyz_values[25][0]},{xyz_values[25][1]},{xyz_values[25][2]},")
-        self.output_csv_file.write(f"{xyz_values[27][0]},{xyz_values[27][1]},{xyz_values[27][2]},")
-        self.output_csv_file.write(f"{xyz_values[31][0]},{xyz_values[31][1]},{xyz_values[31][2]}\n")
+            # Write the x, y, and z values for the landmarks of interest to the output csv file
+            self.output_csv_file_left.write(f"{xyz_values[34][0]},{xyz_values[34][1]},{xyz_values[34][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[35][0]},{xyz_values[35][1]},{xyz_values[35][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[33][0]},{xyz_values[33][1]},{xyz_values[33][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[0][0]},{xyz_values[0][1]},{xyz_values[0][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[12][0]},{xyz_values[12][1]},{xyz_values[12][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[14][0]},{xyz_values[14][1]},{xyz_values[14][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[16][0]},{xyz_values[16][1]},{xyz_values[16][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[20][0]},{xyz_values[20][1]},{xyz_values[20][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[11][0]},{xyz_values[11][1]},{xyz_values[11][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[13][0]},{xyz_values[13][1]},{xyz_values[13][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[15][0]},{xyz_values[15][1]},{xyz_values[15][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[19][0]},{xyz_values[19][1]},{xyz_values[19][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[24][0]},{xyz_values[24][1]},{xyz_values[24][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[26][0]},{xyz_values[26][1]},{xyz_values[26][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[28][0]},{xyz_values[28][1]},{xyz_values[28][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[32][0]},{xyz_values[32][1]},{xyz_values[32][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[23][0]},{xyz_values[23][1]},{xyz_values[23][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[25][0]},{xyz_values[25][1]},{xyz_values[25][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[27][0]},{xyz_values[27][1]},{xyz_values[27][2]},")
+            self.output_csv_file_left.write(f"{xyz_values[31][0]},{xyz_values[31][1]},{xyz_values[31][2]}\n")
 
+        elif side == 'right':
+            # Write the filename and frame_num to a new row in the output csv file
+            self.output_csv_file_right.write(f"{filename},{frame_idx},")
+
+            # Write the x, y, and z values for the landmarks of interest to the output csv file
+            self.output_csv_file_right.write(f"{xyz_values[34][0]},{xyz_values[34][1]},{xyz_values[34][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[35][0]},{xyz_values[35][1]},{xyz_values[35][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[33][0]},{xyz_values[33][1]},{xyz_values[33][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[0][0]},{xyz_values[0][1]},{xyz_values[0][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[12][0]},{xyz_values[12][1]},{xyz_values[12][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[14][0]},{xyz_values[14][1]},{xyz_values[14][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[16][0]},{xyz_values[16][1]},{xyz_values[16][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[20][0]},{xyz_values[20][1]},{xyz_values[20][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[11][0]},{xyz_values[11][1]},{xyz_values[11][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[13][0]},{xyz_values[13][1]},{xyz_values[13][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[15][0]},{xyz_values[15][1]},{xyz_values[15][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[19][0]},{xyz_values[19][1]},{xyz_values[19][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[24][0]},{xyz_values[24][1]},{xyz_values[24][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[26][0]},{xyz_values[26][1]},{xyz_values[26][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[28][0]},{xyz_values[28][1]},{xyz_values[28][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[32][0]},{xyz_values[32][1]},{xyz_values[32][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[23][0]},{xyz_values[23][1]},{xyz_values[23][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[25][0]},{xyz_values[25][1]},{xyz_values[25][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[27][0]},{xyz_values[27][1]},{xyz_values[27][2]},")
+            self.output_csv_file_right.write(f"{xyz_values[31][0]},{xyz_values[31][1]},{xyz_values[31][2]}\n")
         return
     
     
@@ -410,16 +440,22 @@ class BinToCsv():
 
             # Convert grayscale image to "RGB" (n,d,3)
             frame_grayscale_rgb = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
-
+            left_frame_grayscale_rgb = np.zeros_like(frame_grayscale_rgb)
+            left_frame_grayscale_rgb[:, 0:320, :] = frame_grayscale_rgb[:, 0:320, :]
+            right_frame_grayscale_rgb = np.zeros_like(frame_grayscale_rgb)
+            right_frame_grayscale_rgb[:, 320:640, :] = frame_grayscale_rgb[:, 320:640, :]
+          
             # Get pixel locations of all pose landmarks
             # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
-            pose_detected, contains_invalid_landmarks, landmarks_pixels = pose_detector.get_landmarks(image=frame_grayscale_rgb, draw=self.visualize_Pose)
-
+            left_pose_detected, left_contains_invalid_landmarks, left_landmarks_pixels = pose_detector.get_landmarks(image=left_frame_grayscale_rgb, draw=self.visualize_Pose)
+            right_pose_detected, right_contains_invalid_landmarks, right_landmarks_pixels = pose_detector.get_landmarks(image=right_frame_grayscale_rgb, draw=self.visualize_Pose)
+            
             # if pose_detected:
             #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
             #     self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
             
-            self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
+            self._process_pose_landmarks(left_landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename, 'left')
+            self._process_pose_landmarks(right_landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename, 'right')
 
             if self.visualize_Pose:
                 # Calculate and overlay FPS
@@ -480,7 +516,7 @@ def main():
     bins_dir = os.path.join(skvs_dir, "bins")
 
     # Run pose estimation pipeline on all .bin files in bins_dir and save output to csvs_dir
-    myBinToCsv = BinToCsv(input_dir=bins_dir, output_filename="pose_data", visualize_Pose=True)
+    myBinToCsv = BinToCsv(input_dir=bins_dir, output_filename_left="pose_data_left", output_filename_right="pose_data_right", visualize_Pose=True)
     myBinToCsv.run()
 
     return
