@@ -10,3 +10,5 @@ settings.json
 __pycache__/
 *.pyc
 Data/skvs/example_skvs/
+*.csv
+poseEnv
