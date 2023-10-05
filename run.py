@@ -135,7 +135,7 @@ def skv_to_bin(skvs_dir: str):
 
     return
 
-def bin_to_csv(skvs_dir: str):
+def bin_to_csv(skvs_dir: str, visualize):
     """
     Take all .bin files in bins_dir, run through pose estimation pipeline, and save output to csvs_dir
 
@@ -150,7 +150,7 @@ def bin_to_csv(skvs_dir: str):
     bins_dir = os.path.join(skvs_dir, "bins")
 
     # Run pose estimation pipeline on all .bin files in bins_dir and save output to csvs_dir
-    myBinToCsv = BinToCsv(input_dir=bins_dir, output_filename="pose_data", visualize_Pose=True)
+    myBinToCsv = BinToCsv(input_dir=bins_dir, output_filename="pose_data", visualize_Pose=visualize)
     myBinToCsv.run()
 
     return
@@ -200,7 +200,7 @@ if __name__ == '__main__':
     
     if args.bin_to_csv:
         start_time = time.time()
-        bin_to_csv(skvs_dir)
+        bin_to_csv(skvs_dir, visualize=True)
         end_time = time.time()
         print("bin_to_csv() took " + str(end_time - start_time) + " seconds to run")
 

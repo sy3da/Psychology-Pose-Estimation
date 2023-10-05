@@ -1,0 +1,60 @@
+cmake_minimum_required(VERSION 3.3)
+project(vitalslib_lib)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/_output/${CMAKE_SYSTEM_NAME})
+
+
+# -----------------------------------------------------------------------------
+# Dependencies
+# -----------------------------------------------------------------------------
+
+# Build system
+set(deps_dir ${CMAKE_CURRENT_SOURCE_DIR}/deps)
+
+
+set(CMAKE_MODULE_PATH
+	${CMAKE_MODULE_PATH}
+	${build_system_dir}/SKCMakeUtils/Utils
+)
+
+# Custom dependencies
+
+
+## ----------------------------------------------------------------------------
+## Package Config
+## ----------------------------------------------------------------------------
+set(ZIP_EXECUTABLE ${deps_dir}/7zip/bin/win32/7z.exe)
+set(directory_to_zip "${CMAKE_CURRENT_BINARY_DIR}/vitalslib_sample")
+
+set(vitalslib_version_file vitalslib_lib/version.h)
+file(STRINGS ${vitalslib_version_file} vitalslib_version_component_defines    # (1)
+	REGEX "^#define.*vitalslib_LIBRARY_VERSION.*$")
+
+set(vitalslib_version_components "")
+foreach(component ${vitalslib_version_component_defines})
+  separate_arguments(component)                                         # (2a)
+  list(GET component 2 parsed_version_component)                        # (2b)
+  list(APPEND vitalslib_version_components ${parsed_version_component})    # (2c)
+endforeach()
+
+list(GET vitalslib_version_components 0 vitalslib_VERSION_MAJOR)              # (3)
+list(GET vitalslib_version_components 1 vitalslib_VERSION_MINOR)
+list(GET vitalslib_version_components 2 vitalslib_VERSION_PATCH)
+list(GET vitalslib_version_components 3 vitalslib_VERSION_EXTRA)
+
+# remove quotes
+string(REPLACE "\"" "" vitalslib_VERSION_EXTRA ${vitalslib_VERSION_EXTRA})    # (4)
+
+
+# -----------------------------------------------------------------------------
+# Subprojects
+# -----------------------------------------------------------------------------
+add_subdirectory(vitalslib_lib)
+add_subdirectory(samples/vitalslib_sample)
+add_subdirectory(tests)
+
+# ----------------------------------------------------------------------------
+# Install
+# ----------------------------------------------------------------------------
+set(CMAKE_INSTALL_PREFIX ../dist)
+

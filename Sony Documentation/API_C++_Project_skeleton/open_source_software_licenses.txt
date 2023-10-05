@@ -1,0 +1,5 @@
+[Product Name] is released under the [Name of license]
+[Sources used in this product can be found: <link to commit>] # if the license ask for source publication (typically LGPL v2.1)
+-------------------------------------------------------------------------------
+[Text of the license]
+-------------------------------------------------------------------------------
