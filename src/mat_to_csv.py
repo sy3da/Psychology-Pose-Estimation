@@ -137,28 +137,6 @@ class MatToCsv():
         intensity_all = mat_file['I_values']
 
         return depth_all, intensity_all
-
-
-    def _convert_camera_intensity_to_grayscale(self, intensity_array: npt.NDArray[np.int16]) -> np.ndarray:
-        """
-        Convert the input intensity array to grayscale and scale down the brightness to help
-        with face detection.
-
-        Args:
-            intensity_array: An (n, d) intensity image in the format outputted by the SVGA iToF camera.
-
-        Returns:
-            An (n, d) grayscale image containing grayscale intensity values in the range [0, 255].
-        """
-
-        brightness_scaling_factor = 4
-        
-        grayscale_img = intensity_array.astype(float)
-        grayscale_img = grayscale_img * brightness_scaling_factor
-        grayscale_img[np.where(grayscale_img > 255)] = 255
-        grayscale_img = grayscale_img.astype('uint8')
-
-        return grayscale_img
     
 
     def convert_depth_to_xyz(self, depths, landmark_pixel_x, landmark_pixel_y, image_w, image_h, fov) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -342,8 +320,8 @@ class MatToCsv():
 
             # Track face and extract intensity and depth for all ROIs in this frame
 
-            # Convert the frame's confidence values to a grayscale image (n,d)
-            frame_grayscale = self._convert_camera_intensity_to_grayscale(frame_intensity)
+            # Don't need to convert because Thanos gives intensity values already
+            frame_grayscale = frame_intensity
 
             # # To improve performance, optionally mark the image as not writeable to
             # # pass by reference.
