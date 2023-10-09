@@ -207,7 +207,6 @@ class MatToCsv():
         return x_landmark,y_landmark,z_landmark
 
 
-
     def _process_pose_landmarks(
         self,
         landmarks_pixels: np.ndarray,
@@ -309,7 +308,6 @@ class MatToCsv():
 
         return
     
-
 
     def _process_file(self, file_num: int, num_files_to_process: int, filename: str, pose_detector: PoseLandmarker) -> None:
         """
@@ -431,5 +429,3 @@ def main():
 if __name__ == "__main__":
     main()
         
-
-
