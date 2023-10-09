@@ -1,3 +1,13 @@
 numpy
 mediapipe
 opencv-python
+regex
+pillow
+tqdm
+glob2
+seaborn
+matplotlib
+scipy
+typing-extensions
+gekko
+opencv
