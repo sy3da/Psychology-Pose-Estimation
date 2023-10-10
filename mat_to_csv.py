@@ -5,9 +5,9 @@ import time
 import cv2
 from typing import Tuple
 from scipy.io import loadmat
-from gekko import GEKKO
+#from gekko import GEKKO
 
-from .pose_module import PoseLandmarker
+from pose_module import PoseLandmarker
 
 class MatToCsv():
     """
@@ -15,7 +15,7 @@ class MatToCsv():
     converts depth to x,y,z, and outputs them to a csv file
     """
 
-    def __init__(self, input_dir: str, output_filename: str, image_width: int = 804, image_height: int = 600, image_fov: int = 77, visualize_Pose: bool = False):
+    def __init__(self, input_dir: str, output_filename: str, image_width: int = 600, image_height: int = 804, image_fov: int = 77, visualize_Pose: bool = False):
         """
         Initialize MatToCsv object
 
@@ -25,7 +25,7 @@ class MatToCsv():
             visualize_Pose (bool): whether or not to visualize pose skeleton.
         """
 
-        # Directory containing input .bin files
+        # Directory containing input .mat files
         self.input_dir = input_dir
 
         # Name of output .csv file
@@ -34,7 +34,7 @@ class MatToCsv():
         # Define image width and height
         self.image_width = image_width
         self.image_height = image_height
-
+        self.image_fov = image_fov
         # Whether or not to visualize pose skeleton
         self.visualize_Pose = visualize_Pose
 
@@ -44,26 +44,26 @@ class MatToCsv():
 
         # Write header row
         self.output_csv_file.write('filename,frame_num,'
-                                    'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,'
-                                    'Spine_X,Spine_Y,Spine_Z,'
-                                    'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,'
-                                    'Head_X,Head_Y,Head_Z,'
-                                    'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,'
-                                    'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,'
-                                    'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,'
-                                    'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,'
-                                    'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,'
-                                    'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,'
-                                    'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,'
-                                    'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,'
-                                    'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,'
-                                    'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,'
-                                    'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,'
-                                    'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,'
-                                    'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,'
-                                    'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,'
-                                    'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,'
-                                    'Foot_Left_X,Foot_Left_Y,Foot_Left_Z\n')
+                                    'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_RawX,Hip_Center_RawY,'
+                                    'Spine_X,Spine_Y,Spine_Z,Spine_RawX,Spine_RawY,'
+                                    'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_RawX,Shoulder_Center_RawY,'
+                                    'Head_X,Head_Y,Head_Z,Head_RawX,Head_RawY,'
+                                    'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_RawX,Shoulder_Right_RawY,'
+                                    'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_RawX,Elbow_Right_RawY,'
+                                    'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_RawX,Wrist_Right_RawY,'
+                                    'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_RawX,Hand_Right_RawY,'
+                                    'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_RawX,Shoulder_Left_RawY,'
+                                    'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_RawX,Elbow_Left_RawY,'
+                                    'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_RawX,Wrist_Left_RawY,'
+                                    'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_RawX,Hand_Left_RawY,'
+                                    'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_RawX,Hip_Right_RawY,'
+                                    'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_RawX,Knee_Right_RawY,'
+                                    'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_RawX,Ankle_Right_RawY,'
+                                    'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_RawX,Foot_Right_RawY,'
+                                    'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_RawX,Hip_Left_RawY,'
+                                    'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_RawX,Knee_Left_RawY,'
+                                    'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_RawX,Ankle_Left_RawY,'
+                                    'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_RawX,Foot_Left_RawY\n')
 
         # Set flag to indicate whether or not the class has been cleaned up
         # (either manually or automatically if the destructor was called by the garbage
@@ -138,6 +138,42 @@ class MatToCsv():
 
         return depth_all, intensity_all
     
+    def _convert_camera_intensity_to_grayscale(self, intensity_array: npt.NDArray[np.int16]) -> np.ndarray:
+        """
+        Convert the input intensity array to grayscale and scale down the brightness to help
+        with face detection.
+
+        Args:
+            intensity_array: An (n, d) intensity image in the format outputted by the Thanos camera.
+
+        Returns:
+            An (n, d) grayscale image containing grayscale intensity values in the range [0, 255].
+        """
+
+        brightness_scaling_factor = 4
+        
+        grayscale_img = intensity_array.astype(float)
+        grayscale_img = grayscale_img * brightness_scaling_factor
+        grayscale_img[np.where(grayscale_img > 255)] = 255
+        grayscale_img = grayscale_img.astype('uint8')
+
+        return grayscale_img
+
+    
+    def _is_valid_pixel_coordinate(self, xy: Tuple[int, int], image_width: int, image_height: int) -> bool:
+        """
+        Checks if a pixel coordinate is valid (i.e. within the image bounds).
+    
+        Args:
+            xy (Tuple[int, int]): The pixel coordinates (x, y) to be checked.
+            image_width (int): The width of the image in pixels.
+            image_height (int): The height of the image in pixels.
+        
+        Returns:
+            bool: True if the pixel coordinates are within the image bounds, False otherwise.
+        """
+        return (xy[0] >= 0 and xy[0] < image_width) and (xy[1] >= 0 and xy[1] < image_height)
+    
 
     def convert_depth_to_xyz(self, depths, landmark_pixel_x, landmark_pixel_y, image_w, image_h, fov) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
@@ -165,13 +201,16 @@ class MatToCsv():
         """
 
         # Solve system of equations to find horizontal and vertical FOV angles
-        m = GEKKO()
-        v_angle,h_angle = [m.Var(1) for i in range(2)]
-        m.Equations([v_angle**2+h_angle**2==(fov**2),\
-            h_angle/v_angle==image_w/image_h])
-        m.solve(disp=False)
-        image_w_angle = h_angle.value
-        image_h_angle = v_angle.value
+        # m = GEKKO()
+        # v_angle,h_angle = [m.Var(1) for i in range(2)]
+        # m.Equations([v_angle**2+h_angle**2==(fov**2),\
+        #     h_angle/v_angle==image_w/image_h])
+        # m.solve(disp=False)
+        # image_w_angle = h_angle.value
+        # image_h_angle = v_angle.value
+
+        image_w_angle = 5159/np.sqrt(6989)
+        image_h_angle = 3850/np.sqrt(6989)
 
         # Find theta, phi, and the depth at that landmark pixel
         land_depth = depths[landmark_pixel_y][landmark_pixel_x]
@@ -234,6 +273,8 @@ class MatToCsv():
             xyz_values[landmark_idx][0] = x_value
             xyz_values[landmark_idx][1] = y_value
             xyz_values[landmark_idx][2] = z_value
+            xyz_values[landmark_idx][3] = landmark_pixel_coord_x
+            xyz_values[landmark_idx][4] = landmark_pixel_coord_y
             
 
         # Write the filename and frame_num to a new row in the output csv file
@@ -263,26 +304,26 @@ class MatToCsv():
 
 
         # Write the x, y, and z values for the landmarks of interest to the output csv file
-        self.output_csv_file.write(f"{xyz_values[34][0]},{xyz_values[34][1]},{xyz_values[34][2]},")
-        self.output_csv_file.write(f"{xyz_values[35][0]},{xyz_values[35][1]},{xyz_values[35][2]},")
-        self.output_csv_file.write(f"{xyz_values[33][0]},{xyz_values[33][1]},{xyz_values[33][2]},")
-        self.output_csv_file.write(f"{xyz_values[0][0]},{xyz_values[0][1]},{xyz_values[0][2]},")
-        self.output_csv_file.write(f"{xyz_values[12][0]},{xyz_values[12][1]},{xyz_values[12][2]},")
-        self.output_csv_file.write(f"{xyz_values[14][0]},{xyz_values[14][1]},{xyz_values[14][2]},")
-        self.output_csv_file.write(f"{xyz_values[16][0]},{xyz_values[16][1]},{xyz_values[16][2]},")
-        self.output_csv_file.write(f"{xyz_values[20][0]},{xyz_values[20][1]},{xyz_values[20][2]},")
-        self.output_csv_file.write(f"{xyz_values[11][0]},{xyz_values[11][1]},{xyz_values[11][2]},")
-        self.output_csv_file.write(f"{xyz_values[13][0]},{xyz_values[13][1]},{xyz_values[13][2]},")
-        self.output_csv_file.write(f"{xyz_values[15][0]},{xyz_values[15][1]},{xyz_values[15][2]},")
-        self.output_csv_file.write(f"{xyz_values[19][0]},{xyz_values[19][1]},{xyz_values[19][2]},")
-        self.output_csv_file.write(f"{xyz_values[24][0]},{xyz_values[24][1]},{xyz_values[24][2]},")
-        self.output_csv_file.write(f"{xyz_values[26][0]},{xyz_values[26][1]},{xyz_values[26][2]},")
-        self.output_csv_file.write(f"{xyz_values[28][0]},{xyz_values[28][1]},{xyz_values[28][2]},")
-        self.output_csv_file.write(f"{xyz_values[32][0]},{xyz_values[32][1]},{xyz_values[32][2]},")
-        self.output_csv_file.write(f"{xyz_values[23][0]},{xyz_values[23][1]},{xyz_values[23][2]},")
-        self.output_csv_file.write(f"{xyz_values[25][0]},{xyz_values[25][1]},{xyz_values[25][2]},")
-        self.output_csv_file.write(f"{xyz_values[27][0]},{xyz_values[27][1]},{xyz_values[27][2]},")
-        self.output_csv_file.write(f"{xyz_values[31][0]},{xyz_values[31][1]},{xyz_values[31][2]}\n")
+        self.output_csv_file.write(f"{xyz_values[34][0]},{xyz_values[34][1]},{xyz_values[34][2]},{xyz_values[34][3]},{xyz_values[34][4]},")
+        self.output_csv_file.write(f"{xyz_values[35][0]},{xyz_values[35][1]},{xyz_values[35][2]},{xyz_values[35][3]},{xyz_values[35][4]},")
+        self.output_csv_file.write(f"{xyz_values[33][0]},{xyz_values[33][1]},{xyz_values[33][2]},{xyz_values[33][3]},{xyz_values[33][4]},")
+        self.output_csv_file.write(f"{xyz_values[0][0]},{xyz_values[0][1]},{xyz_values[0][2]},{xyz_values[0][3]},{xyz_values[0][4]},")
+        self.output_csv_file.write(f"{xyz_values[12][0]},{xyz_values[12][1]},{xyz_values[12][2]},{xyz_values[12][3]},{xyz_values[12][4]},")
+        self.output_csv_file.write(f"{xyz_values[14][0]},{xyz_values[14][1]},{xyz_values[14][2]},{xyz_values[14][3]},{xyz_values[14][4]},")
+        self.output_csv_file.write(f"{xyz_values[16][0]},{xyz_values[16][1]},{xyz_values[16][2]},{xyz_values[16][3]},{xyz_values[16][4]},")
+        self.output_csv_file.write(f"{xyz_values[20][0]},{xyz_values[20][1]},{xyz_values[20][2]},{xyz_values[20][3]},{xyz_values[20][4]},")
+        self.output_csv_file.write(f"{xyz_values[11][0]},{xyz_values[11][1]},{xyz_values[11][2]},{xyz_values[11][3]},{xyz_values[11][4]},")
+        self.output_csv_file.write(f"{xyz_values[13][0]},{xyz_values[13][1]},{xyz_values[13][2]},{xyz_values[13][3]},{xyz_values[13][4]},")
+        self.output_csv_file.write(f"{xyz_values[15][0]},{xyz_values[15][1]},{xyz_values[15][2]},{xyz_values[15][3]},{xyz_values[15][4]},")
+        self.output_csv_file.write(f"{xyz_values[19][0]},{xyz_values[19][1]},{xyz_values[19][2]},{xyz_values[19][3]},{xyz_values[19][4]},")
+        self.output_csv_file.write(f"{xyz_values[24][0]},{xyz_values[24][1]},{xyz_values[24][2]},{xyz_values[24][3]},{xyz_values[24][4]},")
+        self.output_csv_file.write(f"{xyz_values[26][0]},{xyz_values[26][1]},{xyz_values[26][2]},{xyz_values[26][3]},{xyz_values[26][4]},")
+        self.output_csv_file.write(f"{xyz_values[28][0]},{xyz_values[28][1]},{xyz_values[28][2]},{xyz_values[28][3]},{xyz_values[28][4]},")
+        self.output_csv_file.write(f"{xyz_values[32][0]},{xyz_values[32][1]},{xyz_values[32][2]},{xyz_values[32][3]},{xyz_values[32][4]},")
+        self.output_csv_file.write(f"{xyz_values[23][0]},{xyz_values[23][1]},{xyz_values[23][2]},{xyz_values[23][3]},{xyz_values[23][4]},")
+        self.output_csv_file.write(f"{xyz_values[25][0]},{xyz_values[25][1]},{xyz_values[25][2]},{xyz_values[25][3]},{xyz_values[25][4]},")
+        self.output_csv_file.write(f"{xyz_values[27][0]},{xyz_values[27][1]},{xyz_values[27][2]},{xyz_values[27][3]},{xyz_values[27][4]},")
+        self.output_csv_file.write(f"{xyz_values[31][0]},{xyz_values[31][1]},{xyz_values[31][2]},{xyz_values[31][3]},{xyz_values[31][4]}\n")
 
         return
     
@@ -320,8 +361,8 @@ class MatToCsv():
 
             # Track face and extract intensity and depth for all ROIs in this frame
 
-            # Don't need to convert because Thanos gives intensity values already
-            frame_grayscale = frame_intensity
+            # Convert the frame's confidence values to a grayscale image (n,d)
+            frame_grayscale = self._convert_camera_intensity_to_grayscale(frame_intensity)
 
             # # To improve performance, optionally mark the image as not writeable to
             # # pass by reference.
@@ -395,7 +436,8 @@ class MatToCsv():
 
 def main():
     # Get absolute path of directory where .mat files are located
-    mats_dir = os.path.join(os.path.dirname(os.getcwd()), 'Data', 'mats')
+    mats_dir = os.path.join(os.getcwd(), 'Data', 'mat')
+    print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
     myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="pose_data", visualize_Pose=True)

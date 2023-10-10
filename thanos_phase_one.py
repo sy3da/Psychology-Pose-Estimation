@@ -80,7 +80,7 @@ if __name__=="__main__":
     pathname = "jarv3d 1.7.0/Records/User/"
 
     # Specifications for the measurement - image size, total frames, framerates
-    num_frames = 20
+    num_frames = 100
     img_width = 600
     img_height = 804
 
@@ -114,4 +114,4 @@ if __name__=="__main__":
     
     orientation_check(I_values[:, :, 0], D_values[:, :, 0])
 
-    savemat(f'thanos_processed_{timestamp}.mat', {'I_values': I_values, 'D_values': D_values})
+    savemat(f'Data/mat/thanos_processed_{timestamp}.mat', {'I_values': I_values, 'D_values': D_values})
