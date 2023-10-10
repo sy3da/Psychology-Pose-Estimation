@@ -166,7 +166,7 @@ class MatToCsv():
 
         # Solve system of equations to find horizontal and vertical FOV angles
         m = GEKKO()
-        v_angle,h_angle = [m.Var(1) for i in range(3)]
+        v_angle,h_angle = [m.Var(1) for i in range(2)]
         m.Equations([v_angle**2+h_angle**2==(fov**2),\
             h_angle/v_angle==image_w/image_h])
         m.solve(disp=False)
@@ -228,7 +228,7 @@ class MatToCsv():
             # The pixel coordinates are valid
 
             # Convert depth to x,y,z for landmark pixels
-            x_value,y_value,z_value = convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y, self.image_width, self.image_height, self.image_fov)
+            x_value,y_value,z_value = self.convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y, self.image_width, self.image_height, self.image_fov)
 
             # Set the x, y, and z values to the values from convert depth to x,y,z
             xyz_values[landmark_idx][0] = x_value
