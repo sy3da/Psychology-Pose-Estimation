@@ -10,4 +10,4 @@ matplotlib
 scipy
 typing-extensions
 gekko
-opencv
+opencv-python
