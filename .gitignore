@@ -13,3 +13,6 @@ Data/skvs/example_skvs/
 *.csv
 poseEnv
 cameradata.mat
+*.pfm
+*.pgm
+*.mat
