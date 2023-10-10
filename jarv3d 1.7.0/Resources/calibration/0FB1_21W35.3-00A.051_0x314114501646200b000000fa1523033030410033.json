@@ -1,0 +1,101 @@
+{
+    "distCoefficients": {
+        "alpha": -1.6652397164524944e-07
+    },
+    "txUID": {
+        "productCode": "0FB1",
+        "name": "PhotonIC.OFilm_wFPGA",
+        "testRevision": "2.5.1",
+        "testStatus": "PASS",
+        "version": "20210414-152027",
+        "uniqueID": "21W35.3-00A.051",
+        "laserClass1": false
+    },
+    "calibrationFreq6": {
+        "frequencyMhz": 157.142857,
+        "hwDelayNs": 3.3025532830657465,
+        "colDzero0Mm": 2.090576171875,
+        "colDzero1Mm": -5.3695068359375,
+        "colDzero2Mm": 3.002197265625,
+        "colDzero3Mm": -0.0548095703125,
+        "colDzero4Mm": -2.31103515625,
+        "colDzero5Mm": 2.7252197265625,
+        "driftRxMmPerC": 0.4752458333969116,
+        "driftTxMmPerC": 0.9891290664672852
+    },
+    "calibrationFreq4": {
+        "frequencyMhz": 185.714286,
+        "hwDelayNs": 3.278112750267741,
+        "colDzero0Mm": 2.8145751953125,
+        "colDzero1Mm": -4.322998046875,
+        "colDzero2Mm": 2.2308349609375,
+        "colDzero3Mm": -0.0343017578125,
+        "colDzero4Mm": -2.4700927734375,
+        "colDzero5Mm": 1.85400390625,
+        "driftRxMmPerC": 0.4026438593864441,
+        "driftTxMmPerC": 1.1963372230529785
+    },
+    "calibrationFreq5": {
+        "frequencyMhz": 166.666667,
+        "hwDelayNs": 3.257576896291638,
+        "colDzero0Mm": 2.5135498046875,
+        "colDzero1Mm": -4.53759765625,
+        "colDzero2Mm": 2.43017578125,
+        "colDzero3Mm": -0.615478515625,
+        "colDzero4Mm": -1.644775390625,
+        "colDzero5Mm": 1.938720703125,
+        "driftRxMmPerC": 0.711668074131012,
+        "driftTxMmPerC": 0.9516101479530334
+    },
+    "calibrationFreq2": {
+        "frequencyMhz": 177.777778,
+        "hwDelayNs": 3.2480445449114668,
+        "colDzero0Mm": 2.9940185546875,
+        "colDzero1Mm": -5.4783935546875,
+        "colDzero2Mm": 3.5064697265625,
+        "colDzero3Mm": -1.0865478515625,
+        "colDzero4Mm": -2.1612548828125,
+        "colDzero5Mm": 2.340087890625,
+        "driftRxMmPerC": 0.6556786298751831,
+        "driftTxMmPerC": 1.1441632509231567
+    },
+    "calibrationFreq3": {
+        "frequencyMhz": 133.333333,
+        "hwDelayNs": 3.288508939816812,
+        "colDzero0Mm": 2.329345703125,
+        "colDzero1Mm": -3.7012939453125,
+        "colDzero2Mm": 2.755126953125,
+        "colDzero3Mm": -0.9681396484375,
+        "colDzero4Mm": -2.3558349609375,
+        "colDzero5Mm": 2.0244140625,
+        "driftRxMmPerC": 0.6312064528465271,
+        "driftTxMmPerC": 0.9712774157524109
+    },
+    "papabearUID": {
+        "dieX": 11,
+        "dieY": -6,
+        "fwRev": "0x0100",
+        "botLotID": "NA",
+        "deviceRev": "0xA00A000",
+        "topLotID": "Q011061",
+        "botWaferID": "NA",
+        "topWaferID": 17
+    },
+    "opticalCenter": {
+        "fPix": 636.96,
+        "xCenter": 335.39,
+        "yCenter": 407.26
+    },
+    "calibrationFreq1": {
+        "frequencyMhz": 200.0,
+        "hwDelayNs": 3.279782403066032,
+        "colDzero0Mm": 2.40283203125,
+        "colDzero1Mm": -3.8941650390625,
+        "colDzero2Mm": 2.4010009765625,
+        "colDzero3Mm": -1.0740966796875,
+        "colDzero4Mm": -1.9373779296875,
+        "colDzero5Mm": 2.1678466796875,
+        "driftRxMmPerC": 0.6082022786140442,
+        "driftTxMmPerC": 0.8201855421066284
+    }
+}

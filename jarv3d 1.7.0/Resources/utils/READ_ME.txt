@@ -1,0 +1,11 @@
+This python script will allow user to write BRD_ID number in gpz.cfg file in capture board, this script will:
+	- Check the OS that the script is running on to use the right gpzvrc application
+	- Check and display the current sd image in capture board
+	- Check wether if gpz.cfg file is already existed:
+ 		- If gpz.cfg exist:
+			- Check and display the current BRD_ID if existed
+			- Find and delete current BRD_ID
+			- Write new BRD_ID
+		- If gpz.cfg doesn't exist:
+			- Create gpz.cfg file
+			- Write new BRD_ID
