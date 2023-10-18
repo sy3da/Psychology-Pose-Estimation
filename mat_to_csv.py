@@ -213,16 +213,33 @@ class MatToCsv():
         image_h_angle = 3850/np.sqrt(6989)
 
         # Find theta, phi, and the depth at that landmark pixel
+        # Convert depth to cm
         land_depth = depths[landmark_pixel_y][landmark_pixel_x]
+        land_depth_cm = self.convert_unit_to_cm(land_depth)
         theta = (-image_w_angle/2) + ((image_w_angle/image_w)*landmark_pixel_x)
         phi = (image_h_angle/2) - ((image_h_angle/image_h)*landmark_pixel_y)
 
-        x_landmark = land_depth*np.cos(theta)*np.sin(phi)
-        y_landmark = land_depth*np.sin(theta)*np.sin(phi)
-        z_landmark = land_depth*np.cos(phi)
+        x_landmark = land_depth_cm*np.cos(theta)*np.sin(phi)
+        y_landmark = land_depth_cm*np.sin(theta)*np.sin(phi)
+        z_landmark = land_depth_cm*np.cos(phi)
 
         return x_landmark,y_landmark,z_landmark
 
+    def convert_unit_to_cm(self,depth_value):
+        """
+        A polyfit was done to convert the arbitrary units output by the thanos camera into cm. This was done in MATLAB,
+        and now the equation calculated will be used to convert to real units.
+
+        Args:
+            depth_value: An integer depth value in arbitrary units
+        
+        Returns:
+            depth_cm: An integer depth value in cm
+        """
+
+        depth_cm = (depth_value - 145.095238095238)/79.5742857142857
+
+        return depth_cm
 
     def _process_pose_landmarks(
         self,
@@ -266,7 +283,7 @@ class MatToCsv():
             
             # The pixel coordinates are valid
 
-            # Convert depth to x,y,z for landmark pixels
+            # Convert depth [cm] to x,y,z for landmark pixels
             x_value,y_value,z_value = self.convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y, self.image_width, self.image_height, self.image_fov)
 
             # Set the x, y, and z values to the values from convert depth to x,y,z

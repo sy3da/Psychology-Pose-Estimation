@@ -77,7 +77,7 @@ if __name__=="__main__":
     timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
 
     # Choose the name of the folder of NIR images and file of depth data to be processed
-    pathname = "jarv3d 1.7.0/Records/User/"
+    pathname = "Data/"
 
     # Specifications for the measurement - image size, total frames, framerates
     num_frames = 100
