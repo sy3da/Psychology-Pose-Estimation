@@ -219,9 +219,9 @@ class MatToCsv():
         theta = (-image_w_angle/2) + ((image_w_angle/image_w)*landmark_pixel_x)
         phi = (image_h_angle/2) - ((image_h_angle/image_h)*landmark_pixel_y)
 
-        x_landmark = land_depth_cm*np.cos(theta)*np.sin(phi)
-        y_landmark = land_depth_cm*np.sin(theta)*np.sin(phi)
-        z_landmark = land_depth_cm*np.cos(phi)
+        x_landmark = land_depth_cm*np.cos(theta*(np.pi/180))*np.sin(phi*(np.pi/180))
+        y_landmark = land_depth_cm*np.sin(theta*(np.pi/180))*np.sin(phi*(np.pi/180))
+        z_landmark = land_depth_cm*np.cos(phi*(np.pi/180))
 
         return x_landmark,y_landmark,z_landmark
 
