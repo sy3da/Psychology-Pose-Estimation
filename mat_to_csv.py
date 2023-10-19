@@ -15,7 +15,7 @@ class MatToCsv():
     converts depth to x,y,z, and outputs them to a csv file
     """
 
-    def __init__(self, input_dir: str, output_filename: str, image_width: int = 600, image_height: int = 804, image_fov: int = 77, visualize_Pose: bool = False):
+    def __init__(self, input_dir: str, output_filename: str, image_width: int = 600, image_height: int = 804, image_fov: int = 77, visualize_Pose: bool = False, two_people: bool = False):
         """
         Initialize MatToCsv object
 
@@ -31,12 +31,14 @@ class MatToCsv():
         # Name of output .csv file
         self.output_filename = output_filename
 
-        # Define image width and height
+        # Define image width, height, and fov
         self.image_width = image_width
         self.image_height = image_height
         self.image_fov = image_fov
         # Whether or not to visualize pose skeleton
         self.visualize_Pose = visualize_Pose
+        # Whether or not there are two people
+        self.two_people = two_people
 
         # Create output csv file (overwrite if it already exists)
         self.output_csv_filepath = os.path.join(self.input_dir, self.output_filename + '.csv')
@@ -371,54 +373,111 @@ class MatToCsv():
         previous_time = 0
         start_time = time.time()
 
-        # Loop through all frames
-        for frame_idx in range(num_frames):
-            frame_depth = depth_all[:, :, frame_idx]
-            frame_intensity = intensity_all[:, :, frame_idx]
+        # Check if two people need to be tracked
+        if self.two_people == True:
+            # Loop through all frames
+            for frame_idx in range(num_frames):
+                # Split to left and right participants (relative to viewer)
+                frame_depth_left = depth_all[:, 0:(self.image_width/2)-1, frame_idx]
+                frame_depth_right = depth_all[:, self.image_width/2:(self.image_width-1), frame_idx]
+                frame_intensity_left = intensity_all[:, 0:(self.image_width/2)-1, frame_idx]
+                frame_intensity_right = intensity_all[:, self.image_width/2:(self.image_width-1), frame_idx]
 
-            # Track face and extract intensity and depth for all ROIs in this frame
+                # Track face and extract intensity and depth for all ROIs in each side of this frame
 
-            # Convert the frame's confidence values to a grayscale image (n,d)
-            frame_grayscale = self._convert_camera_intensity_to_grayscale(frame_intensity)
+                # Convert each half of the frame's confidence values to a grayscale image (n,d)
+                frame_grayscale_left = self._convert_camera_intensity_to_grayscale(frame_intensity_left)
+                frame_grayscale_right = self._convert_camera_intensity_to_grayscale(frame_intensity_right)
 
-            # # To improve performance, optionally mark the image as not writeable to
-            # # pass by reference.
-            # frame_grayscale.flags.writeable = False
+                # # To improve performance, optionally mark the image as not writeable to
+                # # pass by reference.
+                # frame_grayscale.flags.writeable = False
 
-            # Convert grayscale image to "RGB" (n,d,3)
-            frame_grayscale_rgb = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
+                # Convert each half of the grayscale image to "RGB" (n,d,3)
+                frame_grayscale_rgb_left = cv2.cvtColor(frame_grayscale_left, cv2.COLOR_GRAY2RGB)
+                frame_grayscale_rgb_right = cv2.cvtColor(frame_grayscale_right, cv2.COLOR_GRAY2RGB)
 
-            # Get pixel locations of all pose landmarks
-            # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
-            pose_detected, contains_invalid_landmarks, landmarks_pixels = pose_detector.get_landmarks(image=frame_grayscale_rgb, draw=self.visualize_Pose)
+                # Get pixel locations of all pose landmarks for both skeletons
+                # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
+                pose_detected_left, contains_invalid_landmarks_left, landmarks_pixels_left = pose_detector.get_landmarks(image=frame_grayscale_rgb_left, draw=self.visualize_Pose)
+                pose_detected_right, contains_invalid_landmarks_right, landmarks_pixels_right = pose_detector.get_landmarks(image=frame_grayscale_rgb_right, draw=self.visualize_Pose)
 
-            # if pose_detected:
-            #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
-            #     self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
+                # if pose_detected:
+                #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
+                #     self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
+                
+                self._process_pose_landmarks(landmarks_pixels_left, frame_idx, frame_depth_left, frame_intensity_left, frame_grayscale_rgb_left, filename+'_left_participant')
+                self._process_pose_landmarks(landmarks_pixels_right, frame_idx, frame_depth_right, frame_intensity_right, frame_grayscale_rgb_right, filename+'_right_participant')
+
+                if self.visualize_Pose:
+                    # Calculate and overlay FPS
+
+                    current_time = time.time()
+                    # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
+                    fps = 1 / (current_time - previous_time)
+                    previous_time = current_time
+                    cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
+
+                    # Overlay frame number in top right corner
+                    text = f'{frame_idx + 1}'
+                    text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 1, 2)[0]
+                    text_x = frame_grayscale_rgb.shape[1] - text_size[0] - 20  # Position text at the top right corner
+                    text_y = text_size[1] + 20
+                    cv2.putText(frame_grayscale_rgb, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
+
+                    # Display frame
+
+                    cv2.imshow("Image", frame_grayscale_rgb)
+                    cv2.waitKey(1)
+        else:
+            # Loop through all frames
+            for frame_idx in range(num_frames):
+                frame_depth = depth_all[:, :, frame_idx]
+                frame_intensity = intensity_all[:, :, frame_idx]
+
+                # Track face and extract intensity and depth for all ROIs in this frame
+
+                # Convert the frame's confidence values to a grayscale image (n,d)
+                frame_grayscale = self._convert_camera_intensity_to_grayscale(frame_intensity)
+
+                # # To improve performance, optionally mark the image as not writeable to
+                # # pass by reference.
+                # frame_grayscale.flags.writeable = False
+
+                # Convert grayscale image to "RGB" (n,d,3)
+                frame_grayscale_rgb = cv2.cvtColor(frame_grayscale, cv2.COLOR_GRAY2RGB)
+
+                # Get pixel locations of all pose landmarks
+                # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
+                pose_detected, contains_invalid_landmarks, landmarks_pixels = pose_detector.get_landmarks(image=frame_grayscale_rgb, draw=self.visualize_Pose)
+
+                # if pose_detected:
+                #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
+                #     self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
+                
+                self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_depth, frame_intensity, frame_grayscale_rgb, filename)
+
+                if self.visualize_Pose:
+                    # Calculate and overlay FPS
+
+                    current_time = time.time()
+                    # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
+                    fps = 1 / (current_time - previous_time)
+                    previous_time = current_time
+                    cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
+
+                    # Overlay frame number in top right corner
+                    text = f'{frame_idx + 1}'
+                    text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 1, 2)[0]
+                    text_x = frame_grayscale_rgb.shape[1] - text_size[0] - 20  # Position text at the top right corner
+                    text_y = text_size[1] + 20
+                    cv2.putText(frame_grayscale_rgb, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
+
+                    # Display frame
+
+                    cv2.imshow("Image", frame_grayscale_rgb)
+                    cv2.waitKey(1)
             
-            self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_depth, frame_intensity, frame_grayscale_rgb, filename)
-
-            if self.visualize_Pose:
-                # Calculate and overlay FPS
-
-                current_time = time.time()
-                # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
-                fps = 1 / (current_time - previous_time)
-                previous_time = current_time
-                cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
-
-                # Overlay frame number in top right corner
-                text = f'{frame_idx + 1}'
-                text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 1, 2)[0]
-                text_x = frame_grayscale_rgb.shape[1] - text_size[0] - 20  # Position text at the top right corner
-                text_y = text_size[1] + 20
-                cv2.putText(frame_grayscale_rgb, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
-
-                # Display frame
-
-                cv2.imshow("Image", frame_grayscale_rgb)
-                cv2.waitKey(1)
-        
         # Calculate and print average FPS
         end_time = time.time()
         average_fps = num_frames / (end_time - start_time)
@@ -457,7 +516,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="pose_data", visualize_Pose=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="pose_data_George_baseline", visualize_Pose=True)
     myMatToCsv.run()
 
     return
