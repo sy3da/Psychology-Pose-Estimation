@@ -39,7 +39,7 @@ def read_pfm(filename, byteorder='>'):
 # Loads all images in the specified folder into the I_values array
 def load_and_process_nir_images(args):
     frame_index, amp_name, depth_name = args
-    data = np.zeros((804, 600, 2))
+    data = np.zeros((600, 804, 2))
 
     image = read_pfm(amp_name, byteorder='<')
     image = np.flipud(image)
