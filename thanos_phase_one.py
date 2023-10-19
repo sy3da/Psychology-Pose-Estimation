@@ -81,8 +81,8 @@ if __name__=="__main__":
 
     # Specifications for the measurement - image size, total frames, framerates
     num_frames = 100
-    img_width = 600
-    img_height = 804
+    img_width = 804
+    img_height = 600
 
     # Adjust frame rate accordingly
     NIR_framerate = 30

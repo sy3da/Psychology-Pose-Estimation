@@ -15,7 +15,7 @@ class MatToCsv():
     converts depth to x,y,z, and outputs them to a csv file
     """
 
-    def __init__(self, input_dir: str, output_filename: str, image_width: int = 600, image_height: int = 804, image_fov: int = 77, visualize_Pose: bool = False, two_people: bool = False):
+    def __init__(self, input_dir: str, output_filename: str, image_width: int = 804, image_height: int = 600, image_fov: int = 77, visualize_Pose: bool = False, two_people: bool = False):
         """
         Initialize MatToCsv object
 
@@ -409,7 +409,7 @@ class MatToCsv():
                 self._process_pose_landmarks(landmarks_pixels_left, frame_idx, frame_depth_left, frame_intensity_left, frame_grayscale_rgb_left, filename+'_left_participant')
                 self._process_pose_landmarks(landmarks_pixels_right, frame_idx, frame_depth_right, frame_intensity_right, frame_grayscale_rgb_right, filename+'_right_participant')
 
-                if self.visualize_Pose:
+                if self.visualize_Pose == True:
                     # Calculate and overlay FPS
 
                     current_time = time.time()
@@ -457,7 +457,7 @@ class MatToCsv():
                 
                 self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_depth, frame_intensity, frame_grayscale_rgb, filename)
 
-                if self.visualize_Pose:
+                if self.visualize_Pose == True:
                     # Calculate and overlay FPS
 
                     current_time = time.time()
@@ -516,7 +516,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="pose_data_George_baseline", visualize_Pose=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="pose_data_2people", visualize_Pose=True, two_people=True)
     myMatToCsv.run()
 
     return
