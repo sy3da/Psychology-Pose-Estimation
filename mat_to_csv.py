@@ -150,7 +150,7 @@ class MatToCsv():
             An (n, d) grayscale image containing grayscale intensity values in the range [0, 255].
         """
 
-        brightness_scaling_factor = 4
+        brightness_scaling_factor = 2
         
         grayscale_img = intensity_array.astype(float)
         grayscale_img = grayscale_img * brightness_scaling_factor
@@ -307,7 +307,7 @@ class MatToCsv():
         self.output_csv_file.write(f"{xyz_values[34][0]},{xyz_values[34][1]},{xyz_values[34][2]},{xyz_values[34][3]},{xyz_values[34][4]},")
         self.output_csv_file.write(f"{xyz_values[35][0]},{xyz_values[35][1]},{xyz_values[35][2]},{xyz_values[35][3]},{xyz_values[35][4]},")
         self.output_csv_file.write(f"{xyz_values[33][0]},{xyz_values[33][1]},{xyz_values[33][2]},{xyz_values[33][3]},{xyz_values[33][4]},")
-        self.output_csv_file.write(f"{xyz_values[0][0]},{xyz_values[0][1]},{xyz_values[0][2]},{xyz_values[0][3]},{xyz_values[0][4]},")
+        self.output_csv_file.write(f"{xyz_values[0][0]}, {xyz_values[0][1]}, {xyz_values[0][2]}, {xyz_values[0][3]}, {xyz_values[0][4]}," )
         self.output_csv_file.write(f"{xyz_values[12][0]},{xyz_values[12][1]},{xyz_values[12][2]},{xyz_values[12][3]},{xyz_values[12][4]},")
         self.output_csv_file.write(f"{xyz_values[14][0]},{xyz_values[14][1]},{xyz_values[14][2]},{xyz_values[14][3]},{xyz_values[14][4]},")
         self.output_csv_file.write(f"{xyz_values[16][0]},{xyz_values[16][1]},{xyz_values[16][2]},{xyz_values[16][3]},{xyz_values[16][4]},")
