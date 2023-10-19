@@ -15,7 +15,7 @@ class MatToCsv():
     converts depth to x,y,z, and outputs them to a csv file
     """
 
-    def __init__(self, input_dir: str, output_filename: str, image_width: int = 804, image_height: int = 600, image_fov: int = 77, visualize_Pose: bool = False, two_people: bool = False):
+    def __init__(self, input_dir: str, output_filename: str, image_width: int = 804, image_height: int = 600, image_fov: int = 77, visualize_Pose: bool = False, two_people: bool = False, landscape: bool = False):
         """
         Initialize MatToCsv object
 
@@ -39,6 +39,8 @@ class MatToCsv():
         self.visualize_Pose = visualize_Pose
         # Whether or not there are two people
         self.two_people = two_people
+        # Whether the picture needs to be landscape
+        self.landscape = landscape
 
         # Create output csv file (overwrite if it already exists)
         self.output_csv_filepath = os.path.join(self.input_dir, self.output_filename + '.csv')
@@ -377,11 +379,22 @@ class MatToCsv():
         if self.two_people == True:
             # Loop through all frames
             for frame_idx in range(num_frames):
-                # Split to left and right participants (relative to viewer)
-                frame_depth_left = depth_all[:, 0:(self.image_width/2)-1, frame_idx]
-                frame_depth_right = depth_all[:, self.image_width/2:(self.image_width-1), frame_idx]
-                frame_intensity_left = intensity_all[:, 0:(self.image_width/2)-1, frame_idx]
-                frame_intensity_right = intensity_all[:, self.image_width/2:(self.image_width-1), frame_idx]
+                # rotate image for landscape mode
+                if self.landscape == True:
+                    depth_rotate = np.flip(depth_all[:, :, frame_idx].transpose(),0)
+                    intensity_rotate = np.flip(depth_all[:,:, frame_idx].transpose(),0)
+            
+                    # Split to left and right participants (relative to viewer)
+                    frame_depth_left = depth_rotate[:, 0:(self.image_width/2)-1]
+                    frame_depth_right = depth_rotate[:, self.image_width/2:(self.image_width-1)]
+                    frame_intensity_left = intensity_rotate[:, 0:(self.image_width/2)-1]
+                    frame_intensity_right = intensity_rotate[:, self.image_width/2:(self.image_width-1)]
+                else:
+                    # Split to left and right participants (relative to viewer)
+                    frame_depth_left = depth_all[:, 0:(self.image_width/2)-1, frame_idx]
+                    frame_depth_right = depth_all[:, self.image_width/2:(self.image_width-1), frame_idx]
+                    frame_intensity_left = intensity_all[:, 0:(self.image_width/2)-1, frame_idx]
+                    frame_intensity_right = intensity_all[:, self.image_width/2:(self.image_width-1), frame_idx]
 
                 # Track face and extract intensity and depth for all ROIs in each side of this frame
 
@@ -432,8 +445,16 @@ class MatToCsv():
         else:
             # Loop through all frames
             for frame_idx in range(num_frames):
-                frame_depth = depth_all[:, :, frame_idx]
-                frame_intensity = intensity_all[:, :, frame_idx]
+                # rotate image for landscape mode
+                if self.landscape == True:
+                    depth_rotate = np.flip(depth_all[:, :, frame_idx].transpose(),0)
+                    intensity_rotate = np.flip(depth_all[:,:, frame_idx].transpose(),0)
+                
+                    frame_depth = depth_rotate[:, :, frame_idx]
+                    frame_intensity = intensity_rotate[:, :, frame_idx]
+                else:
+                    frame_depth = depth_all[:, :, frame_idx]
+                    frame_intensity = intensity_all[:, :, frame_idx]
 
                 # Track face and extract intensity and depth for all ROIs in this frame
 
@@ -516,7 +537,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="pose_data_2people", visualize_Pose=True, two_people=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="pose_data_2people", visualize_Pose=True, two_people=True, landscape=True)
     myMatToCsv.run()
 
     return
