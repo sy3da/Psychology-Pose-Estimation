@@ -223,8 +223,8 @@ class MatToCsv():
         theta = (-image_w_angle/2) + ((image_w_angle/image_w)*landmark_pixel_x)
         phi = (image_h_angle/2) - ((image_h_angle/image_h)*landmark_pixel_y)
 
-        x_landmark = land_depth_cm*np.cos(theta*(np.pi/180))*np.sin(phi*(np.pi/180))
-        y_landmark = land_depth_cm*np.sin(theta*(np.pi/180))*np.sin(phi*(np.pi/180))
+        x_landmark = land_depth_cm*np.sin(theta*(np.pi/180))*np.sin(phi*(np.pi/180))
+        y_landmark = land_depth_cm*np.cos(theta*(np.pi/180))*np.sin(phi*(np.pi/180))
         z_landmark = land_depth_cm*np.cos(phi*(np.pi/180))
 
         return x_landmark,y_landmark,z_landmark
@@ -537,7 +537,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="pose_data_2people", visualize_Pose=True, two_people=True, landscape=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="pose_data_Lauren_baseline", visualize_Pose=True, two_people=True, landscape=True)
     myMatToCsv.run()
 
     return
