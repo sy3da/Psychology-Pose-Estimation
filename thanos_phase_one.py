@@ -39,7 +39,7 @@ def read_pfm(filename, byteorder='>'):
 # Loads all images in the specified folder into the I_values array
 def load_and_process_nir_images(args):
     frame_index, amp_name, depth_name = args
-    data = np.zeros((600, 804, 2))
+    data = np.zeros((804, 600, 2))
 
     image = read_pfm(amp_name, byteorder='<')
     image = np.flipud(image)
@@ -77,12 +77,12 @@ if __name__=="__main__":
     timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
 
     # Choose the name of the folder of NIR images and file of depth data to be processed
-    pathname = "Data/"
+    pathname = "Data/two_people_1/"
 
     # Specifications for the measurement - image size, total frames, framerates
     num_frames = 100
-    img_width = 804
-    img_height = 600
+    img_width = 600
+    img_height = 804
 
     # Adjust frame rate accordingly
     NIR_framerate = 30

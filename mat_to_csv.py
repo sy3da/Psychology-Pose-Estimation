@@ -154,7 +154,7 @@ class MatToCsv():
             An (n, d) grayscale image containing grayscale intensity values in the range [0, 255].
         """
 
-        brightness_scaling_factor = 2
+        brightness_scaling_factor = 0.01
         
         grayscale_img = intensity_array.astype(float)
         grayscale_img = grayscale_img * brightness_scaling_factor
@@ -385,16 +385,16 @@ class MatToCsv():
                     intensity_rotate = np.flip(depth_all[:,:, frame_idx].transpose(),0)
             
                     # Split to left and right participants (relative to viewer)
-                    frame_depth_left = depth_rotate[:, 0:(self.image_width/2)-1]
-                    frame_depth_right = depth_rotate[:, self.image_width/2:(self.image_width-1)]
-                    frame_intensity_left = intensity_rotate[:, 0:(self.image_width/2)-1]
-                    frame_intensity_right = intensity_rotate[:, self.image_width/2:(self.image_width-1)]
+                    frame_depth_left = depth_rotate[:, 0:int((self.image_height/2))-1]
+                    frame_depth_right = depth_rotate[:, int(self.image_height/2):(self.image_height-1)]
+                    frame_intensity_left = intensity_rotate[:, 0:int((self.image_height/2))-1]
+                    frame_intensity_right = intensity_rotate[:, int(self.image_height/2):(self.image_height-1)]
                 else:
                     # Split to left and right participants (relative to viewer)
-                    frame_depth_left = depth_all[:, 0:(self.image_width/2)-1, frame_idx]
-                    frame_depth_right = depth_all[:, self.image_width/2:(self.image_width-1), frame_idx]
-                    frame_intensity_left = intensity_all[:, 0:(self.image_width/2)-1, frame_idx]
-                    frame_intensity_right = intensity_all[:, self.image_width/2:(self.image_width-1), frame_idx]
+                    frame_depth_left = depth_all[:, 0:int((self.image_width/2))-1, frame_idx]
+                    frame_depth_right = depth_all[:, int(self.image_width/2):(self.image_width-1), frame_idx]
+                    frame_intensity_left = intensity_all[:, 0:int((self.image_width/2))-1, frame_idx]
+                    frame_intensity_right = intensity_all[:, int(self.image_width/2):(self.image_width-1), frame_idx]
 
                 # Track face and extract intensity and depth for all ROIs in each side of this frame
 
@@ -423,8 +423,10 @@ class MatToCsv():
                 self._process_pose_landmarks(landmarks_pixels_right, frame_idx, frame_depth_right, frame_intensity_right, frame_grayscale_rgb_right, filename+'_right_participant')
 
                 if self.visualize_Pose == True:
+                    # Combine frame_grayscale_rgb_left and _right
+                    frame_grayscale_rgb = np.append(frame_grayscale_rgb_left, frame_grayscale_rgb_right, 1)
+                    
                     # Calculate and overlay FPS
-
                     current_time = time.time()
                     # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
                     fps = 1 / (current_time - previous_time)
@@ -442,7 +444,7 @@ class MatToCsv():
 
                     cv2.imshow("Image", frame_grayscale_rgb)
                     cv2.waitKey(1)
-        else:
+        else:          
             # Loop through all frames
             for frame_idx in range(num_frames):
                 # rotate image for landscape mode
@@ -537,7 +539,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="pose_data_Lauren_baseline", visualize_Pose=True, two_people=True, landscape=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="pose_data_two_people_1", visualize_Pose=True, two_people=True, landscape=True)
     myMatToCsv.run()
 
     return
