@@ -77,10 +77,10 @@ if __name__=="__main__":
     timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
 
     # Choose the name of the folder of NIR images and file of depth data to be processed
-    pathname = "Data/two_people_1/"
+    pathname = "Data/one_person_LBME/"
 
     # Specifications for the measurement - image size, total frames, framerates
-    num_frames = 100
+    num_frames = 200
     img_width = 600
     img_height = 804
 

@@ -154,7 +154,7 @@ class MatToCsv():
             An (n, d) grayscale image containing grayscale intensity values in the range [0, 255].
         """
 
-        brightness_scaling_factor = 0.01
+        brightness_scaling_factor = 4
         
         grayscale_img = intensity_array.astype(float)
         grayscale_img = grayscale_img * brightness_scaling_factor
@@ -449,11 +449,8 @@ class MatToCsv():
             for frame_idx in range(num_frames):
                 # rotate image for landscape mode
                 if self.landscape == True:
-                    depth_rotate = np.flip(depth_all[:, :, frame_idx].transpose(),0)
-                    intensity_rotate = np.flip(depth_all[:,:, frame_idx].transpose(),0)
-                
-                    frame_depth = depth_rotate[:, :, frame_idx]
-                    frame_intensity = intensity_rotate[:, :, frame_idx]
+                    frame_depth = np.flip(depth_all[:, :, frame_idx].transpose(),0)
+                    frame_intensity = np.flip(depth_all[:,:, frame_idx].transpose(),0)
                 else:
                     frame_depth = depth_all[:, :, frame_idx]
                     frame_intensity = intensity_all[:, :, frame_idx]
@@ -539,7 +536,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="pose_data_two_people_1", visualize_Pose=True, two_people=True, landscape=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="discard", visualize_Pose=True, two_people=False, landscape=False)
     myMatToCsv.run()
 
     return
