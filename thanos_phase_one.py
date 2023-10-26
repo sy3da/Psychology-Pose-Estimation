@@ -38,21 +38,13 @@ def read_pfm(filename, byteorder='>'):
 
 # Loads all images in the specified folder into the I_values array
 def load_and_process_nir_images(args):
-    frame_index, amp_name, depth_name = args
-    data = np.zeros((804, 600, 2))
+    frame_index, amp_name, depth_name, img_width, img_height  = args
+    data = np.zeros((img_height, img_width, 2))
 
     image = read_pfm(amp_name, byteorder='<')
     image = np.flipud(image)
     data[:, :, 0] = image
-    image = read_pfm(amp_name, byteorder='<')
-    image = np.flipud(image)
-    data[:, :, 0] = image
-
-    f = depth_name
-    image = Image.open(f)
-    image = np.asarray(image)
-    image = np.flipud(image)
-    data[:, :, 1] = image
+    
     f = depth_name
     image = Image.open(f)
     image = np.asarray(image)
@@ -77,10 +69,10 @@ if __name__=="__main__":
     timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
 
     # Choose the name of the folder of NIR images and file of depth data to be processed
-    pathname = "Data/one_person_LBME/"
+    pathname = "Data/Lauren_baseline/"
 
     # Specifications for the measurement - image size, total frames, framerates
-    num_frames = 200
+    num_frames = 10
     img_width = 600
     img_height = 804
 
@@ -99,7 +91,7 @@ if __name__=="__main__":
     #frame = load_and_process_nir_images(0, amp_names, depth_names)
     
     num_processes = cpu_count()
-    args = [(frame_index, amp_names[frame_index], depth_names[frame_index]) for frame_index in range(num_frames)]
+    args = [(frame_index, amp_names[frame_index], depth_names[frame_index], img_width, img_height) for frame_index in range(num_frames)]
     results = p_map(load_and_process_nir_images, args)
     
     I_and_D = np.asarray(results)
