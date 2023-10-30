@@ -44,14 +44,13 @@ def load_and_process_nir_images(args):
     image = read_pfm(amp_name, byteorder='<')
     image = np.flipud(image)
     data[:, :, 0] = image
-    
+
     f = depth_name
     image = Image.open(f)
     image = np.asarray(image)
     image = np.flipud(image)
     data[:, :, 1] = image
     
-    #print(f'Frame Number {frame_index} Processed!')
     return data
 
 
@@ -72,7 +71,7 @@ if __name__=="__main__":
     pathname = "Data/Lauren_baseline/"
 
     # Specifications for the measurement - image size, total frames, framerates
-    num_frames = 10
+    num_frames = 100
     img_width = 600
     img_height = 804
 
