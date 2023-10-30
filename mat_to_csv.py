@@ -15,7 +15,7 @@ class MatToCsv():
     converts depth to x,y,z, and outputs them to a csv file
     """
 
-    def __init__(self, input_dir: str, output_filename: str, image_width: int = 804, image_height: int = 600, image_fov: int = 77, visualize_Pose: bool = False, two_people: bool = False, landscape: bool = False):
+    def __init__(self, input_dir: str, output_filename: str, image_width: int = 600, image_height: int = 804, image_fov: int = 77, visualize_Pose: bool = False, two_people: bool = False, landscape: bool = False):
         """
         Initialize MatToCsv object
 
@@ -156,7 +156,7 @@ class MatToCsv():
 
         brightness_scaling_factor = 4
         
-        grayscale_img = intensity_array.astype(float)
+        grayscale_img = intensity_array.astype('float')
         grayscale_img = grayscale_img * brightness_scaling_factor
         grayscale_img[np.where(grayscale_img > 255)] = 255
         grayscale_img = grayscale_img.astype('uint8')
@@ -382,7 +382,7 @@ class MatToCsv():
                 # rotate image for landscape mode
                 if self.landscape == True:
                     depth_rotate = np.flip(depth_all[:, :, frame_idx].transpose(),0)
-                    intensity_rotate = np.flip(depth_all[:,:, frame_idx].transpose(),0)
+                    intensity_rotate = np.flip(intensity_all[:,:, frame_idx].transpose(),0)
             
                     # Split to left and right participants (relative to viewer)
                     frame_depth_left = depth_rotate[:, 0:int((self.image_height/2))-1]
@@ -450,7 +450,7 @@ class MatToCsv():
                 # rotate image for landscape mode
                 if self.landscape == True:
                     frame_depth = np.flip(depth_all[:, :, frame_idx].transpose(),0)
-                    frame_intensity = np.flip(depth_all[:,:, frame_idx].transpose(),0)
+                    frame_intensity = np.flip(intensity_all[:,:, frame_idx].transpose(),0)
                 else:
                     frame_depth = depth_all[:, :, frame_idx]
                     frame_intensity = intensity_all[:, :, frame_idx]
@@ -536,7 +536,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="discard", visualize_Pose=True, two_people=False, landscape=False)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="two_person_wetlab", visualize_Pose=True, two_people=True, landscape=True)
     myMatToCsv.run()
 
     return

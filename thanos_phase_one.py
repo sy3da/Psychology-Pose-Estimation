@@ -68,10 +68,11 @@ if __name__=="__main__":
     timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
 
     # Choose the name of the folder of NIR images and file of depth data to be processed
-    pathname = "Data/Lauren_baseline/"
+    filename = 'two_people_1_WETLAB'
+    pathname = f'Data/{filename}/'
 
     # Specifications for the measurement - image size, total frames, framerates
-    num_frames = 100
+    num_frames = 150
     img_width = 600
     img_height = 804
 
@@ -105,4 +106,4 @@ if __name__=="__main__":
     
     orientation_check(I_values[:, :, 0], D_values[:, :, 0])
 
-    savemat(f'Data/mat/thanos_processed_{timestamp}.mat', {'I_values': I_values, 'D_values': D_values})
+    savemat(f'Data/mat/thanos_processed_{filename}.mat', {'I_values': I_values, 'D_values': D_values})
