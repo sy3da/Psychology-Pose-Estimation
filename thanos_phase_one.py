@@ -68,11 +68,11 @@ if __name__=="__main__":
     timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
 
     # Choose the name of the folder of NIR images and file of depth data to be processed
-    filename = 'two_people_1_WETLAB_DARK'
+    filename = '11-15_test_1'
     pathname = f'Data/{filename}/'
 
     # Specifications for the measurement - image size, total frames, framerates
-    num_frames = 150
+    # num_frames = 100
     img_width = 600
     img_height = 804
 
@@ -88,8 +88,9 @@ if __name__=="__main__":
     depth_names.sort()
 
     # Run processing
-    #frame = load_and_process_nir_images(0, amp_names, depth_names)
-    
+    num_frames = len(amp_names)
+    print(f'Number of Frames to Process: {num_frames}')
+
     num_processes = cpu_count()
     args = [(frame_index, amp_names[frame_index], depth_names[frame_index], img_width, img_height) for frame_index in range(num_frames)]
     results = p_map(load_and_process_nir_images, args)
