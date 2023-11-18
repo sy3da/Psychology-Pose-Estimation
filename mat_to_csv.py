@@ -486,7 +486,11 @@ class MatToCsv():
         # Used to calculate FPS
         previous_time = 0
         start_time = time.time()
-
+        # if self.landscape == True:
+        #     writer = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 10, (self.image_width, self.image_height))
+        # else:
+        #     writer = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 10, (self.image_height, self.image_width))
+        
         # Check if two people need to be tracked
         if self.two_people == True:
             # Loop through all frames
@@ -556,6 +560,7 @@ class MatToCsv():
 
                     cv2.imshow("Image", frame_grayscale_rgb)
                     cv2.waitKey(1)
+                    # writer.write(frame_grayscale_rgb)
         else:          
             # Loop through all frames
             for frame_idx in range(num_frames):
@@ -609,8 +614,10 @@ class MatToCsv():
 
                     cv2.imshow("Image", frame_grayscale_rgb)
                     cv2.waitKey(1)
+                    #writer.write(frame_grayscale_rgb)
             
         # Calculate and print average FPS
+        #writer.release()
         end_time = time.time()
         average_fps = num_frames / (end_time - start_time)
         print(f"Average FPS: {average_fps}")
@@ -648,7 +655,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="two_person_wetlab_dark", visualize_Pose=True, two_people=True, landscape=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="two_people_1_wetlab_11_2", visualize_Pose=True, two_people=True, landscape=True)
     myMatToCsv.run()
 
     return
