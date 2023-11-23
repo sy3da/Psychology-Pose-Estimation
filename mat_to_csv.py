@@ -638,7 +638,8 @@ class MatToCsv():
         num_files_to_process = len(mat_files)
 
         # Define MediaPipe detectors
-        pose_detector = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+        conf=0.8
+        pose_detector = PoseLandmarker(static_image_mode=True, min_detection_confidence=conf, min_tracking_confidence=conf)
 
         for filename in mat_files:
             file_num += 1
