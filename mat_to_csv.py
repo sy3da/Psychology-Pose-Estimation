@@ -486,10 +486,10 @@ class MatToCsv():
         # Used to calculate FPS
         previous_time = 0
         start_time = time.time()
-        # if self.landscape == True:
-        #     writer = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 10, (self.image_width, self.image_height))
-        # else:
-        #     writer = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 10, (self.image_height, self.image_width))
+        if self.landscape == True:
+            writer = cv2.VideoWriter(self.output_filename + '.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, (self.image_height, self.image_width))
+        else:
+            writer = cv2.VideoWriter(self.output_filename + '.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, (self.image_width, self.image_height))
         
         # Check if two people need to be tracked
         if self.two_people == True:
@@ -560,7 +560,7 @@ class MatToCsv():
 
                     cv2.imshow("Image", frame_grayscale_rgb)
                     cv2.waitKey(1)
-                    # writer.write(frame_grayscale_rgb)
+                    writer.write(frame_grayscale_rgb)
         else:          
             # Loop through all frames
             for frame_idx in range(num_frames):
@@ -614,10 +614,10 @@ class MatToCsv():
 
                     cv2.imshow("Image", frame_grayscale_rgb)
                     cv2.waitKey(1)
-                    #writer.write(frame_grayscale_rgb)
+                    writer.write(frame_grayscale_rgb)
             
         # Calculate and print average FPS
-        #writer.release()
+        writer.release()
         end_time = time.time()
         average_fps = num_frames / (end_time - start_time)
         print(f"Average FPS: {average_fps}")
@@ -638,7 +638,7 @@ class MatToCsv():
         num_files_to_process = len(mat_files)
 
         # Define MediaPipe detectors
-        pose_detector = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+        pose_detector = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.9, min_tracking_confidence=0.5)
 
         for filename in mat_files:
             file_num += 1
@@ -655,7 +655,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="11-15_test", visualize_Pose=True, two_people=False, landscape=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="aiyu2_09_05", visualize_Pose=True, two_people=False, landscape=True)
     myMatToCsv.run()
 
     return

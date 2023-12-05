@@ -33,7 +33,7 @@ class PoseLandmarker():
         self.mp_pose = mp.solutions.pose # type: ignore
         self.pose = self.mp_pose.Pose(static_image_mode=static_image_mode,
                                       min_detection_confidence=min_detection_confidence,
-                                      min_tracking_confidence=min_tracking_confidence)
+                                      min_tracking_confidence=min_tracking_confidence,model_complexity=1)
         self.mp_draw = mp.solutions.drawing_utils # type: ignore
         self.drawing_spec_landmark = self.mp_draw.DrawingSpec(color=(0, 255, 0), thickness=1, circle_radius=2)
         self.drawing_spec_connection = self.mp_draw.DrawingSpec(color=(255, 0, 255), thickness=2, circle_radius=2)
