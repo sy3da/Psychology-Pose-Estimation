@@ -68,8 +68,8 @@ if __name__=="__main__":
     timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
 
     # Choose the name of the folder of NIR images and file of depth data to be processed
-    filename = 'syeda_shame_2'
-    pathname = f'Data/{filename}/'
+    filename = 'landscape'
+    pathname = f'jarv3d 1.7.0/Records/User/{filename}/'
 
     # Specifications for the measurement - image size, total frames, framerates
     # num_frames = 100
@@ -105,6 +105,6 @@ if __name__=="__main__":
         I_values[:, :, i] = I_values_old[i, :, :]
         D_values[:, :, i] = D_values_old[i, :, :]
     
-    orientation_check(I_values[:, :, 0], D_values[:, :, 0])
+    #orientation_check(I_values[:, :, 0], D_values[:, :, 0])
 
     savemat(f'Data/mat/thanos_processed_{filename}.mat', {'I_values': I_values, 'D_values': D_values})

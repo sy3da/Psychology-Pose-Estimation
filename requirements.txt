@@ -4,6 +4,7 @@ opencv-python
 regex
 pillow
 tqdm
+p_tqdm
 glob2
 seaborn
 matplotlib
