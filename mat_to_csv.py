@@ -494,34 +494,42 @@ class MatToCsv():
         # Check if two people need to be tracked
         if self.two_people == True:
             # Loop through all frames
-            for frame_idx in range(num_frames):
+            for frame_idx in range(1, num_frames):
                 # rotate image for landscape mode
                 if self.landscape == True:
                     depth_rotate = np.flip(depth_all[:, :, frame_idx].transpose(),0)
                     intensity_rotate = np.flip(intensity_all[:,:, frame_idx].transpose(),0)
                     
+                    # Select first frame for blank reference
+                    blank_depth = np.flip(depth_all[:, :, 0].transpose(),0)
+                    blank_intensity = np.flip(intensity_all[:,:, 0].transpose(),0)
                     
                     # Split to left and right participants (relative to viewer)
                     frame_depth_left = depth_rotate.copy()
-                    frame_depth_left[:, int(self.image_height/2):(self.image_height-1)] = 0
+                    frame_depth_left[:, int(self.image_height/2):(self.image_height-1)] = blank_depth[:, int(self.image_height/2):(self.image_height-1)]
                     frame_depth_right = depth_rotate.copy()
-                    frame_depth_right[:, 0:int((self.image_height/2))-1] = 0
+                    frame_depth_right[:, 0:int((self.image_height/2))-1] = blank_depth[:, 0:int((self.image_height/2))-1]
                     
                     frame_intensity_left = intensity_rotate.copy()
-                    frame_intensity_left[:, int(self.image_height/2):(self.image_height-1)] = 0
+                    frame_intensity_left[:, int(self.image_height/2):(self.image_height-1)] = blank_intensity[:, int(self.image_height/2):(self.image_height-1)]
                     frame_intensity_right = intensity_rotate.copy()
-                    frame_intensity_right[:, 0:int((self.image_height/2))-1] = 0
+                    frame_intensity_right[:, 0:int((self.image_height/2))-1] = blank_intensity[:, 0:int((self.image_height/2))-1]
+                    
                 else:
+                    # Select first frame for blank reference
+                    blank_depth = depth_all[:, :, 0]
+                    blank_intensity = intensity_all[:,:, 0]
+
                     # Split to left and right participants (relative to viewer)
                     frame_depth_left = depth_all.copy()
-                    frame_depth_left[:, int(self.image_height/2):(self.image_height-1)] = 0
+                    frame_depth_left[:, int(self.image_height/2):(self.image_height-1)] = blank_depth[:, int(self.image_height/2):(self.image_height-1)]
                     frame_depth_right = depth_all.copy()
-                    frame_depth_right[:, 0:int((self.image_height/2))-1] = 0
+                    frame_depth_right[:, 0:int((self.image_height/2))-1] = blank_depth[:, 0:int((self.image_height/2))-1]
                     
                     frame_intensity_left = intensity_all.copy()
-                    frame_intensity_left[:, int(self.image_height/2):(self.image_height-1)] = 0
+                    frame_intensity_left[:, int(self.image_height/2):(self.image_height-1)] = blank_intensity[:, int(self.image_height/2):(self.image_height-1)]
                     frame_intensity_right = intensity_all.copy()
-                    frame_intensity_right[:, 0:int((self.image_height/2))-1] = 0
+                    frame_intensity_right[:, 0:int((self.image_height/2))-1] = blank_intensity[:, 0:int((self.image_height/2))-1]
 
                 # Track face and extract intensity and depth for all ROIs in each side of this frame
 
@@ -549,6 +557,12 @@ class MatToCsv():
                 self._process_pose_landmarks(landmarks_pixels_left, frame_idx, frame_depth_left, frame_intensity_left, frame_grayscale_rgb_left, filename+'_left_participant', participant='Left')
                 self._process_pose_landmarks(landmarks_pixels_right, frame_idx, frame_depth_right, frame_intensity_right, frame_grayscale_rgb_right, filename+'_right_participant', participant='Right')
 
+                cv2.imshow("Image", frame_grayscale_rgb_left)
+                cv2.waitKey()
+
+                cv2.imshow("Image", frame_grayscale_rgb_right)
+                cv2.waitKey()
+
                 if self.visualize_Pose == True:
                     # Combine frame_grayscale_rgb_left and _right
                     frame_grayscale_rgb = np.append(frame_grayscale_rgb_left[:, 0:int((self.image_height/2))-1], frame_grayscale_rgb_right[:, int(self.image_height/2):(self.image_height-1)], 1)
@@ -570,7 +584,7 @@ class MatToCsv():
                     # Display frame
 
                     cv2.imshow("Image", frame_grayscale_rgb)
-                    cv2.waitKey(1)
+                    cv2.waitKey()
                     writer.write(frame_grayscale_rgb)
         else:          
             # Loop through all frames
