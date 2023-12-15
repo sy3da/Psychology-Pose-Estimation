@@ -499,18 +499,29 @@ class MatToCsv():
                 if self.landscape == True:
                     depth_rotate = np.flip(depth_all[:, :, frame_idx].transpose(),0)
                     intensity_rotate = np.flip(intensity_all[:,:, frame_idx].transpose(),0)
-            
+                    
+                    
                     # Split to left and right participants (relative to viewer)
-                    frame_depth_left = depth_rotate[:, 0:int((self.image_height/2))-1]
-                    frame_depth_right = depth_rotate[:, int(self.image_height/2):(self.image_height-1)]
-                    frame_intensity_left = intensity_rotate[:, 0:int((self.image_height/2))-1]
-                    frame_intensity_right = intensity_rotate[:, int(self.image_height/2):(self.image_height-1)]
+                    frame_depth_left = depth_rotate.copy()
+                    frame_depth_left[:, int(self.image_height/2):(self.image_height-1)] = 0
+                    frame_depth_right = depth_rotate.copy()
+                    frame_depth_right[:, 0:int((self.image_height/2))-1] = 0
+                    
+                    frame_intensity_left = intensity_rotate.copy()
+                    frame_intensity_left[:, int(self.image_height/2):(self.image_height-1)] = 0
+                    frame_intensity_right = intensity_rotate.copy()
+                    frame_intensity_right[:, 0:int((self.image_height/2))-1] = 0
                 else:
                     # Split to left and right participants (relative to viewer)
-                    frame_depth_left = depth_all[:, 0:int((self.image_width/2))-1, frame_idx]
-                    frame_depth_right = depth_all[:, int(self.image_width/2):(self.image_width-1), frame_idx]
-                    frame_intensity_left = intensity_all[:, 0:int((self.image_width/2))-1, frame_idx]
-                    frame_intensity_right = intensity_all[:, int(self.image_width/2):(self.image_width-1), frame_idx]
+                    frame_depth_left = depth_all.copy()
+                    frame_depth_left[:, int(self.image_height/2):(self.image_height-1)] = 0
+                    frame_depth_right = depth_all.copy()
+                    frame_depth_right[:, 0:int((self.image_height/2))-1] = 0
+                    
+                    frame_intensity_left = intensity_all.copy()
+                    frame_intensity_left[:, int(self.image_height/2):(self.image_height-1)] = 0
+                    frame_intensity_right = intensity_all.copy()
+                    frame_intensity_right[:, 0:int((self.image_height/2))-1] = 0
 
                 # Track face and extract intensity and depth for all ROIs in each side of this frame
 
@@ -540,25 +551,25 @@ class MatToCsv():
 
                 if self.visualize_Pose == True:
                     # Combine frame_grayscale_rgb_left and _right
-                    frame_grayscale_rgb = np.append(frame_grayscale_rgb_left, frame_grayscale_rgb_right, 1)
+                    frame_grayscale_rgb = np.append(frame_grayscale_rgb_left[:, 0:int((self.image_height/2))-1], frame_grayscale_rgb_right[:, int(self.image_height/2):(self.image_height-1)], 1)
                     
                     # Calculate and overlay FPS
                     current_time = time.time()
                     # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
                     fps = 1 / (current_time - previous_time)
                     previous_time = current_time
-                    cv2.putText(frame_grayscale_rgb_right, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
+                    cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
 
                     # Overlay frame number in top right corner
                     text = f'{frame_idx + 1}'
                     text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 1, 2)[0]
                     text_x = frame_grayscale_rgb.shape[1] - text_size[0] - 20  # Position text at the top right corner
                     text_y = text_size[1] + 20
-                    cv2.putText(frame_grayscale_rgb_right, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
+                    cv2.putText(frame_grayscale_rgb, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
 
                     # Display frame
 
-                    cv2.imshow("Image", frame_grayscale_rgb_right)
+                    cv2.imshow("Image", frame_grayscale_rgb)
                     cv2.waitKey(1)
                     writer.write(frame_grayscale_rgb)
         else:          
@@ -655,7 +666,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="landscape_two-people", visualize_Pose=True, two_people=True, landscape=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="landscape_two", visualize_Pose=True, two_people=True, landscape=True)
     myMatToCsv.run()
 
     return
