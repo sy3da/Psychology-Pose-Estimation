@@ -69,11 +69,11 @@ class PoseLandmarker():
         """
 
         # Get image dimensions
-        image_height, image_width, image_channels = image.shape
-
+        image_height, image_width, image_channels = image.shape 
+        image_rgb = image.copy()
         # CV2 loads images/videos in BGR format, convert to RGB
-        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
+        # image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # image_rgb = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
         results = self.pose.process(image_rgb)
 
         # landmarks_pixels is an array of shape (36, 2) with x, y coordinates (as pixels) for each landmark

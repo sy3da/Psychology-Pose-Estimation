@@ -680,7 +680,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="landscape_two", visualize_Pose=True, two_people=True, landscape=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="blank_testing_two_people2", visualize_Pose=True, two_people=True, landscape=True)
     myMatToCsv.run()
 
     return
