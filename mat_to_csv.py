@@ -5,7 +5,6 @@ import time
 import cv2
 from typing import Tuple
 from scipy.io import loadmat
-#from gekko import GEKKO
 
 from pose_module import PoseLandmarker
 
@@ -277,15 +276,6 @@ class MatToCsv():
             frame_land_x, frame_land_y, frame_land_z = convert_depth_to_xyz(frame_depth, landmark_x, landmark_y)
         """
 
-        # Solve system of equations to find horizontal and vertical FOV angles
-        # m = GEKKO()
-        # v_angle,h_angle = [m.Var(1) for i in range(2)]
-        # m.Equations([v_angle**2+h_angle**2==(fov**2),\
-        #     h_angle/v_angle==image_w/image_h])
-        # m.solve(disp=False)
-        # image_w_angle = h_angle.value
-        # image_h_angle = v_angle.value
-
         image_w_angle = 5159/np.sqrt(6989)
         image_h_angle = 3850/np.sqrt(6989)
 
@@ -545,12 +535,6 @@ class MatToCsv():
                 self._process_pose_landmarks(landmarks_pixels_left, frame_idx, frame_depth_left, frame_intensity_left, frame_grayscale_rgb_left, filename+'_left_participant', participant='Left')
                 self._process_pose_landmarks(landmarks_pixels_right, frame_idx, frame_depth_right, frame_intensity_right, frame_grayscale_rgb_right, filename+'_right_participant', participant='Right')
 
-                #cv2.imshow("Image", frame_grayscale_rgb_left)
-                #cv2.waitKey()
-
-                #cv2.imshow("Image", frame_grayscale_rgb_right)
-                #cv2.waitKey()
-
                 if self.visualize_Pose == True:
                     # Combine frame_grayscale_rgb_left and _right
                     frame_grayscale_rgb = np.append(frame_grayscale_rgb_left[:, 0:int((self.image_width/2))-1], frame_grayscale_rgb_right[:, int(self.image_width/2):(self.image_width-1)], 1)
@@ -572,7 +556,7 @@ class MatToCsv():
                     # Display frame
 
                     cv2.imshow("Image", frame_grayscale_rgb)
-                    cv2.waitKey()
+                    cv2.waitKey(1)
                     writer.write(frame_grayscale_rgb)
         else:          
             # Loop through all frames
@@ -664,7 +648,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="blank_testing_two_people2", visualize_Pose=True, two_people=True, landscape=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="blank_testing_two_people5", visualize_Pose=True, two_people=True, landscape=True)
     myMatToCsv.run()
 
     return
