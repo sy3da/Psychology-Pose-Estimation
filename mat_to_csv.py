@@ -461,7 +461,7 @@ class MatToCsv():
         return
     
 
-    def _process_file(self, file_num: int, num_files_to_process: int, filename: str, pose_detector: PoseLandmarker) -> None:
+    def _process_file(self, file_num: int, num_files_to_process: int, filename: str, pose_detector_1: PoseLandmarker, pose_detector_2: PoseLandmarker) -> None:
         """
         Load and process .mat file
 
@@ -528,8 +528,8 @@ class MatToCsv():
 
                 # Get pixel locations of all pose landmarks for both skeletons
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
-                pose_detected_left, contains_invalid_landmarks_left, landmarks_pixels_left = pose_detector.get_landmarks(image=frame_grayscale_rgb_left, draw=self.visualize_Pose)
-                pose_detected_right, contains_invalid_landmarks_right, landmarks_pixels_right = pose_detector.get_landmarks(image=frame_grayscale_rgb_right, draw=self.visualize_Pose)
+                pose_detected_left, contains_invalid_landmarks_left, landmarks_pixels_left = pose_detector_1.get_landmarks(image=frame_grayscale_rgb_left, draw=self.visualize_Pose)
+                pose_detected_right, contains_invalid_landmarks_right, landmarks_pixels_right = pose_detector_2.get_landmarks(image=frame_grayscale_rgb_right, draw=self.visualize_Pose)
 
                 # if pose_detected:
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
@@ -586,7 +586,7 @@ class MatToCsv():
 
                 # Get pixel locations of all pose landmarks
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
-                pose_detected, contains_invalid_landmarks, landmarks_pixels = pose_detector.get_landmarks(image=frame_grayscale_rgb, draw=self.visualize_Pose)
+                pose_detected, contains_invalid_landmarks, landmarks_pixels = pose_detector_1.get_landmarks(image=frame_grayscale_rgb, draw=self.visualize_Pose)
 
                 # if pose_detected:
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
@@ -638,13 +638,14 @@ class MatToCsv():
         num_files_to_process = len(mat_files)
 
         # Define MediaPipe detectors
-        pose_detector = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.9, min_tracking_confidence=0.5)
+        pose_detector_1 = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.9, min_tracking_confidence=0.5)
+        pose_detector_2 = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.9, min_tracking_confidence=0.5)
 
         for filename in mat_files:
             file_num += 1
 
             # Process the file
-            self._process_file(file_num, num_files_to_process, filename, pose_detector)
+            self._process_file(file_num, num_files_to_process, filename, pose_detector_1, pose_detector_2)
 
         return
     
