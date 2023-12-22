@@ -547,18 +547,18 @@ class MatToCsv():
                     # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
                     fps = 1 / (current_time - previous_time)
                     previous_time = current_time
-                    cv2.putText(frame_grayscale_rgb_right, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
+                    cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
 
                     # Overlay frame number in top right corner
                     text = f'{frame_idx + 1}'
                     text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 1, 2)[0]
                     text_x = frame_grayscale_rgb.shape[1] - text_size[0] - 20  # Position text at the top right corner
                     text_y = text_size[1] + 20
-                    cv2.putText(frame_grayscale_rgb_right, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
+                    cv2.putText(frame_grayscale_rgb, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
 
                     # Display frame
 
-                    cv2.imshow("Image", frame_grayscale_rgb_right)
+                    cv2.imshow("Image", frame_grayscale_rgb)
                     cv2.waitKey(1)
                     writer.write(frame_grayscale_rgb)
         else:          
@@ -656,7 +656,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="landscape_two-people", visualize_Pose=True, two_people=True, landscape=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="blank_testing_two_people5", visualize_Pose=True, two_people=True, landscape=True)
     myMatToCsv.run()
 
     return
