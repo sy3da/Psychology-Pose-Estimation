@@ -44,10 +44,10 @@ class MatToCsv():
         
         if self.two_people == True:
             # Create two output csv files (overwrite if it already exists)
-            self.output_csv_filepath_left = os.path.join(self.input_dir, self.output_filename + '_left_participant.csv')
+            self.output_csv_filepath_left = os.path.join(self.input_dir, '249800_'+ self.output_filename + '_F_22.csv')
             self.output_csv_file_left = open(self.output_csv_filepath_left, 'w')
 
-            self.output_csv_filepath_right = os.path.join(self.input_dir, self.output_filename + '_right_participant.csv')
+            self.output_csv_filepath_right = os.path.join(self.input_dir, '793320_' + self.output_filename + '_F_19.csv')
             self.output_csv_file_right = open(self.output_csv_filepath_right, 'w')
 
             # Write header row
@@ -656,7 +656,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="blank_testing_two_people5", visualize_Pose=True, two_people=True, landscape=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="104312_17-11-23_1_10_30_joint_disappointment", visualize_Pose=True, two_people=True, landscape=True)
     myMatToCsv.run()
 
     return
