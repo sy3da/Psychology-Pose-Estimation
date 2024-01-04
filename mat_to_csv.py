@@ -5,7 +5,6 @@ import time
 import cv2
 from typing import Tuple
 from scipy.io import loadmat
-#from gekko import GEKKO
 
 from pose_module import PoseLandmarker
 
@@ -31,16 +30,25 @@ class MatToCsv():
         # Name of output .csv file
         self.output_filename = output_filename
 
-        # Define image width, height, and fov
-        self.image_width = image_width
-        self.image_height = image_height
-        self.image_fov = image_fov
         # Whether or not to visualize pose skeleton
         self.visualize_Pose = visualize_Pose
+
         # Whether or not there are two people
         self.two_people = two_people
+
         # Whether the picture needs to be landscape
         self.landscape = landscape
+
+        if self.landscape == True:
+            # Define image width, height, and fov (flipping height and width)
+            self.image_width = image_height
+            self.image_height = image_width
+            self.image_fov = image_fov
+        else:
+            # Define image width, height, and fov
+            self.image_width = image_width
+            self.image_height = image_height
+            self.image_fov = image_fov
         
         if self.two_people == True:
             # Create two output csv files (overwrite if it already exists)
@@ -199,6 +207,11 @@ class MatToCsv():
         depth_all = mat_file['D_values']
         intensity_all = mat_file['I_values']
 
+        # Rotate matrices if video is recorded in landscape
+        if self.landscape == True:
+            depth_all = np.flip(depth_all[:, :, :].transpose(1,0,2),0)
+            intensity_all = np.flip(intensity_all[:, :, :].transpose(1,0,2),0)
+
         return depth_all, intensity_all
     
     def _convert_camera_intensity_to_grayscale(self, intensity_array: npt.NDArray[np.int16]) -> np.ndarray:
@@ -262,15 +275,6 @@ class MatToCsv():
         Example usage:
             frame_land_x, frame_land_y, frame_land_z = convert_depth_to_xyz(frame_depth, landmark_x, landmark_y)
         """
-
-        # Solve system of equations to find horizontal and vertical FOV angles
-        # m = GEKKO()
-        # v_angle,h_angle = [m.Var(1) for i in range(2)]
-        # m.Equations([v_angle**2+h_angle**2==(fov**2),\
-        #     h_angle/v_angle==image_w/image_h])
-        # m.solve(disp=False)
-        # image_w_angle = h_angle.value
-        # image_h_angle = v_angle.value
 
         image_w_angle = 5159/np.sqrt(6989)
         image_h_angle = 3850/np.sqrt(6989)
@@ -339,7 +343,7 @@ class MatToCsv():
             if not self._is_valid_pixel_coordinate((landmark_pixel_coord_x, landmark_pixel_coord_y), self.image_width, self.image_height):
                 # The pixel coordinates are invalid
                 
-                # Set the x, y, and z values to -int16.max (-32767)
+                # Set the x, y, and z values to -int16.max (-32767) - maybe take this out to remove from excel file???
                 xyz_values[landmark_idx][0] = -np.iinfo(np.int16).max
                 xyz_values[landmark_idx][1] = -np.iinfo(np.int16).max
                 xyz_values[landmark_idx][2] = -np.iinfo(np.int16).max
@@ -461,7 +465,7 @@ class MatToCsv():
         return
     
 
-    def _process_file(self, file_num: int, num_files_to_process: int, filename: str, pose_detector: PoseLandmarker) -> None:
+    def _process_file(self, file_num: int, num_files_to_process: int, filename: str, pose_detector_1: PoseLandmarker, pose_detector_2: PoseLandmarker) -> None:
         """
         Load and process .mat file
 
@@ -486,52 +490,26 @@ class MatToCsv():
         # Used to calculate FPS
         previous_time = 0
         start_time = time.time()
-        if self.landscape == True:
-            writer = cv2.VideoWriter(self.output_filename + '.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, (self.image_height, self.image_width))
-        else:
-            writer = cv2.VideoWriter(self.output_filename + '.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, (self.image_width, self.image_height))
+        writer = cv2.VideoWriter(self.output_filename + '.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, (self.image_width, self.image_height))
         
         # Check if two people need to be tracked
         if self.two_people == True:
             # Loop through all frames
-            for frame_idx in range(1, num_frames):
-                # rotate image for landscape mode
-                if self.landscape == True:
-                    depth_rotate = np.flip(depth_all[:, :, frame_idx].transpose(),0)
-                    intensity_rotate = np.flip(intensity_all[:,:, frame_idx].transpose(),0)
-                    
-                    # Select first frame for blank reference
-                    blank_depth = np.flip(depth_all[:, :, 0].transpose(),0)
-                    blank_intensity = np.flip(intensity_all[:,:, 0].transpose(),0)
-                    
-                    # Split to left and right participants (relative to viewer)
-                    frame_depth_left = depth_rotate.copy()
-                    frame_depth_left[:, int(self.image_height/2):(self.image_height-1)] = blank_depth[:, int(self.image_height/2):(self.image_height-1)]
-                    frame_depth_right = depth_rotate.copy()
-                    frame_depth_right[:, 0:int((self.image_height/2))-1] = blank_depth[:, 0:int((self.image_height/2))-1]
-                    
-                    frame_intensity_left = intensity_rotate.copy()
-                    frame_intensity_left[:, int(self.image_height/2):(self.image_height-1)] = blank_intensity[:, int(self.image_height/2):(self.image_height-1)]
-                    frame_intensity_right = intensity_rotate.copy()
-                    frame_intensity_right[:, 0:int((self.image_height/2))-1] = blank_intensity[:, 0:int((self.image_height/2))-1]
-                    
-                else:
-                    # Select first frame for blank reference
-                    blank_depth = depth_all[:, :, 0]
-                    blank_intensity = intensity_all[:,:, 0]
+            for frame_idx in range(1, num_frames):   
+                # Select first frame for blank reference
+                blank_depth = depth_all[:, :, 0]
+                blank_intensity = intensity_all[:,:, 0]
 
-                    # Split to left and right participants (relative to viewer)
-                    frame_depth_left = depth_all.copy()
-                    frame_depth_left[:, int(self.image_height/2):(self.image_height-1)] = blank_depth[:, int(self.image_height/2):(self.image_height-1)]
-                    frame_depth_right = depth_all.copy()
-                    frame_depth_right[:, 0:int((self.image_height/2))-1] = blank_depth[:, 0:int((self.image_height/2))-1]
-                    
-                    frame_intensity_left = intensity_all.copy()
-                    frame_intensity_left[:, int(self.image_height/2):(self.image_height-1)] = blank_intensity[:, int(self.image_height/2):(self.image_height-1)]
-                    frame_intensity_right = intensity_all.copy()
-                    frame_intensity_right[:, 0:int((self.image_height/2))-1] = blank_intensity[:, 0:int((self.image_height/2))-1]
-
-                # Track face and extract intensity and depth for all ROIs in each side of this frame
+                # Split to left and right participants (relative to viewer)
+                frame_depth_left = depth_all[:, :, frame_idx].copy()
+                frame_depth_left[:, int(self.image_width/2):(self.image_width-1)] = blank_depth[:, int(self.image_width/2):(self.image_width-1)]
+                frame_depth_right = depth_all[:, :, frame_idx].copy()
+                frame_depth_right[:, 0:int((self.image_width/2))-1] = blank_depth[:, 0:int((self.image_width/2))-1]
+                
+                frame_intensity_left = intensity_all[:, :, frame_idx].copy()
+                frame_intensity_left[:, int(self.image_width/2):(self.image_width-1)] = blank_intensity[:, int(self.image_width/2):(self.image_width-1)]
+                frame_intensity_right = intensity_all[:, :, frame_idx].copy()
+                frame_intensity_right[:, 0:int((self.image_width/2))-1] = blank_intensity[:, 0:int((self.image_width/2))-1]
 
                 # Convert each half of the frame's confidence values to a grayscale image (n,d)
                 frame_grayscale_left = self._convert_camera_intensity_to_grayscale(frame_intensity_left)
@@ -551,6 +529,9 @@ class MatToCsv():
                 pose_detected_left, contains_invalid_landmarks_left, landmarks_pixels_left = pose_detector.get_landmarks(image=frame_grayscale_rgb_left, draw=self.visualize_Pose)
                 pose_detected_right, contains_invalid_landmarks_right, landmarks_pixels_right = pose_detector.get_landmarks(image=frame_grayscale_rgb_right, draw=self.visualize_Pose)
                 
+                pose_detected_left, contains_invalid_landmarks_left, landmarks_pixels_left = pose_detector_1.get_landmarks(image=frame_grayscale_rgb_left, draw=self.visualize_Pose)
+                pose_detected_right, contains_invalid_landmarks_right, landmarks_pixels_right = pose_detector_2.get_landmarks(image=frame_grayscale_rgb_right, draw=self.visualize_Pose)
+
                 # if pose_detected:
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
                 #     self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
@@ -566,7 +547,7 @@ class MatToCsv():
 
                 if self.visualize_Pose == True:
                     # Combine frame_grayscale_rgb_left and _right
-                    frame_grayscale_rgb = np.append(frame_grayscale_rgb_left[:, 0:int((self.image_height/2))-1], frame_grayscale_rgb_right[:, int(self.image_height/2):(self.image_height-1)], 1)
+                    frame_grayscale_rgb = np.append(frame_grayscale_rgb_left[:, 0:int((self.image_width/2))-1], frame_grayscale_rgb_right[:, int(self.image_width/2):(self.image_width-1)], 1)
                     
                     # Calculate and overlay FPS
                     current_time = time.time()
@@ -590,13 +571,8 @@ class MatToCsv():
         else:          
             # Loop through all frames
             for frame_idx in range(num_frames):
-                # rotate image for landscape mode
-                if self.landscape == True:
-                    frame_depth = np.flip(depth_all[:, :, frame_idx].transpose(),0)
-                    frame_intensity = np.flip(intensity_all[:,:, frame_idx].transpose(),0)
-                else:
-                    frame_depth = depth_all[:, :, frame_idx]
-                    frame_intensity = intensity_all[:, :, frame_idx]
+                frame_depth = depth_all[:, :, frame_idx]
+                frame_intensity = intensity_all[:, :, frame_idx]
 
                 # Track face and extract intensity and depth for all ROIs in this frame
 
@@ -612,7 +588,7 @@ class MatToCsv():
 
                 # Get pixel locations of all pose landmarks
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
-                pose_detected, contains_invalid_landmarks, landmarks_pixels = pose_detector.get_landmarks(image=frame_grayscale_rgb, draw=self.visualize_Pose)
+                pose_detected, contains_invalid_landmarks, landmarks_pixels = pose_detector_1.get_landmarks(image=frame_grayscale_rgb, draw=self.visualize_Pose)
 
                 # if pose_detected:
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
@@ -664,13 +640,14 @@ class MatToCsv():
         num_files_to_process = len(mat_files)
 
         # Define MediaPipe detectors
-        pose_detector = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.9, min_tracking_confidence=0.5)
+        pose_detector_1 = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.9, min_tracking_confidence=0.5)
+        pose_detector_2 = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.9, min_tracking_confidence=0.5)
 
         for filename in mat_files:
             file_num += 1
 
             # Process the file
-            self._process_file(file_num, num_files_to_process, filename, pose_detector)
+            self._process_file(file_num, num_files_to_process, filename, pose_detector_1, pose_detector_2)
 
         return
     

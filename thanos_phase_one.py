@@ -110,4 +110,4 @@ if __name__=="__main__":
     
     #orientation_check(I_values[:, :, 0], D_values[:, :, 0])
 
-    savemat(f'Data/mat/thanos_processed_{filename}.mat', {'I_values': I_values, 'D_values': D_values})
+    savemat(f'Data/mat/{filename}.mat', {'I_values': I_values, 'D_values': D_values})
