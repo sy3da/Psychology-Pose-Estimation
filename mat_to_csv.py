@@ -547,21 +547,22 @@ class MatToCsv():
 
                 # Get pixel locations of all pose landmarks for both skeletons
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
+                
                 pose_detected_left, contains_invalid_landmarks_left, landmarks_pixels_left = pose_detector.get_landmarks(image=frame_grayscale_rgb_left, draw=self.visualize_Pose)
                 pose_detected_right, contains_invalid_landmarks_right, landmarks_pixels_right = pose_detector.get_landmarks(image=frame_grayscale_rgb_right, draw=self.visualize_Pose)
-
+                
                 # if pose_detected:
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
                 #     self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
-                
+
                 self._process_pose_landmarks(landmarks_pixels_left, frame_idx, frame_depth_left, frame_intensity_left, frame_grayscale_rgb_left, filename+'_left_participant', participant='Left')
                 self._process_pose_landmarks(landmarks_pixels_right, frame_idx, frame_depth_right, frame_intensity_right, frame_grayscale_rgb_right, filename+'_right_participant', participant='Right')
+                
+                # cv2.imshow("Image", frame_grayscale_rgb_left)
+                # cv2.waitKey(0)
 
-                cv2.imshow("Image", frame_grayscale_rgb_left)
-                cv2.waitKey()
-
-                cv2.imshow("Image", frame_grayscale_rgb_right)
-                cv2.waitKey()
+                # cv2.imshow("Image", frame_grayscale_rgb_right)
+                # cv2.waitKey(0)
 
                 if self.visualize_Pose == True:
                     # Combine frame_grayscale_rgb_left and _right
@@ -584,7 +585,7 @@ class MatToCsv():
                     # Display frame
 
                     cv2.imshow("Image", frame_grayscale_rgb)
-                    cv2.waitKey()
+                    cv2.waitKey(1)
                     writer.write(frame_grayscale_rgb)
         else:          
             # Loop through all frames
@@ -680,7 +681,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="landscape_two", visualize_Pose=True, two_people=True, landscape=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="blank_testing", visualize_Pose=True, two_people=True, landscape=True)
     myMatToCsv.run()
 
     return
