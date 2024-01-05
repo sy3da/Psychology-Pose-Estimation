@@ -15,7 +15,7 @@ class MatToCsv():
     converts depth to x,y,z, and outputs them to a csv file
     """
 
-    def __init__(self, input_dir: str, output_filename: str, image_width: int = 600, image_height: int = 804, image_fov: int = 77, visualize_Pose: bool = False, two_people: bool = False, landscape: bool = False):
+    def __init__(self, input_dir: str, image_width: int = 600, image_height: int = 804, image_fov: int = 77, left_participant_id: str = '000000_', left_part_demographics: str = '_M_21' , right_participant_id: str = '000000_', right_part_demographics: str = '_F_22', visualize_Pose: bool = False, two_people: bool = False, landscape: bool = False):
         """
         Initialize MatToCsv object
 
@@ -29,7 +29,7 @@ class MatToCsv():
         self.input_dir = input_dir
 
         # Name of output .csv file
-        self.output_filename = output_filename
+        # self.output_filename = output_filename
 
         # Define image width, height, and fov
         self.image_width = image_width
@@ -41,92 +41,13 @@ class MatToCsv():
         self.two_people = two_people
         # Whether the picture needs to be landscape
         self.landscape = landscape
-        
-        if self.two_people == True:
-            # Create two output csv files (overwrite if it already exists)
-            self.output_csv_filepath_left = os.path.join(self.input_dir, '249800_'+ self.output_filename + '_F_22.csv')
-            self.output_csv_file_left = open(self.output_csv_filepath_left, 'w')
 
-            self.output_csv_filepath_right = os.path.join(self.input_dir, '793320_' + self.output_filename + '_F_19.csv')
-            self.output_csv_file_right = open(self.output_csv_filepath_right, 'w')
+        # if there are two participants the left and right subject ids
+        self.left_participant_id = left_participant_id
+        self.right_participant_id = right_participant_id
+        self.left_part_demographics = left_part_demographics
+        self.right_part_demographics = right_part_demographics
 
-            # Write header row
-            self.output_csv_file_left.write('filename,frame_num,'
-                                        'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_RawX,Hip_Center_RawY,'
-                                        'Spine_X,Spine_Y,Spine_Z,Spine_RawX,Spine_RawY,'
-                                        'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_RawX,Shoulder_Center_RawY,'
-                                        'Head_X,Head_Y,Head_Z,Head_RawX,Head_RawY,'
-                                        'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_RawX,Shoulder_Right_RawY,'
-                                        'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_RawX,Elbow_Right_RawY,'
-                                        'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_RawX,Wrist_Right_RawY,'
-                                        'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_RawX,Hand_Right_RawY,'
-                                        'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_RawX,Shoulder_Left_RawY,'
-                                        'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_RawX,Elbow_Left_RawY,'
-                                        'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_RawX,Wrist_Left_RawY,'
-                                        'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_RawX,Hand_Left_RawY,'
-                                        'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_RawX,Hip_Right_RawY,'
-                                        'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_RawX,Knee_Right_RawY,'
-                                        'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_RawX,Ankle_Right_RawY,'
-                                        'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_RawX,Foot_Right_RawY,'
-                                        'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_RawX,Hip_Left_RawY,'
-                                        'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_RawX,Knee_Left_RawY,'
-                                        'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_RawX,Ankle_Left_RawY,'
-                                        'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_RawX,Foot_Left_RawY\n')
-        
-            self.output_csv_file_right.write('filename,frame_num,'
-                                        'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_RawX,Hip_Center_RawY,'
-                                        'Spine_X,Spine_Y,Spine_Z,Spine_RawX,Spine_RawY,'
-                                        'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_RawX,Shoulder_Center_RawY,'
-                                        'Head_X,Head_Y,Head_Z,Head_RawX,Head_RawY,'
-                                        'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_RawX,Shoulder_Right_RawY,'
-                                        'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_RawX,Elbow_Right_RawY,'
-                                        'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_RawX,Wrist_Right_RawY,'
-                                        'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_RawX,Hand_Right_RawY,'
-                                        'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_RawX,Shoulder_Left_RawY,'
-                                        'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_RawX,Elbow_Left_RawY,'
-                                        'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_RawX,Wrist_Left_RawY,'
-                                        'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_RawX,Hand_Left_RawY,'
-                                        'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_RawX,Hip_Right_RawY,'
-                                        'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_RawX,Knee_Right_RawY,'
-                                        'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_RawX,Ankle_Right_RawY,'
-                                        'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_RawX,Foot_Right_RawY,'
-                                        'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_RawX,Hip_Left_RawY,'
-                                        'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_RawX,Knee_Left_RawY,'
-                                        'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_RawX,Ankle_Left_RawY,'
-                                        'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_RawX,Foot_Left_RawY\n')
-            
-        else:
-        
-            # Create output csv file (overwrite if it already exists)
-            self.output_csv_filepath = os.path.join(self.input_dir, self.output_filename + '.csv')
-            self.output_csv_file = open(self.output_csv_filepath, 'w')
-
-            # Write header row
-            self.output_csv_file.write('filename,frame_num,'
-                                        'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_RawX,Hip_Center_RawY,'
-                                        'Spine_X,Spine_Y,Spine_Z,Spine_RawX,Spine_RawY,'
-                                        'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_RawX,Shoulder_Center_RawY,'
-                                        'Head_X,Head_Y,Head_Z,Head_RawX,Head_RawY,'
-                                        'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_RawX,Shoulder_Right_RawY,'
-                                        'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_RawX,Elbow_Right_RawY,'
-                                        'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_RawX,Wrist_Right_RawY,'
-                                        'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_RawX,Hand_Right_RawY,'
-                                        'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_RawX,Shoulder_Left_RawY,'
-                                        'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_RawX,Elbow_Left_RawY,'
-                                        'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_RawX,Wrist_Left_RawY,'
-                                        'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_RawX,Hand_Left_RawY,'
-                                        'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_RawX,Hip_Right_RawY,'
-                                        'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_RawX,Knee_Right_RawY,'
-                                        'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_RawX,Ankle_Right_RawY,'
-                                        'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_RawX,Foot_Right_RawY,'
-                                        'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_RawX,Hip_Left_RawY,'
-                                        'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_RawX,Knee_Left_RawY,'
-                                        'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_RawX,Ankle_Left_RawY,'
-                                        'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_RawX,Foot_Left_RawY\n')
-
-        # Set flag to indicate whether or not the class has been cleaned up
-        # (either manually or automatically if the destructor was called by the garbage
-        # collector)
         self.cleaned_up = False
         
         return
@@ -643,7 +564,96 @@ class MatToCsv():
 
         for filename in mat_files:
             file_num += 1
+            self.output_filename = filename
 
+            if self.two_people == True:
+                # Create two output csv files (overwrite if it already exists)
+                #self.output_csv_filepath_left = os.path.join(self.input_dir, '249800_'+ self.output_filename + '_F_22.csv')
+                self.output_csv_filepath_left = os.path.join(self.input_dir, self.left_participant_id + self.output_filename + self.left_part_demographics + '.csv')
+                self.output_csv_file_left = open(self.output_csv_filepath_left, 'w')
+
+                #self.output_csv_filepath_right = os.path.join(self.input_dir, '793320_' + self.output_filename + '_F_19.csv')
+                self.output_csv_filepath_right = os.path.join(self.input_dir, self.right_participant_id + self.output_filename + self.right_part_demographics + '.csv')
+                self.output_csv_file_right = open(self.output_csv_filepath_right, 'w')
+
+                # Write header row
+                self.output_csv_file_left.write('filename,frame_num,'
+                                            'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_RawX,Hip_Center_RawY,'
+                                            'Spine_X,Spine_Y,Spine_Z,Spine_RawX,Spine_RawY,'
+                                            'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_RawX,Shoulder_Center_RawY,'
+                                            'Head_X,Head_Y,Head_Z,Head_RawX,Head_RawY,'
+                                            'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_RawX,Shoulder_Right_RawY,'
+                                            'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_RawX,Elbow_Right_RawY,'
+                                            'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_RawX,Wrist_Right_RawY,'
+                                            'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_RawX,Hand_Right_RawY,'
+                                            'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_RawX,Shoulder_Left_RawY,'
+                                            'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_RawX,Elbow_Left_RawY,'
+                                            'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_RawX,Wrist_Left_RawY,'
+                                            'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_RawX,Hand_Left_RawY,'
+                                            'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_RawX,Hip_Right_RawY,'
+                                            'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_RawX,Knee_Right_RawY,'
+                                            'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_RawX,Ankle_Right_RawY,'
+                                            'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_RawX,Foot_Right_RawY,'
+                                            'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_RawX,Hip_Left_RawY,'
+                                            'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_RawX,Knee_Left_RawY,'
+                                            'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_RawX,Ankle_Left_RawY,'
+                                            'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_RawX,Foot_Left_RawY\n')
+        
+                self.output_csv_file_right.write('filename,frame_num,'
+                                            'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_RawX,Hip_Center_RawY,'
+                                            'Spine_X,Spine_Y,Spine_Z,Spine_RawX,Spine_RawY,'
+                                            'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_RawX,Shoulder_Center_RawY,'
+                                            'Head_X,Head_Y,Head_Z,Head_RawX,Head_RawY,'
+                                            'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_RawX,Shoulder_Right_RawY,'
+                                            'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_RawX,Elbow_Right_RawY,'
+                                            'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_RawX,Wrist_Right_RawY,'
+                                            'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_RawX,Hand_Right_RawY,'
+                                            'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_RawX,Shoulder_Left_RawY,'
+                                            'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_RawX,Elbow_Left_RawY,'
+                                            'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_RawX,Wrist_Left_RawY,'
+                                            'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_RawX,Hand_Left_RawY,'
+                                            'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_RawX,Hip_Right_RawY,'
+                                            'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_RawX,Knee_Right_RawY,'
+                                            'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_RawX,Ankle_Right_RawY,'
+                                            'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_RawX,Foot_Right_RawY,'
+                                            'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_RawX,Hip_Left_RawY,'
+                                            'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_RawX,Knee_Left_RawY,'
+                                            'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_RawX,Ankle_Left_RawY,'
+                                            'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_RawX,Foot_Left_RawY\n')
+            
+            else:
+        
+                # Create output csv file (overwrite if it already exists)
+                self.output_csv_filepath = os.path.join(self.input_dir, self.output_filename + '.csv')
+                self.output_csv_file = open(self.output_csv_filepath, 'w')
+
+                # Write header row
+                self.output_csv_file.write('filename,frame_num,'
+                                        'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_RawX,Hip_Center_RawY,'
+                                        'Spine_X,Spine_Y,Spine_Z,Spine_RawX,Spine_RawY,'
+                                        'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_RawX,Shoulder_Center_RawY,'
+                                        'Head_X,Head_Y,Head_Z,Head_RawX,Head_RawY,'
+                                        'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_RawX,Shoulder_Right_RawY,'
+                                        'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_RawX,Elbow_Right_RawY,'
+                                        'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_RawX,Wrist_Right_RawY,'
+                                        'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_RawX,Hand_Right_RawY,'
+                                        'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_RawX,Shoulder_Left_RawY,'
+                                        'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_RawX,Elbow_Left_RawY,'
+                                        'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_RawX,Wrist_Left_RawY,'
+                                        'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_RawX,Hand_Left_RawY,'
+                                        'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_RawX,Hip_Right_RawY,'
+                                        'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_RawX,Knee_Right_RawY,'
+                                        'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_RawX,Ankle_Right_RawY,'
+                                        'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_RawX,Foot_Right_RawY,'
+                                        'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_RawX,Hip_Left_RawY,'
+                                        'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_RawX,Knee_Left_RawY,'
+                                        'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_RawX,Ankle_Left_RawY,'
+                                        'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_RawX,Foot_Left_RawY\n')
+
+            # Set flag to indicate whether or not the class has been cleaned up
+            # (either manually or automatically if the destructor was called by the garbage
+            # collector)
+            self.cleaned_up = False
             # Process the file
             self._process_file(file_num, num_files_to_process, filename, pose_detector_1, pose_detector_2)
 
@@ -656,7 +666,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, output_filename="104312_17-11-23_1_10_30_joint_disappointment", visualize_Pose=True, two_people=True, landscape=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=False, landscape=False)
     myMatToCsv.run()
 
     return

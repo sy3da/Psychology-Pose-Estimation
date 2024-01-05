@@ -68,8 +68,8 @@ if __name__=="__main__":
     timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
 
     # Choose the name of the folder of NIR images and file of depth data to be processed
-    filename = 'landscape'
-    pathname = f'jarv3d 1.7.0/Records/User/{filename}/'
+    filename = 'Collective_15'
+    pathname = f'Data/Collective/{filename}/'
 
     # Specifications for the measurement - image size, total frames, framerates
     # num_frames = 100
@@ -107,4 +107,4 @@ if __name__=="__main__":
     
     #orientation_check(I_values[:, :, 0], D_values[:, :, 0])
 
-    savemat(f'Data/mat/thanos_processed_{filename}.mat', {'I_values': I_values, 'D_values': D_values})
+    savemat(f'Data/mat/{filename}.mat', {'I_values': I_values, 'D_values': D_values})
