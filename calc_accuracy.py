@@ -59,15 +59,17 @@ def calc_hip_to_hip(lhip_x, lhip_y, lhip_z, rhip_x, rhip_y, rhip_z):
 
 if __name__ == "__main__":
     viz = False
+    true_lens = np.array([[36, 37, 25, 25, 32, 32]])
+    output_filename = 'accuracy.csv'
+    
     # Get path to csv files and list of csv file names
     csv_dir = os.path.join(os.getcwd(), 'Data', 'mat', 'csv')
     files = _get_csv_files(csv_dir)
 
     # Determine number of files to process
     num_files_to_process = len(files)
-
-    true_lens = np.array([[36, 37, 25, 25, 32, 32]])
     
+    # Create output matrix
     output = np.zeros((num_files_to_process+1, 3), dtype='U100')
     output[0, :] = np.array([['Filename', 'Mean Error', 'STD of Errors']])
     
@@ -127,4 +129,4 @@ if __name__ == "__main__":
         
     print(output)
     df = pd.DataFrame(output)
-    df.to_csv('accuracy.csv', header=False, index=False)
+    df.to_csv(output_filename, header=False, index=False)
