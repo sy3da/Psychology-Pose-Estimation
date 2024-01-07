@@ -58,19 +58,21 @@ def calc_hip_to_hip(lhip_x, lhip_y, lhip_z, rhip_x, rhip_y, rhip_z):
     return distance
 
 if __name__ == "__main__":
+    viz = False
     # Get path to csv files and list of csv file names
     csv_dir = os.path.join(os.getcwd(), 'Data', 'mat', 'csv')
     files = _get_csv_files(csv_dir)
 
     # Determine number of files to process
-    file_num = 0
     num_files_to_process = len(files)
 
     true_lens = np.array([[36, 37, 25, 25, 32, 32]])
     
+    output = np.zeros((num_files_to_process+1, 3), dtype='U100')
+    output[0, :] = np.array([['Filename', 'Mean Error', 'STD of Errors']])
+    
     # Loop through files
-    for filename in files:
-        file_num += 1
+    for file_num, filename in enumerate(files):
         data = read_csv(csv_dir + '/' + filename + '.csv')
         lens = np.zeros((len(data), 6))
 
@@ -98,36 +100,31 @@ if __name__ == "__main__":
         mean_error = np.mean(sum_errors)
         std_error = np.std(sum_errors)
         
-        print(filename)
-        print(f'Mean Error: {mean_error}')
-        print(f'Stdev. of Errors: {std_error}')
-        print()
+        output[file_num+1, :] = np.array([[filename, mean_error, std_error]], dtype='U100')
         
-        fig, (ax1, ax2) = plt.subplots(1, 2, layout='constrained', figsize=(9,5))
+        if viz:
+            print(filename)
+            print(f'Mean Error: {mean_error}')
+            print(f'STD of Errors: {std_error}')
+            print()
+            
+            fig, (ax1, ax2) = plt.subplots(1, 2, layout='constrained', figsize=(9,5))
 
-        # Plotting 'lens' data on the first subplot
-        ax1.plot(lens)
-        ax1.set_xlabel('Frame Number')
-        ax1.set_ylabel('Length (cm)')
-        ax1.set_title(f'Segment Lengths: {filename}')
+            # Plotting 'lens' data on the first subplot
+            ax1.plot(lens)
+            ax1.set_xlabel('Frame Number')
+            ax1.set_ylabel('Length (cm)')
+            ax1.set_title(f'Segment Lengths: {filename}')
+            
+            # Plotting 'errors' data on the second subplot
+            ax2.plot(errors)
+            ax2.set_xlabel('Frame Number')
+            ax2.set_title(f'Segment Errors: {filename}')
+            
+            # Creating a shared legend for both subplots
+            fig.legend(['Shoulder-Shoulder', 'Hip-Hip', 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'], loc='outside lower center', ncol=6)
+            plt.show()
         
-        # Plotting 'errors' data on the second subplot
-        ax2.plot(errors)
-        ax2.set_xlabel('Frame Number')
-        ax2.set_title(f'Segment Errors: {filename}')
-        
-        # Creating a shared legend for both subplots
-        fig.legend(['Shoulder-Shoulder', 'Hip-Hip', 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'], loc='outside lower center', ncol=6)
-        plt.show()
-        
-        # plt.plot(lens)
-        # plt.xlabel('Frame Number')
-        # plt.ylabel('Length (cm)')
-        # plt.legend(['Shoulder-Shoulder', 'Hip-Hip', 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'], bbox_to_anchor=(1.05, 0.5), loc='center left')
-        # plt.title(f'Segement Lengths: {filename}')
-
-        # plt.plot(errors)
-        # plt.xlabel('Frame Number')
-        # plt.ylabel('Length (cm)')
-        # plt.legend(['Shoulder-Shoulder', 'Hip-Hip', 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'], bbox_to_anchor=(1.05, 0.5), loc='center left')
-        # plt.title(f'Segement Errors: {filename}')
+    print(output)
+    df = pd.DataFrame(output)
+    df.to_csv('accuracy.csv', header=False, index=False)
