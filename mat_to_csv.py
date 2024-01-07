@@ -569,11 +569,11 @@ class MatToCsv():
             if self.two_people == True:
                 # Create two output csv files (overwrite if it already exists)
                 #self.output_csv_filepath_left = os.path.join(self.input_dir, '249800_'+ self.output_filename + '_F_22.csv')
-                self.output_csv_filepath_left = os.path.join(self.input_dir, self.left_participant_id + self.output_filename + self.left_part_demographics + '.csv')
+                self.output_csv_filepath_left = os.path.join(self.input_dir + '/csv', self.left_participant_id + self.output_filename + self.left_part_demographics + '.csv')
                 self.output_csv_file_left = open(self.output_csv_filepath_left, 'w')
 
                 #self.output_csv_filepath_right = os.path.join(self.input_dir, '793320_' + self.output_filename + '_F_19.csv')
-                self.output_csv_filepath_right = os.path.join(self.input_dir, self.right_participant_id + self.output_filename + self.right_part_demographics + '.csv')
+                self.output_csv_filepath_right = os.path.join(self.input_dir + '/csv', self.right_participant_id + self.output_filename + self.right_part_demographics + '.csv')
                 self.output_csv_file_right = open(self.output_csv_filepath_right, 'w')
 
                 # Write header row
@@ -624,7 +624,7 @@ class MatToCsv():
             else:
         
                 # Create output csv file (overwrite if it already exists)
-                self.output_csv_filepath = os.path.join(self.input_dir, self.output_filename + '.csv')
+                self.output_csv_filepath = os.path.join(self.input_dir + '/csv', self.output_filename + '.csv')
                 self.output_csv_file = open(self.output_csv_filepath, 'w')
 
                 # Write header row
@@ -666,7 +666,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=False, landscape=False)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=True, landscape=False)
     myMatToCsv.run()
 
     return

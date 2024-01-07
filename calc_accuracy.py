@@ -1,7 +1,8 @@
-import csv
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+
 
 def read_csv(filename):
     data = pd.read_csv(filename)
@@ -20,6 +21,25 @@ def read_csv(filename):
     
     return data_trimmed
 
+def _get_csv_files(directory):
+    """
+    Get list of .csv files in directory
+
+    Returns:
+        csv_files (list): list of .csv files in directory
+    """
+
+    # Get list of .csv files in input_dir
+    filelist = []
+
+    for filename in os.listdir(directory):
+        if filename.endswith(".csv"):
+            # Remove the ".csv" suffix
+            filename = filename[:-4]
+            filelist.append(filename)
+
+    return filelist
+
 def calc_shoulder_to_elbow(shoulder_x, shoulder_y, shoulder_z, elbow_x, elbow_y, elbow_z):
     distance = np.sqrt(((shoulder_x - elbow_x)**2 + (shoulder_y - elbow_y)**2 + (shoulder_z - elbow_z)**2))
     return distance
@@ -36,30 +56,42 @@ def calc_hip_to_hip(lhip_x, lhip_y, lhip_z, rhip_x, rhip_y, rhip_z):
     distance = np.sqrt(((lhip_x - rhip_x)**2 + (lhip_y - rhip_y)**2 + (lhip_z - rhip_z)**2))
     return distance
 
-data = read_csv('blank_testing_two_people2_left_participant.csv')
-lens = np.zeros((len(data), 6))
+if __name__ == "__main__":
+    # Get path to csv files and list of csv file names
+    csv_dir = os.path.join(os.getcwd(), 'Data', 'mat', 'csv')
+    files = _get_csv_files(csv_dir)
 
-lens[:, 0] = calc_shoulder_to_shoulder(data['Shoulder_Left_X'], data['Shoulder_Left_Y'], data['Shoulder_Left_Z'],
-                                       data['Shoulder_Right_X'], data['Shoulder_Right_Y'], data['Shoulder_Right_Z'])
+    # Determine number of files to process
+    file_num = 0
+    num_files_to_process = len(files)
 
-lens[:, 1] = calc_hip_to_hip(data['Hip_Left_X'], data['Hip_Left_Y'], data['Hip_Left_Z'], 
-                             data['Hip_Right_X'], data['Hip_Right_Y'], data['Hip_Right_Z'])
+    # Loop through files
+    for filename in files:
+        file_num += 1
+        data = read_csv(csv_dir + '/' + filename + '.csv')
+        lens = np.zeros((len(data), 6))
 
-lens[:, 2] = calc_shoulder_to_elbow(data['Shoulder_Left_X'], data['Shoulder_Left_Y'], data['Shoulder_Left_Z'],
-                                    data['Elbow_Left_X'], data['Elbow_Left_Y'], data['Elbow_Left_Z'])
+        lens[:, 0] = calc_shoulder_to_shoulder(data['Shoulder_Left_X'], data['Shoulder_Left_Y'], data['Shoulder_Left_Z'],
+                                               data['Shoulder_Right_X'], data['Shoulder_Right_Y'], data['Shoulder_Right_Z'])
 
-lens[:, 3] = calc_shoulder_to_elbow(data['Shoulder_Right_X'], data['Shoulder_Right_Y'], data['Shoulder_Right_Z'],
-                                    data['Elbow_Right_X'], data['Elbow_Right_Y'], data['Elbow_Right_Z'])
+        lens[:, 1] = calc_hip_to_hip(data['Hip_Left_X'], data['Hip_Left_Y'], data['Hip_Left_Z'], 
+                                     data['Hip_Right_X'], data['Hip_Right_Y'], data['Hip_Right_Z'])
 
-lens[:, 4] = calc_hip_to_knee(data['Hip_Left_X'], data['Hip_Left_Y'], data['Hip_Left_Z'], 
-                              data['Knee_Left_X'], data['Knee_Left_Y'], data['Knee_Left_Z'])
+        lens[:, 2] = calc_shoulder_to_elbow(data['Shoulder_Left_X'], data['Shoulder_Left_Y'], data['Shoulder_Left_Z'],
+                                            data['Elbow_Left_X'], data['Elbow_Left_Y'], data['Elbow_Left_Z'])
 
-lens[:, 5] = calc_hip_to_knee(data['Hip_Right_X'], data['Hip_Right_Y'], data['Hip_Right_Z'], 
-                              data['Knee_Right_X'], data['Knee_Right_Y'], data['Knee_Right_Z'])
+        lens[:, 3] = calc_shoulder_to_elbow(data['Shoulder_Right_X'], data['Shoulder_Right_Y'], data['Shoulder_Right_Z'],
+                                            data['Elbow_Right_X'], data['Elbow_Right_Y'], data['Elbow_Right_Z'])
 
-plt.plot(lens)
-plt.xlabel('Frame Number')
-plt.ylabel('Length (cm)')
-plt.legend(['Shoulder-Shoulder', 'Hip-Hip', 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'])
-plt.show()
+        lens[:, 4] = calc_hip_to_knee(data['Hip_Left_X'], data['Hip_Left_Y'], data['Hip_Left_Z'], 
+                                      data['Knee_Left_X'], data['Knee_Left_Y'], data['Knee_Left_Z'])
+
+        lens[:, 5] = calc_hip_to_knee(data['Hip_Right_X'], data['Hip_Right_Y'], data['Hip_Right_Z'], 
+                                      data['Knee_Right_X'], data['Knee_Right_Y'], data['Knee_Right_Z'])
+
+        plt.plot(lens)
+        plt.xlabel('Frame Number')
+        plt.ylabel('Length (cm)')
+        plt.legend(['Shoulder-Shoulder', 'Hip-Hip', 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'])
+        plt.show()
     
