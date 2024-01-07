@@ -17,7 +17,8 @@ def read_csv(filename):
                          'Knee_Left_X', 'Knee_Left_Y', 'Knee_Left_Z']]
     
     elim = data_trimmed.query('Shoulder_Right_X == -32767')
-    data_trimmed.drop(elim.index, inplace=True)
+    elim = data_trimmed.query('Shoulder_Right_7 == -32767')
+    data_trimmed = data_trimmed.drop(elim.index)
     
     return data_trimmed
 
@@ -65,6 +66,8 @@ if __name__ == "__main__":
     file_num = 0
     num_files_to_process = len(files)
 
+    true_lens = np.array([[36, 37, 25, 25, 32, 32]])
+    
     # Loop through files
     for filename in files:
         file_num += 1
@@ -89,9 +92,42 @@ if __name__ == "__main__":
         lens[:, 5] = calc_hip_to_knee(data['Hip_Right_X'], data['Hip_Right_Y'], data['Hip_Right_Z'], 
                                       data['Knee_Right_X'], data['Knee_Right_Y'], data['Knee_Right_Z'])
 
-        plt.plot(lens)
-        plt.xlabel('Frame Number')
-        plt.ylabel('Length (cm)')
-        plt.legend(['Shoulder-Shoulder', 'Hip-Hip', 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'])
+        errors = np.abs(lens - np.repeat(true_lens, repeats=len(data), axis=0))
+        sum_errors = np.sum(errors, axis=1)
+        
+        mean_error = np.mean(sum_errors)
+        std_error = np.std(sum_errors)
+        
+        print(filename)
+        print(f'Mean Error: {mean_error}')
+        print(f'Stdev. of Errors: {std_error}')
+        print()
+        
+        fig, (ax1, ax2) = plt.subplots(1, 2, layout='constrained', figsize=(9,5))
+
+        # Plotting 'lens' data on the first subplot
+        ax1.plot(lens)
+        ax1.set_xlabel('Frame Number')
+        ax1.set_ylabel('Length (cm)')
+        ax1.set_title(f'Segment Lengths: {filename}')
+        
+        # Plotting 'errors' data on the second subplot
+        ax2.plot(errors)
+        ax2.set_xlabel('Frame Number')
+        ax2.set_title(f'Segment Errors: {filename}')
+        
+        # Creating a shared legend for both subplots
+        fig.legend(['Shoulder-Shoulder', 'Hip-Hip', 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'], loc='outside lower center', ncol=6)
         plt.show()
-    
+        
+        # plt.plot(lens)
+        # plt.xlabel('Frame Number')
+        # plt.ylabel('Length (cm)')
+        # plt.legend(['Shoulder-Shoulder', 'Hip-Hip', 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'], bbox_to_anchor=(1.05, 0.5), loc='center left')
+        # plt.title(f'Segement Lengths: {filename}')
+
+        # plt.plot(errors)
+        # plt.xlabel('Frame Number')
+        # plt.ylabel('Length (cm)')
+        # plt.legend(['Shoulder-Shoulder', 'Hip-Hip', 'Left Arm', 'Right Arm', 'Left Leg', 'Right Leg'], bbox_to_anchor=(1.05, 0.5), loc='center left')
+        # plt.title(f'Segement Errors: {filename}')
