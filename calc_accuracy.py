@@ -17,7 +17,7 @@ def read_csv(filename):
                          'Knee_Left_X', 'Knee_Left_Y', 'Knee_Left_Z']]
     
     elim = data_trimmed.query('Shoulder_Right_X == -32767')
-    elim = data_trimmed.query('Shoulder_Right_7 == -32767')
+    elim = data_trimmed.query('Shoulder_Left_X == -32767')
     data_trimmed = data_trimmed.drop(elim.index)
     
     return data_trimmed
