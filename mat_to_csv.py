@@ -5,6 +5,7 @@ import time
 import cv2
 from typing import Tuple
 from scipy.io import loadmat
+from scipy.optimize import fsolve
 #from gekko import GEKKO
 
 from pose_module import PoseLandmarker
@@ -158,7 +159,16 @@ class MatToCsv():
         """
         return (xy[0] >= 0 and xy[0] < image_width) and (xy[1] >= 0 and xy[1] < image_height)
     
+    def fovFunction(self,angles):
+        theta = angles[0]
+        phi = angles[1]
 
+        F = np.empty((2))
+        F[0] = pow(theta,2) + pow(phi,2) - pow(self.image_fov,2)
+        F[1] = phi - (self.image_height/self.image_width)*theta
+
+        return F
+ 
     def convert_depth_to_xyz(self, depths, landmark_pixel_x, landmark_pixel_y, image_w, image_h, fov) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Convert depth values to x,y,z coordinates for one landmark in one frame.
@@ -184,17 +194,13 @@ class MatToCsv():
             frame_land_x, frame_land_y, frame_land_z = convert_depth_to_xyz(frame_depth, landmark_x, landmark_y)
         """
 
-        # Solve system of equations to find horizontal and vertical FOV angles
-        # m = GEKKO()
-        # v_angle,h_angle = [m.Var(1) for i in range(2)]
-        # m.Equations([v_angle**2+h_angle**2==(fov**2),\
-        #     h_angle/v_angle==image_w/image_h])
-        # m.solve(disp=False)
-        # image_w_angle = h_angle.value
-        # image_h_angle = v_angle.value
+        # Solve system of equations defined in fovFunction to find horizontal and vertical FOV angles
+        angleGuess = np.array([1,1])
+        ang = fsolve(self.fovFunction, angleGuess)
 
-        image_w_angle = 5159/np.sqrt(6989)
-        image_h_angle = 3850/np.sqrt(6989)
+        # assign to variables
+        image_w_angle = ang[0]
+        image_h_angle = ang[1]
 
         # Find theta, phi, and the depth at that landmark pixel
         # Convert depth to cm

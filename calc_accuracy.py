@@ -58,7 +58,7 @@ def calc_hip_to_hip(lhip_x, lhip_y, lhip_z, rhip_x, rhip_y, rhip_z):
     return distance
 
 if __name__ == "__main__":
-    viz = False
+    viz = True
     true_lens = np.array([[36, 37, 25, 25, 32, 32]])
     output_filename = 'accuracy.csv'
     
