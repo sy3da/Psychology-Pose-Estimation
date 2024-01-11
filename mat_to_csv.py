@@ -263,20 +263,34 @@ class MatToCsv():
             landmark_pixel_coord_x, landmark_pixel_coord_y = landmarks_pixels[landmark_idx]
 
             # Verify that the pixel coordinates are valid
-            if not self._is_valid_pixel_coordinate((landmark_pixel_coord_x, landmark_pixel_coord_y), self.image_width, self.image_height):
-                # The pixel coordinates are invalid
-                
-                # Set the x, y, and z values to -int16.max (-32767)
-                xyz_values[landmark_idx][0] = -np.iinfo(np.int16).max
-                xyz_values[landmark_idx][1] = -np.iinfo(np.int16).max
-                xyz_values[landmark_idx][2] = -np.iinfo(np.int16).max
+            if self.lanscape == True:
+                if not self._is_valid_pixel_coordinate((landmark_pixel_coord_x, landmark_pixel_coord_y), self.image_height, self.image_width):
+                    # The pixel coordinates are invalid
+                    
+                    # Set the x, y, and z values to -int16.max (-32767)
+                    xyz_values[landmark_idx][0] = -np.iinfo(np.int16).max
+                    xyz_values[landmark_idx][1] = -np.iinfo(np.int16).max
+                    xyz_values[landmark_idx][2] = -np.iinfo(np.int16).max
 
-                continue
+                    continue
+            else:
+                if not self._is_valid_pixel_coordinate((landmark_pixel_coord_x, landmark_pixel_coord_y), self.image_width, self.image_height):
+                    # The pixel coordinates are invalid
+                    
+                    # Set the x, y, and z values to -int16.max (-32767)
+                    xyz_values[landmark_idx][0] = -np.iinfo(np.int16).max
+                    xyz_values[landmark_idx][1] = -np.iinfo(np.int16).max
+                    xyz_values[landmark_idx][2] = -np.iinfo(np.int16).max
+
+                    continue
             
             # The pixel coordinates are valid
 
             # Convert depth [cm] to x,y,z for landmark pixels
-            x_value,y_value,z_value = self.convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y, self.image_width, self.image_height, self.image_fov)
+            if self.landscape == True:
+                x_value,y_value,z_value = self.convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y, self.image_width, self.image_height, self.image_fov)
+            else:
+                x_value,y_value,z_value = self.convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y, self.image_height, self.image_width, self.image_fov)
 
             # Set the x, y, and z values to the values from convert depth to x,y,z
             xyz_values[landmark_idx][0] = x_value
