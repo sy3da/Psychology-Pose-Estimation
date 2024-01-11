@@ -262,8 +262,7 @@ class MatToCsv():
         for landmark_idx in range(len(landmarks_pixels)):
             landmark_pixel_coord_x, landmark_pixel_coord_y = landmarks_pixels[landmark_idx]
 
-            # Verify that the pixel coordinates are valid
-            if self.lanscape == True:
+            if self.landscape == True:
                 if not self._is_valid_pixel_coordinate((landmark_pixel_coord_x, landmark_pixel_coord_y), self.image_height, self.image_width):
                     # The pixel coordinates are invalid
                     
@@ -288,10 +287,10 @@ class MatToCsv():
 
             # Convert depth [cm] to x,y,z for landmark pixels
             if self.landscape == True:
-                x_value,y_value,z_value = self.convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y, self.image_width, self.image_height, self.image_fov)
-            else:
                 x_value,y_value,z_value = self.convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y, self.image_height, self.image_width, self.image_fov)
-
+            else:
+                x_value,y_value,z_value = self.convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y, self.image_width, self.image_height, self.image_fov)
+            
             # Set the x, y, and z values to the values from convert depth to x,y,z
             xyz_values[landmark_idx][0] = x_value
             xyz_values[landmark_idx][1] = y_value
@@ -579,8 +578,8 @@ class MatToCsv():
         num_files_to_process = len(mat_files)
 
         # Define MediaPipe detectors
-        pose_detector_1 = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.9, min_tracking_confidence=0.5)
-        pose_detector_2 = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.9, min_tracking_confidence=0.5)
+        pose_detector_1 = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.9, min_tracking_confidence=0.9)
+        pose_detector_2 = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.9, min_tracking_confidence=0.9)
 
         for filename in mat_files:
             file_num += 1
@@ -686,7 +685,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=True, landscape=False)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=False, landscape=False)
     myMatToCsv.run()
 
     return
