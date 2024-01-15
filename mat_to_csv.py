@@ -16,7 +16,9 @@ class MatToCsv():
     converts depth to x,y,z, and outputs them to a csv file
     """
 
-    def __init__(self, input_dir: str, image_width: int = 600, image_height: int = 804, image_fov: int = 77, left_participant_id: str = '000000_', left_part_demographics: str = '_M_21' , right_participant_id: str = '000000_', right_part_demographics: str = '_F_22', visualize_Pose: bool = False, two_people: bool = False, landscape: bool = False):
+    def __init__(self, input_dir: str, image_width: int = 600, image_height: int = 804, image_fov: int = 77, 
+                 left_participant_id: str = '000000_', left_part_demographics: str = '_dem' , right_participant_id: str = '000000_', 
+                 right_part_demographics: str = '_dem', visualize_Pose: bool = False, two_people: bool = False, landscape: bool = False):
         """
         Initialize MatToCsv object
 
@@ -95,7 +97,7 @@ class MatToCsv():
         # Get list of .mat files in input_dir
         filelist = []
 
-        for filename in os.listdir(self.input_dir):
+        for filename in sorted(os.listdir(self.input_dir)):
             if filename.endswith(".mat"):
                 # Remove the ".mat" suffix
                 filename = filename[:-4]
@@ -685,7 +687,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=False, landscape=False)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=True, landscape=False)
     myMatToCsv.run()
 
     return
