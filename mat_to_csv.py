@@ -158,7 +158,7 @@ class MatToCsv():
         return grayscale_img
 
     
-    def _is_valid_pixel_coordinate(self, xy: Tuple[int, int], image_width: int, image_height: int) -> bool:
+    def _is_valid_pixel_coordinate(self, xy: Tuple[int, int]) -> bool:
         """
         Checks if a pixel coordinate is valid (i.e. within the image bounds).
     
@@ -170,7 +170,7 @@ class MatToCsv():
         Returns:
             bool: True if the pixel coordinates are within the image bounds, False otherwise.
         """
-        return (xy[0] >= 0 and xy[0] < image_width) and (xy[1] >= 0 and xy[1] < image_height)
+        return (xy[0] >= 0 and xy[0] < self.image_width) and (xy[1] >= 0 and xy[1] < self.image_height)
     
     def fovFunction(self,angles):
         theta = angles[0]
@@ -182,7 +182,7 @@ class MatToCsv():
 
         return F
  
-    def convert_depth_to_xyz(self, depths, landmark_pixel_x, landmark_pixel_y, image_w, image_h, fov) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def convert_depth_to_xyz(self, depths, landmark_pixel_x, landmark_pixel_y) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Convert depth values to x,y,z coordinates for one landmark in one frame.
 
@@ -219,8 +219,8 @@ class MatToCsv():
         # Convert depth to cm
         land_depth = depths[landmark_pixel_y][landmark_pixel_x]
         land_depth_cm = self.convert_unit_to_cm(land_depth)
-        theta = (-image_w_angle/2) + ((image_w_angle/image_w)*landmark_pixel_x)
-        phi = (image_h_angle/2) - ((image_h_angle/image_h)*landmark_pixel_y)
+        theta = (-image_w_angle/2) + ((image_w_angle/self.image_width)*landmark_pixel_x)
+        phi = (image_h_angle/2) - ((image_h_angle/self.image_height)*landmark_pixel_y)
 
         x_landmark = land_depth_cm*np.sin(theta*(np.pi/180))*np.sin(phi*(np.pi/180))
         y_landmark = land_depth_cm*np.cos(theta*(np.pi/180))*np.sin(phi*(np.pi/180))
@@ -275,34 +275,20 @@ class MatToCsv():
         for landmark_idx in range(len(landmarks_pixels)):
             landmark_pixel_coord_x, landmark_pixel_coord_y = landmarks_pixels[landmark_idx]
 
-            if self.landscape == True:
-                if not self._is_valid_pixel_coordinate((landmark_pixel_coord_x, landmark_pixel_coord_y), self.image_height, self.image_width):
-                    # The pixel coordinates are invalid
-                    
-                    # Set the x, y, and z values to -int16.max (-32767)
-                    xyz_values[landmark_idx][0] = -np.iinfo(np.int16).max
-                    xyz_values[landmark_idx][1] = -np.iinfo(np.int16).max
-                    xyz_values[landmark_idx][2] = -np.iinfo(np.int16).max
+            if not self._is_valid_pixel_coordinate((landmark_pixel_coord_x, landmark_pixel_coord_y)):
+                # The pixel coordinates are invalid
+                
+                # Set the x, y, and z values to -int16.max (-32767)
+                xyz_values[landmark_idx][0] = -np.iinfo(np.int16).max
+                xyz_values[landmark_idx][1] = -np.iinfo(np.int16).max
+                xyz_values[landmark_idx][2] = -np.iinfo(np.int16).max
 
-                    continue
-            else:
-                if not self._is_valid_pixel_coordinate((landmark_pixel_coord_x, landmark_pixel_coord_y), self.image_width, self.image_height):
-                    # The pixel coordinates are invalid
-                    
-                    # Set the x, y, and z values to -int16.max (-32767)
-                    xyz_values[landmark_idx][0] = -np.iinfo(np.int16).max
-                    xyz_values[landmark_idx][1] = -np.iinfo(np.int16).max
-                    xyz_values[landmark_idx][2] = -np.iinfo(np.int16).max
-
-                    continue
+                continue
             
             # The pixel coordinates are valid
 
             # Convert depth [cm] to x,y,z for landmark pixels
-            if self.landscape == True:
-                x_value,y_value,z_value = self.convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y, self.image_height, self.image_width, self.image_fov)
-            else:
-                x_value,y_value,z_value = self.convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y, self.image_width, self.image_height, self.image_fov)
+            x_value,y_value,z_value = self.convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y)
             
             # Set the x, y, and z values to the values from convert depth to x,y,z
             xyz_values[landmark_idx][0] = x_value
@@ -439,31 +425,17 @@ class MatToCsv():
         # Used to calculate FPS
         previous_time = 0
         start_time = time.time()
-        if self.landscape == True:
-            writer = cv2.VideoWriter(self.output_filename + '.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, (self.image_height, self.image_width))
-        else:
-            writer = cv2.VideoWriter(self.output_filename + '.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, (self.image_width, self.image_height))
+        writer = cv2.VideoWriter(self.output_filename + '.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, (self.image_width, self.image_height))
         
         # Check if two people need to be tracked
         if self.two_people == True:
             # Loop through all frames
             for frame_idx in range(num_frames):
-                # rotate image for landscape mode
-                if self.landscape == True:
-                    depth_rotate = np.flip(depth_all[:, :, frame_idx].transpose(),0)
-                    intensity_rotate = np.flip(intensity_all[:,:, frame_idx].transpose(),0)
-            
-                    # Split to left and right participants (relative to viewer)
-                    frame_depth_left = depth_rotate[:, 0:int((self.image_height/2))-1]
-                    frame_depth_right = depth_rotate[:, int(self.image_height/2):(self.image_height-1)]
-                    frame_intensity_left = intensity_rotate[:, 0:int((self.image_height/2))-1]
-                    frame_intensity_right = intensity_rotate[:, int(self.image_height/2):(self.image_height-1)]
-                else:
-                    # Split to left and right participants (relative to viewer)
-                    frame_depth_left = depth_all[:, 0:int((self.image_width/2))-1, frame_idx]
-                    frame_depth_right = depth_all[:, int(self.image_width/2):(self.image_width-1), frame_idx]
-                    frame_intensity_left = intensity_all[:, 0:int((self.image_width/2))-1, frame_idx]
-                    frame_intensity_right = intensity_all[:, int(self.image_width/2):(self.image_width-1), frame_idx]
+                # Split to left and right participants (relative to viewer)
+                frame_depth_left = depth_all[:, 0:int((self.image_width/2))-1, frame_idx]
+                frame_depth_right = depth_all[:, int(self.image_width/2):(self.image_width-1), frame_idx]
+                frame_intensity_left = intensity_all[:, 0:int((self.image_width/2))-1, frame_idx]
+                frame_intensity_right = intensity_all[:, int(self.image_width/2):(self.image_width-1), frame_idx]
 
                 # Track face and extract intensity and depth for all ROIs in each side of this frame
 
@@ -497,6 +469,7 @@ class MatToCsv():
                     
                     # Calculate and overlay FPS
                     current_time = time.time()
+
                     # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
                     fps = 1 / (current_time - previous_time)
                     previous_time = current_time
@@ -517,13 +490,8 @@ class MatToCsv():
         else:          
             # Loop through all frames
             for frame_idx in range(num_frames):
-                # rotate image for landscape mode
-                if self.landscape == True:
-                    frame_depth = np.flip(depth_all[:, :, frame_idx].transpose(),0)
-                    frame_intensity = np.flip(intensity_all[:,:, frame_idx].transpose(),0)
-                else:
-                    frame_depth = depth_all[:, :, frame_idx]
-                    frame_intensity = intensity_all[:, :, frame_idx]
+                frame_depth = depth_all[:, :, frame_idx]
+                frame_intensity = intensity_all[:, :, frame_idx]
 
                 # Track face and extract intensity and depth for all ROIs in this frame
 
@@ -549,8 +517,8 @@ class MatToCsv():
 
                 if self.visualize_Pose == True:
                     # Calculate and overlay FPS
-
                     current_time = time.time()
+                    
                     # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
                     fps = 1 / (current_time - previous_time)
                     previous_time = current_time
