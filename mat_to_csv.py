@@ -129,6 +129,11 @@ class MatToCsv():
         depth_all = mat_file['D_values']
         intensity_all = mat_file['I_values']
 
+        # Rotate matrices if video is recorded in landscape
+        if self.landscape == True:
+            depth_all = np.flip(depth_all[:, :, :].transpose(1,0,2),0)
+            intensity_all = np.flip(intensity_all[:, :, :].transpose(1,0,2),0)
+
         return depth_all, intensity_all
     
     def _convert_camera_intensity_to_grayscale(self, intensity_array: npt.NDArray[np.int16]) -> np.ndarray:
