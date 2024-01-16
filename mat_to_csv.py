@@ -31,20 +31,26 @@ class MatToCsv():
         # Directory containing input .mat files
         self.input_dir = input_dir
 
-        # Name of output .csv file
-        # self.output_filename = output_filename
-
-        # Define image width, height, and fov
-        self.image_width = image_width
-        self.image_height = image_height
-        self.image_fov = image_fov
         # Whether or not to visualize pose skeleton
         self.visualize_Pose = visualize_Pose
+
         # Whether or not there are two people
         self.two_people = two_people
+
         # Whether the picture needs to be landscape
         self.landscape = landscape
 
+        if self.landscape == True:
+            # Define image width, height, and fov (flipping height and width)
+            self.image_width = image_height
+            self.image_height = image_width
+            self.image_fov = image_fov
+        else:
+            # Define image width, height, and fov
+            self.image_width = image_width
+            self.image_height = image_height
+            self.image_fov = image_fov
+    
         # if there are two participants the left and right subject ids
         self.left_participant_id = left_participant_id
         self.right_participant_id = right_participant_id
