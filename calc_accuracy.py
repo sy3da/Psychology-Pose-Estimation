@@ -59,7 +59,7 @@ def calc_hip_to_hip(lhip_x, lhip_y, lhip_z, rhip_x, rhip_y, rhip_z):
 
 if __name__ == "__main__":
     viz = True
-    true_lens = np.array([[36, 37, 25, 25, 32, 32]])
+    true_lens = np.array([[30, 18, 25, 25, 43, 43]])
     output_filename = 'accuracy.csv'
     
     # Get path to csv files and list of csv file names
