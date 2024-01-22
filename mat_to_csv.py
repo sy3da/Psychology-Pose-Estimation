@@ -226,7 +226,7 @@ class MatToCsv():
         y_landmark = land_depth_cm*np.cos(theta*(np.pi/180))*np.sin(phi*(np.pi/180))
         z_landmark = land_depth_cm*np.cos(phi*(np.pi/180))
 
-        return x_landmark,y_landmark,z_landmark
+        return land_depth, x_landmark,y_landmark,z_landmark
 
     def convert_unit_to_cm(self,depth_value):
         """
@@ -288,8 +288,14 @@ class MatToCsv():
             # The pixel coordinates are valid
 
             # Convert depth [cm] to x,y,z for landmark pixels
-            x_value,y_value,z_value = self.convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y)
+            pixel_depth, x_value,y_value,z_value = self.convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y)
             
+            if landmark_idx ==34:
+                print(f'Frame: {frame_idx}, Hip Depth: {pixel_depth}')
+                
+            if landmark_idx ==33:
+                print(f'Frame: {frame_idx}, Shoulder Depth: {pixel_depth}')     
+                      
             # Set the x, y, and z values to the values from convert depth to x,y,z
             xyz_values[landmark_idx][0] = x_value
             xyz_values[landmark_idx][1] = y_value
