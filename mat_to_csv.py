@@ -6,6 +6,7 @@ import cv2
 from typing import Tuple
 from scipy.io import loadmat
 from scipy.optimize import fsolve
+import pandas as pd
 #from gekko import GEKKO
 
 from pose_module import PoseLandmarker
@@ -271,7 +272,9 @@ class MatToCsv():
         # For each landmark, get the x, y, and z values from the depth array and store them in a numpy array
         # Then, write the numpy array to a new row in the output csv file
         xyz_values = np.zeros((len(landmarks_pixels), 5))
-
+        hip_depth = 0
+        shoulder_depth=0
+        
         for landmark_idx in range(len(landmarks_pixels)):
             landmark_pixel_coord_x, landmark_pixel_coord_y = landmarks_pixels[landmark_idx]
 
@@ -291,11 +294,13 @@ class MatToCsv():
             pixel_depth, x_value,y_value,z_value = self.convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y)
             
             if landmark_idx ==34:
-                print(f'Frame: {frame_idx}, Hip Depth: {pixel_depth}')
+                # print(f'Frame: {frame_idx}, Hip Depth: {pixel_depth}')
+                hip_depth = pixel_depth
                 
             if landmark_idx ==33:
-                print(f'Frame: {frame_idx}, Shoulder Depth: {pixel_depth}')     
-                      
+                # print(f'Frame: {frame_idx}, Shoulder Depth: {pixel_depth}')     
+                shoulder_depth = pixel_depth
+                
             # Set the x, y, and z values to the values from convert depth to x,y,z
             xyz_values[landmark_idx][0] = x_value
             xyz_values[landmark_idx][1] = y_value
@@ -403,7 +408,7 @@ class MatToCsv():
             self.output_csv_file.write(f"{xyz_values[27][0]},{xyz_values[27][1]},{xyz_values[27][2]},{xyz_values[27][3]},{xyz_values[27][4]},")
             self.output_csv_file.write(f"{xyz_values[31][0]},{xyz_values[31][1]},{xyz_values[31][2]},{xyz_values[31][3]},{xyz_values[31][4]}\n")
 
-        return
+        return hip_depth, shoulder_depth
     
 
     def _process_file(self, file_num: int, num_files_to_process: int, filename: str, pose_detector_1: PoseLandmarker, pose_detector_2: PoseLandmarker) -> None:
@@ -495,6 +500,8 @@ class MatToCsv():
                     writer.write(frame_grayscale_rgb)
         else:          
             # Loop through all frames
+            hip_depths = []
+            shoulder_depths = []
             for frame_idx in range(num_frames):
                 frame_depth = depth_all[:, :, frame_idx]
                 frame_intensity = intensity_all[:, :, frame_idx]
@@ -519,8 +526,10 @@ class MatToCsv():
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
                 #     self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
                 
-                self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_depth, frame_intensity, frame_grayscale_rgb, filename)
-
+                hip_depth, shoulder_depth = self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_depth, frame_intensity, frame_grayscale_rgb, filename)
+                hip_depths.append(hip_depth)
+                shoulder_depths.append(shoulder_depth)
+                
                 if self.visualize_Pose == True:
                     # Calculate and overlay FPS
                     current_time = time.time()
@@ -542,6 +551,9 @@ class MatToCsv():
                     cv2.imshow("Image", frame_grayscale_rgb)
                     cv2.waitKey(1)
                     writer.write(frame_grayscale_rgb)
+                
+                hip_shoulder_depths = pd.DataFrame({'hip': hip_depths, 'shoulder': shoulder_depths})
+                hip_shoulder_depths.to_csv(f'depths test/hip_shoulder_depths_{filename}.csv', header=True, index=False)
             
         # Calculate and print average FPS
         writer.release()
@@ -672,7 +684,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=True, landscape=False)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=False, two_people=False, landscape=False)
     myMatToCsv.run()
 
     return
