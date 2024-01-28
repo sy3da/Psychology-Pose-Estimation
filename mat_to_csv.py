@@ -526,10 +526,6 @@ class MatToCsv():
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
                 #     self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
                 
-                hip_depth, shoulder_depth = self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_depth, frame_intensity, frame_grayscale_rgb, filename)
-                hip_depths.append(hip_depth)
-                shoulder_depths.append(shoulder_depth)
-                
                 if self.visualize_Pose == True:
                     # Calculate and overlay FPS
                     current_time = time.time()
