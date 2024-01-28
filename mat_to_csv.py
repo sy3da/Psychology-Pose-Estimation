@@ -388,6 +388,7 @@ class MatToCsv():
         if self.two_people == True:
             # Loop through all frames
             for frame_idx in range(num_frames):
+            # for frame_idx in [100]:
                 # Split to left and right participants (relative to viewer)
                 frame_depth_left = depth_all[:, 0:int((self.image_width/2))-1, frame_idx]
                 frame_depth_right = depth_all[:, int(self.image_width/2):(self.image_width-1), frame_idx]
