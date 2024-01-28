@@ -18,7 +18,7 @@ class MatToCsv():
     """
 
     def __init__(self, input_dir: str, image_width: int = 600, image_height: int = 804, image_fov: int = 77, 
-                 left_participant_id: str = '000000_', left_part_demographics: str = '_dem' , right_participant_id: str = '000000_', 
+                 left_participant_id: str = '00000L_', left_part_demographics: str = '_dem' , right_participant_id: str = '00000R_', 
                  right_part_demographics: str = '_dem', visualize_Pose: bool = False, two_people: bool = False, landscape: bool = False):
         """
         Initialize MatToCsv object
@@ -305,8 +305,8 @@ class MatToCsv():
             xyz_values[landmark_idx][0] = x_value
             xyz_values[landmark_idx][1] = y_value
             xyz_values[landmark_idx][2] = z_value
-            xyz_values[landmark_idx][3] = landmark_pixel_coord_x
-            xyz_values[landmark_idx][4] = landmark_pixel_coord_y
+            xyz_values[landmark_idx][3] = landmark_pixel_coord_x - int(self.image_width/2)
+            xyz_values[landmark_idx][4] = landmark_pixel_coord_y - int(self.image_height/2)
             
         # Landmarks of interest: (landmark_num: 'landmark_name_X,landmark_name_Y,landmark_name_Z,')
         # 34: 'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,'
@@ -335,78 +335,24 @@ class MatToCsv():
             self.output_csv_file_left.write(f"{filename},{frame_idx},")
 
             # Write the x, y, and z values for the landmarks of interest to the output csv file
-            self.output_csv_file_left.write(f"{xyz_values[34][0]},{xyz_values[34][1]},{xyz_values[34][2]},{xyz_values[34][3]},{xyz_values[34][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[35][0]},{xyz_values[35][1]},{xyz_values[35][2]},{xyz_values[35][3]},{xyz_values[35][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[33][0]},{xyz_values[33][1]},{xyz_values[33][2]},{xyz_values[33][3]},{xyz_values[33][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[0][0]}, {xyz_values[0][1]}, {xyz_values[0][2]}, {xyz_values[0][3]}, {xyz_values[0][4]}," )
-            self.output_csv_file_left.write(f"{xyz_values[12][0]},{xyz_values[12][1]},{xyz_values[12][2]},{xyz_values[12][3]},{xyz_values[12][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[14][0]},{xyz_values[14][1]},{xyz_values[14][2]},{xyz_values[14][3]},{xyz_values[14][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[16][0]},{xyz_values[16][1]},{xyz_values[16][2]},{xyz_values[16][3]},{xyz_values[16][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[20][0]},{xyz_values[20][1]},{xyz_values[20][2]},{xyz_values[20][3]},{xyz_values[20][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[11][0]},{xyz_values[11][1]},{xyz_values[11][2]},{xyz_values[11][3]},{xyz_values[11][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[13][0]},{xyz_values[13][1]},{xyz_values[13][2]},{xyz_values[13][3]},{xyz_values[13][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[15][0]},{xyz_values[15][1]},{xyz_values[15][2]},{xyz_values[15][3]},{xyz_values[15][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[19][0]},{xyz_values[19][1]},{xyz_values[19][2]},{xyz_values[19][3]},{xyz_values[19][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[24][0]},{xyz_values[24][1]},{xyz_values[24][2]},{xyz_values[24][3]},{xyz_values[24][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[26][0]},{xyz_values[26][1]},{xyz_values[26][2]},{xyz_values[26][3]},{xyz_values[26][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[28][0]},{xyz_values[28][1]},{xyz_values[28][2]},{xyz_values[28][3]},{xyz_values[28][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[32][0]},{xyz_values[32][1]},{xyz_values[32][2]},{xyz_values[32][3]},{xyz_values[32][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[23][0]},{xyz_values[23][1]},{xyz_values[23][2]},{xyz_values[23][3]},{xyz_values[23][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[25][0]},{xyz_values[25][1]},{xyz_values[25][2]},{xyz_values[25][3]},{xyz_values[25][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[27][0]},{xyz_values[27][1]},{xyz_values[27][2]},{xyz_values[27][3]},{xyz_values[27][4]},")
-            self.output_csv_file_left.write(f"{xyz_values[31][0]},{xyz_values[31][1]},{xyz_values[31][2]},{xyz_values[31][3]},{xyz_values[31][4]}\n")
+            self.output_csv_file_left.write(f"{hip_depth},{xyz_values[34][4]},")
+            self.output_csv_file_left.write(f"{shoulder_depth},{xyz_values[33][4]}\n")
             
         elif participant == 'Right':
             # Write the filename and frame_num to a new row in the output csv file
             self.output_csv_file_right.write(f"{filename},{frame_idx},")
 
             # Write the x, y, and z values for the landmarks of interest to the output csv file
-            self.output_csv_file_right.write(f"{xyz_values[34][0]},{xyz_values[34][1]},{xyz_values[34][2]},{xyz_values[34][3]},{xyz_values[34][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[35][0]},{xyz_values[35][1]},{xyz_values[35][2]},{xyz_values[35][3]},{xyz_values[35][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[33][0]},{xyz_values[33][1]},{xyz_values[33][2]},{xyz_values[33][3]},{xyz_values[33][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[0][0]}, {xyz_values[0][1]}, {xyz_values[0][2]}, {xyz_values[0][3]}, {xyz_values[0][4]}," )
-            self.output_csv_file_right.write(f"{xyz_values[12][0]},{xyz_values[12][1]},{xyz_values[12][2]},{xyz_values[12][3]},{xyz_values[12][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[14][0]},{xyz_values[14][1]},{xyz_values[14][2]},{xyz_values[14][3]},{xyz_values[14][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[16][0]},{xyz_values[16][1]},{xyz_values[16][2]},{xyz_values[16][3]},{xyz_values[16][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[20][0]},{xyz_values[20][1]},{xyz_values[20][2]},{xyz_values[20][3]},{xyz_values[20][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[11][0]},{xyz_values[11][1]},{xyz_values[11][2]},{xyz_values[11][3]},{xyz_values[11][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[13][0]},{xyz_values[13][1]},{xyz_values[13][2]},{xyz_values[13][3]},{xyz_values[13][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[15][0]},{xyz_values[15][1]},{xyz_values[15][2]},{xyz_values[15][3]},{xyz_values[15][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[19][0]},{xyz_values[19][1]},{xyz_values[19][2]},{xyz_values[19][3]},{xyz_values[19][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[24][0]},{xyz_values[24][1]},{xyz_values[24][2]},{xyz_values[24][3]},{xyz_values[24][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[26][0]},{xyz_values[26][1]},{xyz_values[26][2]},{xyz_values[26][3]},{xyz_values[26][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[28][0]},{xyz_values[28][1]},{xyz_values[28][2]},{xyz_values[28][3]},{xyz_values[28][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[32][0]},{xyz_values[32][1]},{xyz_values[32][2]},{xyz_values[32][3]},{xyz_values[32][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[23][0]},{xyz_values[23][1]},{xyz_values[23][2]},{xyz_values[23][3]},{xyz_values[23][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[25][0]},{xyz_values[25][1]},{xyz_values[25][2]},{xyz_values[25][3]},{xyz_values[25][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[27][0]},{xyz_values[27][1]},{xyz_values[27][2]},{xyz_values[27][3]},{xyz_values[27][4]},")
-            self.output_csv_file_right.write(f"{xyz_values[31][0]},{xyz_values[31][1]},{xyz_values[31][2]},{xyz_values[31][3]},{xyz_values[31][4]}\n")
+            self.output_csv_file_right.write(f"{hip_depth},{xyz_values[34][4]},")
+            self.output_csv_file_right.write(f"{shoulder_depth},{xyz_values[33][4]}\n")
 
         else:
             # Write the filename and frame_num to a new row in the output csv file
             self.output_csv_file.write(f"{filename},{frame_idx},")
 
             # Write the x, y, and z values for the landmarks of interest to the output csv file
-            self.output_csv_file.write(f"{xyz_values[34][0]},{xyz_values[34][1]},{xyz_values[34][2]},{xyz_values[34][3]},{xyz_values[34][4]},")
-            self.output_csv_file.write(f"{xyz_values[35][0]},{xyz_values[35][1]},{xyz_values[35][2]},{xyz_values[35][3]},{xyz_values[35][4]},")
-            self.output_csv_file.write(f"{xyz_values[33][0]},{xyz_values[33][1]},{xyz_values[33][2]},{xyz_values[33][3]},{xyz_values[33][4]},")
-            self.output_csv_file.write(f"{xyz_values[0][0]}, {xyz_values[0][1]}, {xyz_values[0][2]}, {xyz_values[0][3]}, {xyz_values[0][4]}," )
-            self.output_csv_file.write(f"{xyz_values[12][0]},{xyz_values[12][1]},{xyz_values[12][2]},{xyz_values[12][3]},{xyz_values[12][4]},")
-            self.output_csv_file.write(f"{xyz_values[14][0]},{xyz_values[14][1]},{xyz_values[14][2]},{xyz_values[14][3]},{xyz_values[14][4]},")
-            self.output_csv_file.write(f"{xyz_values[16][0]},{xyz_values[16][1]},{xyz_values[16][2]},{xyz_values[16][3]},{xyz_values[16][4]},")
-            self.output_csv_file.write(f"{xyz_values[20][0]},{xyz_values[20][1]},{xyz_values[20][2]},{xyz_values[20][3]},{xyz_values[20][4]},")
-            self.output_csv_file.write(f"{xyz_values[11][0]},{xyz_values[11][1]},{xyz_values[11][2]},{xyz_values[11][3]},{xyz_values[11][4]},")
-            self.output_csv_file.write(f"{xyz_values[13][0]},{xyz_values[13][1]},{xyz_values[13][2]},{xyz_values[13][3]},{xyz_values[13][4]},")
-            self.output_csv_file.write(f"{xyz_values[15][0]},{xyz_values[15][1]},{xyz_values[15][2]},{xyz_values[15][3]},{xyz_values[15][4]},")
-            self.output_csv_file.write(f"{xyz_values[19][0]},{xyz_values[19][1]},{xyz_values[19][2]},{xyz_values[19][3]},{xyz_values[19][4]},")
-            self.output_csv_file.write(f"{xyz_values[24][0]},{xyz_values[24][1]},{xyz_values[24][2]},{xyz_values[24][3]},{xyz_values[24][4]},")
-            self.output_csv_file.write(f"{xyz_values[26][0]},{xyz_values[26][1]},{xyz_values[26][2]},{xyz_values[26][3]},{xyz_values[26][4]},")
-            self.output_csv_file.write(f"{xyz_values[28][0]},{xyz_values[28][1]},{xyz_values[28][2]},{xyz_values[28][3]},{xyz_values[28][4]},")
-            self.output_csv_file.write(f"{xyz_values[32][0]},{xyz_values[32][1]},{xyz_values[32][2]},{xyz_values[32][3]},{xyz_values[32][4]},")
-            self.output_csv_file.write(f"{xyz_values[23][0]},{xyz_values[23][1]},{xyz_values[23][2]},{xyz_values[23][3]},{xyz_values[23][4]},")
-            self.output_csv_file.write(f"{xyz_values[25][0]},{xyz_values[25][1]},{xyz_values[25][2]},{xyz_values[25][3]},{xyz_values[25][4]},")
-            self.output_csv_file.write(f"{xyz_values[27][0]},{xyz_values[27][1]},{xyz_values[27][2]},{xyz_values[27][3]},{xyz_values[27][4]},")
-            self.output_csv_file.write(f"{xyz_values[31][0]},{xyz_values[31][1]},{xyz_values[31][2]},{xyz_values[31][3]},{xyz_values[31][4]}\n")
+            self.output_csv_file.write(f"{hip_depth},{xyz_values[34][4]},")
+            self.output_csv_file.write(f"{shoulder_depth},{xyz_values[33][4]}\n")
 
         return hip_depth, shoulder_depth
     
@@ -500,8 +446,6 @@ class MatToCsv():
                     writer.write(frame_grayscale_rgb)
         else:          
             # Loop through all frames
-            hip_depths = []
-            shoulder_depths = []
             for frame_idx in range(num_frames):
                 frame_depth = depth_all[:, :, frame_idx]
                 frame_intensity = intensity_all[:, :, frame_idx]
@@ -521,6 +465,7 @@ class MatToCsv():
                 # Get pixel locations of all pose landmarks
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
                 pose_detected, contains_invalid_landmarks, landmarks_pixels = pose_detector_1.get_landmarks(image=frame_grayscale_rgb, draw=self.visualize_Pose)
+                self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_depth, frame_intensity, frame_grayscale_rgb, filename)
 
                 # if pose_detected:
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
@@ -548,8 +493,8 @@ class MatToCsv():
                     cv2.waitKey(1)
                     writer.write(frame_grayscale_rgb)
                 
-                hip_shoulder_depths = pd.DataFrame({'hip': hip_depths, 'shoulder': shoulder_depths})
-                hip_shoulder_depths.to_csv(f'depths test/hip_shoulder_depths_{filename}.csv', header=True, index=False)
+                # hip_shoulder_depths = pd.DataFrame({'hip': hip_depths, 'shoulder': shoulder_depths})
+                # hip_shoulder_depths.to_csv(f'depths test/hip_shoulder_depths_{filename}.csv', header=True, index=False)
             
         # Calculate and print average FPS
         writer.release()
@@ -592,48 +537,12 @@ class MatToCsv():
 
                 # Write header row
                 self.output_csv_file_left.write('filename,frame_num,'
-                                            'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_RawX,Hip_Center_RawY,'
-                                            'Spine_X,Spine_Y,Spine_Z,Spine_RawX,Spine_RawY,'
-                                            'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_RawX,Shoulder_Center_RawY,'
-                                            'Head_X,Head_Y,Head_Z,Head_RawX,Head_RawY,'
-                                            'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_RawX,Shoulder_Right_RawY,'
-                                            'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_RawX,Elbow_Right_RawY,'
-                                            'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_RawX,Wrist_Right_RawY,'
-                                            'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_RawX,Hand_Right_RawY,'
-                                            'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_RawX,Shoulder_Left_RawY,'
-                                            'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_RawX,Elbow_Left_RawY,'
-                                            'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_RawX,Wrist_Left_RawY,'
-                                            'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_RawX,Hand_Left_RawY,'
-                                            'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_RawX,Hip_Right_RawY,'
-                                            'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_RawX,Knee_Right_RawY,'
-                                            'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_RawX,Ankle_Right_RawY,'
-                                            'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_RawX,Foot_Right_RawY,'
-                                            'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_RawX,Hip_Left_RawY,'
-                                            'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_RawX,Knee_Left_RawY,'
-                                            'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_RawX,Ankle_Left_RawY,'
-                                            'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_RawX,Foot_Left_RawY\n')
+                                            'Hip_Center_Depth,Hip_Center_Pixel_Y,'
+                                            'Shoulder_Center_Depth,Shoulder_Center_Pixel_Y\n')
         
                 self.output_csv_file_right.write('filename,frame_num,'
-                                            'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_RawX,Hip_Center_RawY,'
-                                            'Spine_X,Spine_Y,Spine_Z,Spine_RawX,Spine_RawY,'
-                                            'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_RawX,Shoulder_Center_RawY,'
-                                            'Head_X,Head_Y,Head_Z,Head_RawX,Head_RawY,'
-                                            'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_RawX,Shoulder_Right_RawY,'
-                                            'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_RawX,Elbow_Right_RawY,'
-                                            'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_RawX,Wrist_Right_RawY,'
-                                            'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_RawX,Hand_Right_RawY,'
-                                            'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_RawX,Shoulder_Left_RawY,'
-                                            'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_RawX,Elbow_Left_RawY,'
-                                            'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_RawX,Wrist_Left_RawY,'
-                                            'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_RawX,Hand_Left_RawY,'
-                                            'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_RawX,Hip_Right_RawY,'
-                                            'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_RawX,Knee_Right_RawY,'
-                                            'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_RawX,Ankle_Right_RawY,'
-                                            'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_RawX,Foot_Right_RawY,'
-                                            'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_RawX,Hip_Left_RawY,'
-                                            'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_RawX,Knee_Left_RawY,'
-                                            'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_RawX,Ankle_Left_RawY,'
-                                            'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_RawX,Foot_Left_RawY\n')
+                                            'Hip_Center_Depth,Hip_Center_Pixel_Y,'
+                                            'Shoulder_Center_Depth,Shoulder_Center_Pixel_Y\n')
             
             else:
         
@@ -643,26 +552,8 @@ class MatToCsv():
 
                 # Write header row
                 self.output_csv_file.write('filename,frame_num,'
-                                        'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_RawX,Hip_Center_RawY,'
-                                        'Spine_X,Spine_Y,Spine_Z,Spine_RawX,Spine_RawY,'
-                                        'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_RawX,Shoulder_Center_RawY,'
-                                        'Head_X,Head_Y,Head_Z,Head_RawX,Head_RawY,'
-                                        'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_RawX,Shoulder_Right_RawY,'
-                                        'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_RawX,Elbow_Right_RawY,'
-                                        'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_RawX,Wrist_Right_RawY,'
-                                        'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_RawX,Hand_Right_RawY,'
-                                        'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_RawX,Shoulder_Left_RawY,'
-                                        'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_RawX,Elbow_Left_RawY,'
-                                        'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_RawX,Wrist_Left_RawY,'
-                                        'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_RawX,Hand_Left_RawY,'
-                                        'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_RawX,Hip_Right_RawY,'
-                                        'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_RawX,Knee_Right_RawY,'
-                                        'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_RawX,Ankle_Right_RawY,'
-                                        'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_RawX,Foot_Right_RawY,'
-                                        'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_RawX,Hip_Left_RawY,'
-                                        'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_RawX,Knee_Left_RawY,'
-                                        'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_RawX,Ankle_Left_RawY,'
-                                        'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_RawX,Foot_Left_RawY\n')
+                                            'Hip_Center_Depth,Hip_Center_Pixel_Y,'
+                                            'Shoulder_Center_Depth,Shoulder_Center_Pixel_Y\n')
 
             # Set flag to indicate whether or not the class has been cleaned up
             # (either manually or automatically if the destructor was called by the garbage
@@ -680,7 +571,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=False, two_people=False, landscape=False)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=True, landscape=False)
     myMatToCsv.run()
 
     return

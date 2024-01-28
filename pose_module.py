@@ -92,7 +92,7 @@ class PoseLandmarker():
                                                 self.drawing_spec_connection)
             
             # Loop through each landmark
-            for id, landmark in enumerate(results.pose_landmarks.landmark):
+            for id, landmark in enumerate(results.pose_world_landmarks.landmark):
                 # There are 33 landmarks in total, each with x, y, z normalized coordinates and a visibility value
                 # print(id, landmark)
 
