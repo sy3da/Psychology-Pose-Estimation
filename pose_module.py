@@ -79,6 +79,7 @@ class PoseLandmarker():
         # landmarks_pixels is an array of shape (36, 2) with x, y coordinates (as pixels) for each landmark
         # Initialize array with (-2, -2) for each landmark to indicate that the landmark has not been detected
         landmarks_pixels = np.full((36, 2), -2, dtype="int")
+        world_coord = np.full((36, 3), -2, dtype="int")
 
         pose_detected = False
         contains_invalid_landmarks = False
@@ -95,6 +96,7 @@ class PoseLandmarker():
             for id, landmark in enumerate(results.pose_landmarks.landmark):
                 # There are 33 landmarks in total, each with x, y, z normalized coordinates and a visibility value
                 # print(id, landmark)
+                
 
                 # Convert normalized coordinates to pixel coordinates (NOTE: z is currently unused)
                 # x, y = int(landmark.x * image_width), int(landmark.y * image_height)
@@ -111,6 +113,8 @@ class PoseLandmarker():
 
                 # Store pixel coordinates in array
                 landmarks_pixels[id] = (x, y)
+                
+                world_coord[id] = (results.pose_world_landmarks.landmark.x, results.pose_world_landmarks.landmark.y, results.pose_world_landmarks.landmark.z)
 
             # Add shoulder_center landmark
             landmarks_pixels = self._add_landmark_shoulder_center(landmarks_pixels, image, draw)
@@ -125,7 +129,7 @@ class PoseLandmarker():
             # Add spine landmark
             landmarks_pixels = self._add_landmark_spine(landmarks_pixels, image, draw)
 
-        return pose_detected, contains_invalid_landmarks, landmarks_pixels
+        return pose_detected, contains_invalid_landmarks, landmarks_pixels, world_coord
     
     
     def _add_landmark_shoulder_center(self, landmarks_pixels: np.ndarray, image: np.ndarray, draw: bool) -> np.ndarray:

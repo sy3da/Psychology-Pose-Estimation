@@ -247,6 +247,7 @@ class MatToCsv():
 
     def _process_pose_landmarks(
         self,
+        world_coord,
         landmarks_pixels: np.ndarray,
         frame_idx: int,
         frame_depth: np.ndarray,
@@ -272,8 +273,6 @@ class MatToCsv():
         # For each landmark, get the x, y, and z values from the depth array and store them in a numpy array
         # Then, write the numpy array to a new row in the output csv file
         xyz_values = np.zeros((len(landmarks_pixels), 5))
-        hip_depth = 0
-        shoulder_depth=0
         
         for landmark_idx in range(len(landmarks_pixels)):
             landmark_pixel_coord_x, landmark_pixel_coord_y = landmarks_pixels[landmark_idx]
@@ -290,21 +289,11 @@ class MatToCsv():
             
             # The pixel coordinates are valid
 
-            # Convert depth [cm] to x,y,z for landmark pixels
-            pixel_depth, x_value,y_value,z_value = self.convert_depth_to_xyz(frame_depth,landmark_pixel_coord_x,landmark_pixel_coord_y)
-            
-            if landmark_idx ==34:
-                # print(f'Frame: {frame_idx}, Hip Depth: {pixel_depth}')
-                hip_depth = pixel_depth
-                
-            if landmark_idx ==33:
-                # print(f'Frame: {frame_idx}, Shoulder Depth: {pixel_depth}')     
-                shoulder_depth = pixel_depth
-                
+               
             # Set the x, y, and z values to the values from convert depth to x,y,z
-            xyz_values[landmark_idx][0] = x_value
-            xyz_values[landmark_idx][1] = y_value
-            xyz_values[landmark_idx][2] = z_value
+            xyz_values[landmark_idx][0] = world_coord[0]
+            xyz_values[landmark_idx][1] = world_coord[1]
+            xyz_values[landmark_idx][2] = world_coord[2]
             xyz_values[landmark_idx][3] = landmark_pixel_coord_x
             xyz_values[landmark_idx][4] = landmark_pixel_coord_y
             
@@ -408,7 +397,7 @@ class MatToCsv():
             self.output_csv_file.write(f"{xyz_values[27][0]},{xyz_values[27][1]},{xyz_values[27][2]},{xyz_values[27][3]},{xyz_values[27][4]},")
             self.output_csv_file.write(f"{xyz_values[31][0]},{xyz_values[31][1]},{xyz_values[31][2]},{xyz_values[31][3]},{xyz_values[31][4]}\n")
 
-        return hip_depth, shoulder_depth
+        return 
     
 
     def _process_file(self, file_num: int, num_files_to_process: int, filename: str, pose_detector_1: PoseLandmarker, pose_detector_2: PoseLandmarker) -> None:
@@ -464,15 +453,15 @@ class MatToCsv():
 
                 # Get pixel locations of all pose landmarks for both skeletons
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
-                pose_detected_left, contains_invalid_landmarks_left, landmarks_pixels_left = pose_detector_1.get_landmarks(image=frame_grayscale_rgb_left, draw=self.visualize_Pose)
-                pose_detected_right, contains_invalid_landmarks_right, landmarks_pixels_right = pose_detector_2.get_landmarks(image=frame_grayscale_rgb_right, draw=self.visualize_Pose)
+                pose_detected_left, contains_invalid_landmarks_left, landmarks_pixels_left, world_coord_left = pose_detector_1.get_landmarks(image=frame_grayscale_rgb_left, draw=self.visualize_Pose)
+                pose_detected_right, contains_invalid_landmarks_right, landmarks_pixels_right, world_coord_right = pose_detector_2.get_landmarks(image=frame_grayscale_rgb_right, draw=self.visualize_Pose)
 
                 # if pose_detected:
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
                 #     self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
                 
-                self._process_pose_landmarks(landmarks_pixels_left, frame_idx, frame_depth_left, frame_intensity_left, frame_grayscale_rgb_left, filename+'_left_participant', participant='Left')
-                self._process_pose_landmarks(landmarks_pixels_right, frame_idx, frame_depth_right, frame_intensity_right, frame_grayscale_rgb_right, filename+'_right_participant', participant='Right')
+                self._process_pose_landmarks(world_coord_left, landmarks_pixels_left, frame_idx, frame_depth_left, frame_intensity_left, frame_grayscale_rgb_left, filename+'_left_participant', participant='Left')
+                self._process_pose_landmarks(world_coord_right, landmarks_pixels_right, frame_idx, frame_depth_right, frame_intensity_right, frame_grayscale_rgb_right, filename+'_right_participant', participant='Right')
 
                 if self.visualize_Pose == True:
                     # Combine frame_grayscale_rgb_left and _right
@@ -500,8 +489,6 @@ class MatToCsv():
                     writer.write(frame_grayscale_rgb)
         else:          
             # Loop through all frames
-            hip_depths = []
-            shoulder_depths = []
             for frame_idx in range(num_frames):
                 frame_depth = depth_all[:, :, frame_idx]
                 frame_intensity = intensity_all[:, :, frame_idx]
@@ -520,15 +507,13 @@ class MatToCsv():
 
                 # Get pixel locations of all pose landmarks
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
-                pose_detected, contains_invalid_landmarks, landmarks_pixels = pose_detector_1.get_landmarks(image=frame_grayscale_rgb, draw=self.visualize_Pose)
+                pose_detected, contains_invalid_landmarks, landmarks_pixels, world_coord = pose_detector_1.get_landmarks(image=frame_grayscale_rgb, draw=self.visualize_Pose)
 
                 # if pose_detected:
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
                 #     self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
                 
-                hip_depth, shoulder_depth = self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_depth, frame_intensity, frame_grayscale_rgb, filename)
-                hip_depths.append(hip_depth)
-                shoulder_depths.append(shoulder_depth)
+                self._process_pose_landmarks(world_coord, landmarks_pixels, frame_idx, frame_depth, frame_intensity, frame_grayscale_rgb, filename)
                 
                 if self.visualize_Pose == True:
                     # Calculate and overlay FPS
@@ -551,9 +536,6 @@ class MatToCsv():
                     cv2.imshow("Image", frame_grayscale_rgb)
                     cv2.waitKey(1)
                     writer.write(frame_grayscale_rgb)
-                
-                hip_shoulder_depths = pd.DataFrame({'hip': hip_depths, 'shoulder': shoulder_depths})
-                hip_shoulder_depths.to_csv(f'depths test/hip_shoulder_depths_{filename}.csv', header=True, index=False)
             
         # Calculate and print average FPS
         writer.release()
