@@ -436,17 +436,17 @@ class MatToCsv():
         # Used to calculate FPS
         previous_time = 0
         start_time = time.time()
-        writer = cv2.VideoWriter(self.output_filename + '.avi', cv2.VideoWriter_fourcc(*'MJPG'), 10, (self.image_width, self.image_height))
+        writer = cv2.VideoWriter(f'Data/mat/video/{self.output_filename}.avi', cv2.VideoWriter_fourcc(*'MJPG'), 12, (self.image_width, self.image_height))
         
         # Check if two people need to be tracked
         if self.two_people == True:
             # Loop through all frames
             for frame_idx in range(num_frames):
                 # Split to left and right participants (relative to viewer)
-                frame_depth_left = depth_all[:, 0:int((self.image_width/2))-1, frame_idx]
-                frame_depth_right = depth_all[:, int(self.image_width/2):(self.image_width-1), frame_idx]
-                frame_intensity_left = intensity_all[:, 0:int((self.image_width/2))-1, frame_idx]
-                frame_intensity_right = intensity_all[:, int(self.image_width/2):(self.image_width-1), frame_idx]
+                frame_depth_left = depth_all[:, 0:int((self.image_width/2)), frame_idx]
+                frame_depth_right = depth_all[:, int(self.image_width/2):(self.image_width), frame_idx]
+                frame_intensity_left = intensity_all[:, 0:int((self.image_width/2)), frame_idx]
+                frame_intensity_right = intensity_all[:, int(self.image_width/2):(self.image_width), frame_idx]
 
                 # Track face and extract intensity and depth for all ROIs in each side of this frame
 
@@ -684,7 +684,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=False, two_people=False, landscape=False)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=True, landscape=True)
     myMatToCsv.run()
 
     return
