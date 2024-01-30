@@ -415,15 +415,15 @@ class MatToCsv():
 
                 # Get pixel locations of all pose landmarks for both skeletons
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
-                pose_detected_left, contains_invalid_landmarks_left, landmarks_pixels_left = pose_detector_1.get_landmarks(image=frame_grayscale_rgb_left, draw=self.visualize_Pose)
-                pose_detected_right, contains_invalid_landmarks_right, landmarks_pixels_right = pose_detector_2.get_landmarks(image=frame_grayscale_rgb_right, draw=self.visualize_Pose)
+                pose_detected_left, contains_invalid_landmarks_left, landmarks_pixels_left, world_coord_left = pose_detector_1.get_landmarks(image=frame_grayscale_rgb_left, draw=self.visualize_Pose)
+                pose_detected_right, contains_invalid_landmarks_right, landmarks_pixels_right, world_coord_right = pose_detector_2.get_landmarks(image=frame_grayscale_rgb_right, draw=self.visualize_Pose)
 
                 # if pose_detected:
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
                 #     self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
                 
-                self._process_pose_landmarks(landmarks_pixels_left, frame_idx, frame_depth_left, frame_intensity_left, frame_grayscale_rgb_left, filename+'_left_participant', participant='Left')
-                self._process_pose_landmarks(landmarks_pixels_right, frame_idx, frame_depth_right, frame_intensity_right, frame_grayscale_rgb_right, filename+'_right_participant', participant='Right')
+                self._process_pose_landmarks(world_coord_left, landmarks_pixels_left, frame_idx, frame_depth_left, frame_intensity_left, frame_grayscale_rgb_left, filename+'_left_participant', participant='Left')
+                self._process_pose_landmarks(world_coord_right, landmarks_pixels_right, frame_idx, frame_depth_right, frame_intensity_right, frame_grayscale_rgb_right, filename+'_right_participant', participant='Right')
 
                 if self.visualize_Pose == True:
                     # Combine frame_grayscale_rgb_left and _right
@@ -469,13 +469,13 @@ class MatToCsv():
 
                 # Get pixel locations of all pose landmarks
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
-                pose_detected, contains_invalid_landmarks, landmarks_pixels = pose_detector_1.get_landmarks(image=frame_grayscale_rgb, draw=self.visualize_Pose)
+                pose_detected, contains_invalid_landmarks, landmarks_pixels, world_coord = pose_detector_1.get_landmarks(image=frame_grayscale_rgb, draw=self.visualize_Pose)
 
                 # if pose_detected:
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
                 #     self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
                 
-                self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_depth, frame_intensity, frame_grayscale_rgb, filename)
+                self._process_pose_landmarks(world_coord, landmarks_pixels, frame_idx, frame_depth, frame_intensity, frame_grayscale_rgb, filename)
                 
                 if self.visualize_Pose == True:
                     # Calculate and overlay FPS
