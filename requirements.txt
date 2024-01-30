@@ -12,3 +12,4 @@ scipy
 typing-extensions
 gekko
 opencv-python
+pyarrow
