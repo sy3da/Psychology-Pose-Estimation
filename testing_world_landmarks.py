@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 def read_csv(filename):
     data = pd.read_csv(filename)
     
-    elim = data.query('hip == 0')
+    elim = data.query('Hip_Center_X == -32767')
     data = data.drop(elim.index)
-    elim = data.query('shoulder == 0')
+    elim = data.query('shoulder_Center_X == -32767')
     data = data.drop(elim.index)
     
     return data
@@ -35,7 +35,7 @@ def _get_csv_files(directory):
 
 if __name__ == "__main__":
     # Get path to csv files and list of csv file names
-    csv_dir = os.path.join(os.getcwd(), 'depths test')
+    csv_dir = os.path.join(os.getcwd(), 'world landmarks test')
     files = _get_csv_files(csv_dir)
     
     # Determine number of files to process

@@ -79,7 +79,7 @@ class PoseLandmarker():
         # landmarks_pixels is an array of shape (36, 2) with x, y coordinates (as pixels) for each landmark
         # Initialize array with (-2, -2) for each landmark to indicate that the landmark has not been detected
         landmarks_pixels = np.full((36, 2), -2, dtype="int")
-        world_coord = np.full((36, 3), -2, dtype="int")
+        world_coord = np.zeros((36, 3))
 
         pose_detected = False
         contains_invalid_landmarks = False
@@ -113,26 +113,25 @@ class PoseLandmarker():
 
                 # Store pixel coordinates in array
                 landmarks_pixels[id] = (x, y)
-                
-                world_coord[id] = (results.pose_world_landmarks.landmark.x, results.pose_world_landmarks.landmark.y, results.pose_world_landmarks.landmark.z)
+                world_coord[id] = (results.pose_world_landmarks.landmark[id].x, results.pose_world_landmarks.landmark[id].y, results.pose_world_landmarks.landmark[id].z)
 
             # Add shoulder_center landmark
-            landmarks_pixels = self._add_landmark_shoulder_center(landmarks_pixels, image, draw)
+            landmarks_pixels, world_coord = self._add_landmark_shoulder_center(landmarks_pixels, world_coord, image, draw)
 
             # Add hip_center landmark
-            landmarks_pixels = self._add_landmark_hip_center(landmarks_pixels, image, draw)
+            landmarks_pixels, world_coord = self._add_landmark_hip_center(landmarks_pixels, world_coord, image, draw)
 
             # Draw line between shoulder_center and hip_center landmarks
             if draw:
                 image = self._draw_line_between_shoulder_center_and_hip_center(landmarks_pixels, image)
 
             # Add spine landmark
-            landmarks_pixels = self._add_landmark_spine(landmarks_pixels, image, draw)
+            landmarks_pixels, world_coord = self._add_landmark_spine(landmarks_pixels, world_coord, image, draw)
 
         return pose_detected, contains_invalid_landmarks, landmarks_pixels, world_coord
     
     
-    def _add_landmark_shoulder_center(self, landmarks_pixels: np.ndarray, image: np.ndarray, draw: bool) -> np.ndarray:
+    def _add_landmark_shoulder_center(self, landmarks_pixels: np.ndarray, world_coord, image: np.ndarray, draw: bool) -> np.ndarray:
         # Get image dimensions
         image_height, image_width, image_channels = image.shape
 
@@ -149,15 +148,17 @@ class PoseLandmarker():
         # Create shoulder_center landmark by averaging the left and right shoulder landmarks
         landmarks_pixels[33] = (int((landmarks_pixels[11][0] + landmarks_pixels[12][0]) / 2),
                                 int((landmarks_pixels[11][1] + landmarks_pixels[12][1]) / 2))
-        
+        world_coord[33] = ((world_coord[11][0] + world_coord[12][0])/2,
+                           (world_coord[11][1] + world_coord[12][1])/2,
+                           (world_coord[11][2] + world_coord[12][2])/2)
         if draw:
             # Overlay orange dot on shoulder_center landmark to verify pixel coordinates
             cv2.circle(image, landmarks_pixels[33], 5, (0, 165, 255), cv2.FILLED)
         
-        return landmarks_pixels
+        return landmarks_pixels, world_coord
     
 
-    def _add_landmark_hip_center(self, landmarks_pixels: np.ndarray, image: np.ndarray, draw: bool) -> np.ndarray:
+    def _add_landmark_hip_center(self, landmarks_pixels: np.ndarray, world_coord, image: np.ndarray, draw: bool) -> np.ndarray:
         # Get image dimensions
         image_height, image_width, image_channels = image.shape
 
@@ -173,12 +174,15 @@ class PoseLandmarker():
         # Create hip_center landmark by averaging the left and right hip landmarks
         landmarks_pixels[34] = (int((landmarks_pixels[23][0] + landmarks_pixels[24][0]) / 2),
                                 int((landmarks_pixels[23][1] + landmarks_pixels[24][1]) / 2))
-        
+        world_coord[34] = ((world_coord[23][0] + world_coord[24][0])/2,
+                            (world_coord[23][1] + world_coord[24][1])/2,
+                            (world_coord[23][2] + world_coord[24][2])/2)
+                
         if draw:
             # Overlay green dot on hip_center landmark to verify pixel coordinates
             cv2.circle(image, landmarks_pixels[34], 5, (0, 255, 0), cv2.FILLED)
 
-        return landmarks_pixels
+        return landmarks_pixels, world_coord
     
 
     def _draw_line_between_shoulder_center_and_hip_center(self, landmarks_pixels: np.ndarray, image: np.ndarray) -> np.ndarray:
@@ -198,7 +202,7 @@ class PoseLandmarker():
         return image
     
 
-    def _add_landmark_spine(self, landmarks_pixels: np.ndarray, image: np.ndarray, draw: bool) -> np.ndarray:
+    def _add_landmark_spine(self, landmarks_pixels: np.ndarray, world_coord, image: np.ndarray, draw: bool) -> np.ndarray:
         # Get image dimensions
         image_height, image_width, image_channels = image.shape
         
@@ -214,12 +218,14 @@ class PoseLandmarker():
         # Calculate the coordinates of "spine" landmark that is 2/3 of the way down from the "shoulder_center" to the "hip_center"
         landmarks_pixels[35] = (int(landmarks_pixels[33][0] + (landmarks_pixels[34][0] - landmarks_pixels[33][0]) * 2 / 3),
                                 int(landmarks_pixels[33][1] + (landmarks_pixels[34][1] - landmarks_pixels[33][1]) * 2 / 3))
-        
+        world_coord[35] = ((world_coord[33][0] + (world_coord[34][0] - world_coord[33][0]) * 2 / 3),
+                            (world_coord[33][1] + (world_coord[34][1] - world_coord[33][1]) * 2 / 3),
+                            (world_coord[33][2] + (world_coord[34][2] - world_coord[33][2]) * 2 / 3))
         if draw:
             # Overlay red dot on spine landmark to verify pixel coordinates
             cv2.circle(image, landmarks_pixels[35], 5, (0, 0, 255), cv2.FILLED)
 
-        return landmarks_pixels
+        return landmarks_pixels, world_coord
     
 
     def _is_valid_pixel_coordinate(self, xy: Tuple[int, int], image_width: int, image_height: int) -> bool:

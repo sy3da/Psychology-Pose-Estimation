@@ -284,18 +284,20 @@ class MatToCsv():
                 xyz_values[landmark_idx][0] = -np.iinfo(np.int16).max
                 xyz_values[landmark_idx][1] = -np.iinfo(np.int16).max
                 xyz_values[landmark_idx][2] = -np.iinfo(np.int16).max
+                xyz_values[landmark_idx][3] = 0
+                xyz_values[landmark_idx][4] = 0
 
                 continue
             
             # The pixel coordinates are valid
 
-               
-            # Set the x, y, and z values to the values from convert depth to x,y,z
-            xyz_values[landmark_idx][0] = world_coord[0]
-            xyz_values[landmark_idx][1] = world_coord[1]
-            xyz_values[landmark_idx][2] = world_coord[2]
-            xyz_values[landmark_idx][3] = landmark_pixel_coord_x
-            xyz_values[landmark_idx][4] = landmark_pixel_coord_y
+            else:
+            # Set the x, y, and z values to the values from world landmarks
+                xyz_values[landmark_idx][0] = world_coord[landmark_idx][0]
+                xyz_values[landmark_idx][1] = world_coord[landmark_idx][1]
+                xyz_values[landmark_idx][2] = world_coord[landmark_idx][2]
+                xyz_values[landmark_idx][3] = landmark_pixel_coord_x
+                xyz_values[landmark_idx][4] = landmark_pixel_coord_y
             
         # Landmarks of interest: (landmark_num: 'landmark_name_X,landmark_name_Y,landmark_name_Z,')
         # 34: 'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,'
