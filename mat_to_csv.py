@@ -328,12 +328,9 @@ class MatToCsv():
             # Write the x, y, and z values for the landmarks of interest to the output csv file
             landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31]
             for idx in landmark_idxs:
-                self.output_csv_file_left.write(f"{xyz_values[landmark_idxs][0]},
-                                                {xyz_values[landmark_idxs][1]},
-                                                {xyz_values[landmark_idxs][2]},
-                                                {xyz_values[landmark_idxs][3]},
-                                                {xyz_values[landmark_idxs][4]},")
-            
+                self.output_csv_file_left.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},")
+            self.output_csv_file.write('\n')
+               
         elif participant == 'Right':
             # Write the filename and frame_num to a new row in the output csv file
             self.output_csv_file_right.write(f"{filename},{frame_idx},")
@@ -341,11 +338,8 @@ class MatToCsv():
             # Write the x, y, and z values for the landmarks of interest to the output csv file
             landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31]
             for idx in landmark_idxs:
-                self.output_csv_file_right.write(f"{xyz_values[landmark_idxs][0]},
-                                                {xyz_values[landmark_idxs][1]},
-                                                {xyz_values[landmark_idxs][2]},
-                                                {xyz_values[landmark_idxs][3]},
-                                                {xyz_values[landmark_idxs][4]},")
+                self.output_csv_file_right.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},")
+            self.output_csv_file.write('\n')
 
         else:
             # Write the filename and frame_num to a new row in the output csv file
@@ -354,12 +348,9 @@ class MatToCsv():
             # Write the x, y, and z values for the landmarks of interest to the output csv file
             landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31]
             for idx in landmark_idxs:
-                self.output_csv_file.write(f"{xyz_values[landmark_idxs][0]},
-                                            {xyz_values[landmark_idxs][1]},
-                                            {xyz_values[landmark_idxs][2]},
-                                            {xyz_values[landmark_idxs][3]},
-                                            {xyz_values[landmark_idxs][4]},")
-
+                self.output_csv_file.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},")
+            self.output_csv_file.write('\n') 
+              
         return
     
 
@@ -629,7 +620,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=True, landscape=True)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=False, two_people=False, landscape=False)
     myMatToCsv.run()
 
     return
