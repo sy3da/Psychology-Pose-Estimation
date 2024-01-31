@@ -272,7 +272,7 @@ class MatToCsv():
 
         # For each landmark, get the x, y, and z values from the depth array and store them in a numpy array
         # Then, write the numpy array to a new row in the output csv file
-        xyz_values = np.zeros((len(landmarks_pixels), 5))
+        xyz_values = np.zeros((len(landmarks_pixels), 6))
         
         for landmark_idx in range(len(landmarks_pixels)):
             landmark_pixel_coord_x, landmark_pixel_coord_y = landmarks_pixels[landmark_idx]
@@ -286,6 +286,7 @@ class MatToCsv():
                 xyz_values[landmark_idx][2] = -np.iinfo(np.int16).max
                 xyz_values[landmark_idx][3] = 0
                 xyz_values[landmark_idx][4] = 0
+                xyz_values[landmark_idx][5] = -np.iinfo(np.int16).max
 
                 continue
             
@@ -298,6 +299,7 @@ class MatToCsv():
                 xyz_values[landmark_idx][2] = world_coord[landmark_idx][2]
                 xyz_values[landmark_idx][3] = landmark_pixel_coord_x
                 xyz_values[landmark_idx][4] = landmark_pixel_coord_y
+                xyz_values[landmark_idx][5] = frame_depth[landmark_pixel_coord_y, landmark_pixel_coord_x]
             
         # Landmarks of interest: (landmark_num: 'landmark_name_X,landmark_name_Y,landmark_name_Z,')
         # 34: 'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,'
@@ -328,7 +330,7 @@ class MatToCsv():
             # Write the x, y, and z values for the landmarks of interest to the output csv file
             landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31]
             for idx in landmark_idxs:
-                self.output_csv_file_left.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},")
+                self.output_csv_file_left.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},{xyz_values[idx][5]},")
             self.output_csv_file.write('\n')
                
         elif participant == 'Right':
@@ -338,7 +340,7 @@ class MatToCsv():
             # Write the x, y, and z values for the landmarks of interest to the output csv file
             landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31]
             for idx in landmark_idxs:
-                self.output_csv_file_right.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},")
+                self.output_csv_file_right.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},{xyz_values[idx][5]},")
             self.output_csv_file.write('\n')
 
         else:
@@ -348,7 +350,7 @@ class MatToCsv():
             # Write the x, y, and z values for the landmarks of interest to the output csv file
             landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31]
             for idx in landmark_idxs:
-                self.output_csv_file.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},")
+                self.output_csv_file.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},{xyz_values[idx][5]},")
             self.output_csv_file.write('\n') 
               
         return
@@ -417,30 +419,32 @@ class MatToCsv():
                 self._process_pose_landmarks(world_coord_left, landmarks_pixels_left, frame_idx, frame_depth_left, frame_intensity_left, frame_grayscale_rgb_left, filename+'_left_participant', participant='Left')
                 self._process_pose_landmarks(world_coord_right, landmarks_pixels_right, frame_idx, frame_depth_right, frame_intensity_right, frame_grayscale_rgb_right, filename+'_right_participant', participant='Right')
 
+                # Combine frame_grayscale_rgb_left and _right
+                frame_grayscale_rgb = np.append(frame_grayscale_rgb_left, frame_grayscale_rgb_right, 1)
+                
+                # Calculate and overlay FPS
+                current_time = time.time()
+
+                # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
+                fps = 1 / (current_time - previous_time)
+                previous_time = current_time
+                cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
+
+                # Overlay frame number in top right corner
+                text = f'{frame_idx + 1}'
+                text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 1, 2)[0]
+                text_x = frame_grayscale_rgb.shape[1] - text_size[0] - 20  # Position text at the top right corner
+                text_y = text_size[1] + 20
+                cv2.putText(frame_grayscale_rgb, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
+
+                writer.write(frame_grayscale_rgb)
+
                 if self.visualize_Pose == True:
-                    # Combine frame_grayscale_rgb_left and _right
-                    frame_grayscale_rgb = np.append(frame_grayscale_rgb_left, frame_grayscale_rgb_right, 1)
-                    
-                    # Calculate and overlay FPS
-                    current_time = time.time()
-
-                    # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
-                    fps = 1 / (current_time - previous_time)
-                    previous_time = current_time
-                    cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
-
-                    # Overlay frame number in top right corner
-                    text = f'{frame_idx + 1}'
-                    text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 1, 2)[0]
-                    text_x = frame_grayscale_rgb.shape[1] - text_size[0] - 20  # Position text at the top right corner
-                    text_y = text_size[1] + 20
-                    cv2.putText(frame_grayscale_rgb, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
-
                     # Display frame
-
                     cv2.imshow("Image", frame_grayscale_rgb)
                     cv2.waitKey(1)
-                    writer.write(frame_grayscale_rgb)
+                    
+                
         else:          
             # Loop through all frames
             for frame_idx in range(num_frames):
@@ -469,27 +473,28 @@ class MatToCsv():
                 
                 self._process_pose_landmarks(world_coord, landmarks_pixels, frame_idx, frame_depth, frame_intensity, frame_grayscale_rgb, filename)
                 
+                # Calculate and overlay FPS
+                current_time = time.time()
+                
+                # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
+                fps = 1 / (current_time - previous_time)
+                previous_time = current_time
+                cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
+
+                # Overlay frame number in top right corner
+                text = f'{frame_idx + 1}'
+                text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 1, 2)[0]
+                text_x = frame_grayscale_rgb.shape[1] - text_size[0] - 20  # Position text at the top right corner
+                text_y = text_size[1] + 20
+                cv2.putText(frame_grayscale_rgb, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
+
+                writer.write(frame_grayscale_rgb) 
+                 
                 if self.visualize_Pose == True:
-                    # Calculate and overlay FPS
-                    current_time = time.time()
-                    
-                    # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
-                    fps = 1 / (current_time - previous_time)
-                    previous_time = current_time
-                    cv2.putText(frame_grayscale_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
-
-                    # Overlay frame number in top right corner
-                    text = f'{frame_idx + 1}'
-                    text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 1, 2)[0]
-                    text_x = frame_grayscale_rgb.shape[1] - text_size[0] - 20  # Position text at the top right corner
-                    text_y = text_size[1] + 20
-                    cv2.putText(frame_grayscale_rgb, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
-
                     # Display frame
-
                     cv2.imshow("Image", frame_grayscale_rgb)
                     cv2.waitKey(1)
-                    writer.write(frame_grayscale_rgb)
+                       
             
         # Calculate and print average FPS
         writer.release()
@@ -532,48 +537,48 @@ class MatToCsv():
 
                 # Write header row
                 self.output_csv_file_left.write('filename,frame_num,'
-                                            'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_RawX,Hip_Center_RawY,'
-                                            'Spine_X,Spine_Y,Spine_Z,Spine_RawX,Spine_RawY,'
-                                            'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_RawX,Shoulder_Center_RawY,'
-                                            'Head_X,Head_Y,Head_Z,Head_RawX,Head_RawY,'
-                                            'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_RawX,Shoulder_Right_RawY,'
-                                            'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_RawX,Elbow_Right_RawY,'
-                                            'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_RawX,Wrist_Right_RawY,'
-                                            'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_RawX,Hand_Right_RawY,'
-                                            'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_RawX,Shoulder_Left_RawY,'
-                                            'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_RawX,Elbow_Left_RawY,'
-                                            'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_RawX,Wrist_Left_RawY,'
-                                            'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_RawX,Hand_Left_RawY,'
-                                            'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_RawX,Hip_Right_RawY,'
-                                            'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_RawX,Knee_Right_RawY,'
-                                            'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_RawX,Ankle_Right_RawY,'
-                                            'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_RawX,Foot_Right_RawY,'
-                                            'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_RawX,Hip_Left_RawY,'
-                                            'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_RawX,Knee_Left_RawY,'
-                                            'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_RawX,Ankle_Left_RawY,'
-                                            'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_RawX,Foot_Left_RawY\n')
+                                                'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_PixelX,Hip_Center_PixelY,Hip_Center_Depth,'
+                                                'Spine_X,Spine_Y,Spine_Z,Spine_PixelX,Spine_PixelY,Spine_Depth,'
+                                                'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_PixelX,Shoulder_Center_PixelY,Shoulder_Center_Depth,'
+                                                'Head_X,Head_Y,Head_Z,Head_PixelX,Head_PixelY,Head_Depth,'
+                                                'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_PixelX,Shoulder_Right_PixelY,Shoulder_Right_Depth,'
+                                                'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_PixelX,Elbow_Right_PixelY,Elbow_Right_Depth,'
+                                                'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_PixelX,Wrist_Right_PixelY,Wrist_Right_Depth,'
+                                                'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_PixelX,Hand_Right_PixelY,Hand_Right_Depth,'
+                                                'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_PixelX,Shoulder_Left_PixelY,Shoulder_Left_Depth,'
+                                                'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_PixelX,Elbow_Left_PixelY,Elbow_Left_Depth,'
+                                                'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_PixelX,Wrist_Left_PixelY,Wrist_Left_Depth,'
+                                                'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_PixelX,Hand_Left_PixelY,Hand_Left_Depth,'
+                                                'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_PixelX,Hip_Right_PixelY,Hip_Right_Depth,'
+                                                'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_PixelX,Knee_Right_PixelY,Knee_Right_Depth,'
+                                                'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_PixelX,Ankle_Right_PixelY,Ankle_Right_Depth,'
+                                                'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_PixelX,Foot_Right_PixelY,Foot_Right_Depth,'
+                                                'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_PixelX,Hip_Left_PixelY,Hip_Left_Depth,'
+                                                'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_PixelX,Knee_Left_PixelY,Knee_Left_Depth,'
+                                                'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_PixelX,Ankle_Left_PixelY,Ankle_Left_Depth,'
+                                                'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_PixelX,Foot_Left_PixelY,Foot_Left_Depth\n')
         
                 self.output_csv_file_right.write('filename,frame_num,'
-                                            'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_RawX,Hip_Center_RawY,'
-                                            'Spine_X,Spine_Y,Spine_Z,Spine_RawX,Spine_RawY,'
-                                            'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_RawX,Shoulder_Center_RawY,'
-                                            'Head_X,Head_Y,Head_Z,Head_RawX,Head_RawY,'
-                                            'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_RawX,Shoulder_Right_RawY,'
-                                            'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_RawX,Elbow_Right_RawY,'
-                                            'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_RawX,Wrist_Right_RawY,'
-                                            'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_RawX,Hand_Right_RawY,'
-                                            'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_RawX,Shoulder_Left_RawY,'
-                                            'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_RawX,Elbow_Left_RawY,'
-                                            'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_RawX,Wrist_Left_RawY,'
-                                            'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_RawX,Hand_Left_RawY,'
-                                            'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_RawX,Hip_Right_RawY,'
-                                            'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_RawX,Knee_Right_RawY,'
-                                            'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_RawX,Ankle_Right_RawY,'
-                                            'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_RawX,Foot_Right_RawY,'
-                                            'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_RawX,Hip_Left_RawY,'
-                                            'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_RawX,Knee_Left_RawY,'
-                                            'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_RawX,Ankle_Left_RawY,'
-                                            'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_RawX,Foot_Left_RawY\n')
+                                                'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_PixelX,Hip_Center_PixelY,Hip_Center_Depth,'
+                                                'Spine_X,Spine_Y,Spine_Z,Spine_PixelX,Spine_PixelY,Spine_Depth,'
+                                                'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_PixelX,Shoulder_Center_PixelY,Shoulder_Center_Depth,'
+                                                'Head_X,Head_Y,Head_Z,Head_PixelX,Head_PixelY,Head_Depth,'
+                                                'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_PixelX,Shoulder_Right_PixelY,Shoulder_Right_Depth,'
+                                                'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_PixelX,Elbow_Right_PixelY,Elbow_Right_Depth,'
+                                                'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_PixelX,Wrist_Right_PixelY,Wrist_Right_Depth,'
+                                                'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_PixelX,Hand_Right_PixelY,Hand_Right_Depth,'
+                                                'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_PixelX,Shoulder_Left_PixelY,Shoulder_Left_Depth,'
+                                                'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_PixelX,Elbow_Left_PixelY,Elbow_Left_Depth,'
+                                                'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_PixelX,Wrist_Left_PixelY,Wrist_Left_Depth,'
+                                                'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_PixelX,Hand_Left_PixelY,Hand_Left_Depth,'
+                                                'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_PixelX,Hip_Right_PixelY,Hip_Right_Depth,'
+                                                'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_PixelX,Knee_Right_PixelY,Knee_Right_Depth,'
+                                                'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_PixelX,Ankle_Right_PixelY,Ankle_Right_Depth,'
+                                                'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_PixelX,Foot_Right_PixelY,Foot_Right_Depth,'
+                                                'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_PixelX,Hip_Left_PixelY,Hip_Left_Depth,'
+                                                'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_PixelX,Knee_Left_PixelY,Knee_Left_Depth,'
+                                                'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_PixelX,Ankle_Left_PixelY,Ankle_Left_Depth,'
+                                                'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_PixelX,Foot_Left_PixelY,Foot_Left_Depth\n')
             
             else:
         
@@ -583,26 +588,26 @@ class MatToCsv():
 
                 # Write header row
                 self.output_csv_file.write('filename,frame_num,'
-                                        'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_RawX,Hip_Center_RawY,'
-                                        'Spine_X,Spine_Y,Spine_Z,Spine_RawX,Spine_RawY,'
-                                        'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_RawX,Shoulder_Center_RawY,'
-                                        'Head_X,Head_Y,Head_Z,Head_RawX,Head_RawY,'
-                                        'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_RawX,Shoulder_Right_RawY,'
-                                        'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_RawX,Elbow_Right_RawY,'
-                                        'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_RawX,Wrist_Right_RawY,'
-                                        'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_RawX,Hand_Right_RawY,'
-                                        'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_RawX,Shoulder_Left_RawY,'
-                                        'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_RawX,Elbow_Left_RawY,'
-                                        'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_RawX,Wrist_Left_RawY,'
-                                        'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_RawX,Hand_Left_RawY,'
-                                        'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_RawX,Hip_Right_RawY,'
-                                        'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_RawX,Knee_Right_RawY,'
-                                        'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_RawX,Ankle_Right_RawY,'
-                                        'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_RawX,Foot_Right_RawY,'
-                                        'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_RawX,Hip_Left_RawY,'
-                                        'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_RawX,Knee_Left_RawY,'
-                                        'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_RawX,Ankle_Left_RawY,'
-                                        'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_RawX,Foot_Left_RawY\n')
+                                            'Hip_Center_X,Hip_Center_Y,Hip_Center_Z,Hip_Center_PixelX,Hip_Center_PixelY,Hip_Center_Depth,'
+                                            'Spine_X,Spine_Y,Spine_Z,Spine_PixelX,Spine_PixelY,Spine_Depth,'
+                                            'Shoulder_Center_X,Shoulder_Center_Y,Shoulder_Center_Z,Shoulder_Center_PixelX,Shoulder_Center_PixelY,Shoulder_Center_Depth,'
+                                            'Head_X,Head_Y,Head_Z,Head_PixelX,Head_PixelY,Head_Depth,'
+                                            'Shoulder_Right_X,Shoulder_Right_Y,Shoulder_Right_Z,Shoulder_Right_PixelX,Shoulder_Right_PixelY,Shoulder_Right_Depth,'
+                                            'Elbow_Right_X,Elbow_Right_Y,Elbow_Right_Z,Elbow_Right_PixelX,Elbow_Right_PixelY,Elbow_Right_Depth,'
+                                            'Wrist_Right_X,Wrist_Right_Y,Wrist_Right_Z,Wrist_Right_PixelX,Wrist_Right_PixelY,Wrist_Right_Depth,'
+                                            'Hand_Right_X,Hand_Right_Y,Hand_Right_Z,Hand_Right_PixelX,Hand_Right_PixelY,Hand_Right_Depth,'
+                                            'Shoulder_Left_X,Shoulder_Left_Y,Shoulder_Left_Z,Shoulder_Left_PixelX,Shoulder_Left_PixelY,Shoulder_Left_Depth,'
+                                            'Elbow_Left_X,Elbow_Left_Y,Elbow_Left_Z,Elbow_Left_PixelX,Elbow_Left_PixelY,Elbow_Left_Depth,'
+                                            'Wrist_Left_X,Wrist_Left_Y,Wrist_Left_Z,Wrist_Left_PixelX,Wrist_Left_PixelY,Wrist_Left_Depth,'
+                                            'Hand_Left_X,Hand_Left_Y,Hand_Left_Z,Hand_Left_PixelX,Hand_Left_PixelY,Hand_Left_Depth,'
+                                            'Hip_Right_X,Hip_Right_Y,Hip_Right_Z,Hip_Right_PixelX,Hip_Right_PixelY,Hip_Right_Depth,'
+                                            'Knee_Right_X,Knee_Right_Y,Knee_Right_Z,Knee_Right_PixelX,Knee_Right_PixelY,Knee_Right_Depth,'
+                                            'Ankle_Right_X,Ankle_Right_Y,Ankle_Right_Z,Ankle_Right_PixelX,Ankle_Right_PixelY,Ankle_Right_Depth,'
+                                            'Foot_Right_X,Foot_Right_Y,Foot_Right_Z,Foot_Right_PixelX,Foot_Right_PixelY,Foot_Right_Depth,'
+                                            'Hip_Left_X,Hip_Left_Y,Hip_Left_Z,Hip_Left_PixelX,Hip_Left_PixelY,Hip_Left_Depth,'
+                                            'Knee_Left_X,Knee_Left_Y,Knee_Left_Z,Knee_Left_PixelX,Knee_Left_PixelY,Knee_Left_Depth,'
+                                            'Ankle_Left_X,Ankle_Left_Y,Ankle_Left_Z,Ankle_Left_PixelX,Ankle_Left_PixelY,Ankle_Left_Depth,'
+                                            'Foot_Left_X,Foot_Left_Y,Foot_Left_Z,Foot_Left_PixelX,Foot_Left_PixelY,Foot_Left_Depth\n')
 
             # Set flag to indicate whether or not the class has been cleaned up
             # (either manually or automatically if the destructor was called by the garbage
