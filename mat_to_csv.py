@@ -18,8 +18,8 @@ class MatToCsv():
     """
 
     def __init__(self, input_dir: str, image_width: int = 600, image_height: int = 804, image_fov: int = 77, 
-                 left_participant_id: str = '00000L_', left_part_demographics: str = '_dem' , right_participant_id: str = '00000R_', 
-                 right_part_demographics: str = '_dem', visualize_Pose: bool = False, two_people: bool = False, landscape: bool = False):
+                 left_participant_id: str = '00000L_', right_participant_id: str = '00000R_', visualize_Pose: bool = False, 
+                 two_people: bool = False, landscape: bool = False):
         """
         Initialize MatToCsv object
 
@@ -55,8 +55,6 @@ class MatToCsv():
         # if there are two participants the left and right subject ids
         self.left_participant_id = left_participant_id
         self.right_participant_id = right_participant_id
-        self.left_part_demographics = left_part_demographics
-        self.right_part_demographics = right_part_demographics
 
         self.cleaned_up = False
         
@@ -528,11 +526,11 @@ class MatToCsv():
             if self.two_people == True:
                 # Create two output csv files (overwrite if it already exists)
                 #self.output_csv_filepath_left = os.path.join(self.input_dir, '249800_'+ self.output_filename + '_F_22.csv')
-                self.output_csv_filepath_left = os.path.join(self.input_dir + '/csv', self.left_participant_id + self.output_filename + self.left_part_demographics + '.csv')
+                self.output_csv_filepath_left = os.path.join(self.input_dir + '/csv', self.left_participant_id + self.output_filename + '.csv')
                 self.output_csv_file_left = open(self.output_csv_filepath_left, 'w')
 
                 #self.output_csv_filepath_right = os.path.join(self.input_dir, '793320_' + self.output_filename + '_F_19.csv')
-                self.output_csv_filepath_right = os.path.join(self.input_dir + '/csv', self.right_participant_id + self.output_filename + self.right_part_demographics + '.csv')
+                self.output_csv_filepath_right = os.path.join(self.input_dir + '/csv', self.right_participant_id + self.output_filename + '.csv')
                 self.output_csv_file_right = open(self.output_csv_filepath_right, 'w')
 
                 # Write header row
