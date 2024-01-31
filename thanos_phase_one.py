@@ -68,7 +68,7 @@ if __name__=="__main__":
     timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
 
     # Choose the name of the folder of NIR images and file of depth data to be processed
-    filename = 'Lauren_13'
+    filename = '1-8-24_P1.2_shame2'
     pathname = f'Data/{filename}/'
 
     # Specifications for the measurement - image size, total frames, framerates

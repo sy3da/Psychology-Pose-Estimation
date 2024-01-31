@@ -18,7 +18,7 @@ class MatToCsv():
     """
 
     def __init__(self, input_dir: str, image_width: int = 600, image_height: int = 804, image_fov: int = 77, 
-                 left_participant_id: str = '000000_', left_part_demographics: str = '_dem' , right_participant_id: str = '000000_', 
+                 left_participant_id: str = '00000L_', left_part_demographics: str = '_dem' , right_participant_id: str = '00000R_', 
                  right_part_demographics: str = '_dem', visualize_Pose: bool = False, two_people: bool = False, landscape: bool = False):
         """
         Initialize MatToCsv object
