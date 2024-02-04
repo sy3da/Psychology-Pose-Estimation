@@ -414,8 +414,8 @@ class MatToCsv():
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
                 #     self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
                 
-                self._process_pose_landmarks(world_coord_left, landmarks_pixels_left, frame_idx, frame_depth_left, frame_intensity_left, frame_grayscale_rgb_left, filename+'_left_participant', participant='Left')
-                self._process_pose_landmarks(world_coord_right, landmarks_pixels_right, frame_idx, frame_depth_right, frame_intensity_right, frame_grayscale_rgb_right, filename+'_right_participant', participant='Right')
+                self._process_pose_landmarks(world_coord_left, landmarks_pixels_left, frame_idx, frame_depth_left, frame_intensity_left, frame_grayscale_rgb_left, self.left_participant_id+filename, participant='Left')
+                self._process_pose_landmarks(world_coord_right, landmarks_pixels_right, frame_idx, frame_depth_right, frame_intensity_right, frame_grayscale_rgb_right, self.right_participant_id+filename, participant='Right')
 
                 # Combine frame_grayscale_rgb_left and _right
                 frame_grayscale_rgb = np.append(frame_grayscale_rgb_left, frame_grayscale_rgb_right, 1)
