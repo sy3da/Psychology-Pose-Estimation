@@ -326,30 +326,92 @@ class MatToCsv():
             self.output_csv_file_left.write(f"{filename},{frame_idx},")
 
             # Write the x, y, and z values for the landmarks of interest to the output csv file
-            landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31]
-            for idx in landmark_idxs:
-                self.output_csv_file_left.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},{xyz_values[idx][5]},")
-            self.output_csv_file_left.write('\n')
+            #landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31]
+            #for idx in landmark_idxs:
+            #    self.output_csv_file_left.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},{xyz_values[idx][5]},")
+            #self.output_csv_file_left.write('\n')
+
+            self.output_csv_file_left.write(f"{xyz_values[34][0]},{xyz_values[34][1]},{xyz_values[34][2]},{xyz_values[34][3]},{xyz_values[34][4]},{xyz_values[34][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[35][0]},{xyz_values[35][1]},{xyz_values[35][2]},{xyz_values[35][3]},{xyz_values[35][4]},{xyz_values[35][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[33][0]},{xyz_values[33][1]},{xyz_values[33][2]},{xyz_values[33][3]},{xyz_values[33][4]},{xyz_values[33][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[0][0]}, {xyz_values[0][1]}, {xyz_values[0][2]}, {xyz_values[0][3]}, {xyz_values[0][4]},{xyz_values[0][5]}," )
+            self.output_csv_file_left.write(f"{xyz_values[12][0]},{xyz_values[12][1]},{xyz_values[12][2]},{xyz_values[12][3]},{xyz_values[12][4]},{xyz_values[12][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[14][0]},{xyz_values[14][1]},{xyz_values[14][2]},{xyz_values[14][3]},{xyz_values[14][4]},{xyz_values[14][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[16][0]},{xyz_values[16][1]},{xyz_values[16][2]},{xyz_values[16][3]},{xyz_values[16][4]},{xyz_values[16][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[20][0]},{xyz_values[20][1]},{xyz_values[20][2]},{xyz_values[20][3]},{xyz_values[20][4]},{xyz_values[20][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[11][0]},{xyz_values[11][1]},{xyz_values[11][2]},{xyz_values[11][3]},{xyz_values[11][4]},{xyz_values[11][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[13][0]},{xyz_values[13][1]},{xyz_values[13][2]},{xyz_values[13][3]},{xyz_values[13][4]},{xyz_values[13][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[15][0]},{xyz_values[15][1]},{xyz_values[15][2]},{xyz_values[15][3]},{xyz_values[15][4]},{xyz_values[15][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[19][0]},{xyz_values[19][1]},{xyz_values[19][2]},{xyz_values[19][3]},{xyz_values[19][4]},{xyz_values[19][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[24][0]},{xyz_values[24][1]},{xyz_values[24][2]},{xyz_values[24][3]},{xyz_values[24][4]},{xyz_values[24][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[26][0]},{xyz_values[26][1]},{xyz_values[26][2]},{xyz_values[26][3]},{xyz_values[26][4]},{xyz_values[26][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[28][0]},{xyz_values[28][1]},{xyz_values[28][2]},{xyz_values[28][3]},{xyz_values[28][4]},{xyz_values[28][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[32][0]},{xyz_values[32][1]},{xyz_values[32][2]},{xyz_values[32][3]},{xyz_values[32][4]},{xyz_values[32][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[23][0]},{xyz_values[23][1]},{xyz_values[23][2]},{xyz_values[23][3]},{xyz_values[23][4]},{xyz_values[23][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[25][0]},{xyz_values[25][1]},{xyz_values[25][2]},{xyz_values[25][3]},{xyz_values[25][4]},{xyz_values[25][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[27][0]},{xyz_values[27][1]},{xyz_values[27][2]},{xyz_values[27][3]},{xyz_values[27][4]},{xyz_values[27][5]},")
+            self.output_csv_file_left.write(f"{xyz_values[31][0]},{xyz_values[31][1]},{xyz_values[31][2]},{xyz_values[31][3]},{xyz_values[31][4]},{xyz_values[31][5]}\n")
+
                
         elif participant == 'Right':
             # Write the filename and frame_num to a new row in the output csv file
             self.output_csv_file_right.write(f"{filename},{frame_idx},")
 
             # Write the x, y, and z values for the landmarks of interest to the output csv file
-            landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31]
-            for idx in landmark_idxs:
-                self.output_csv_file_right.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},{xyz_values[idx][5]},")
-            self.output_csv_file_right.write('\n')
+            #landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31]
+            #for idx in landmark_idxs:
+            #    self.output_csv_file_right.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},{xyz_values[idx][5]},")
+            #self.output_csv_file_right.write('\n')
+            self.output_csv_file_right.write(f"{xyz_values[34][0]},{xyz_values[34][1]},{xyz_values[34][2]},{xyz_values[34][3]},{xyz_values[34][4]},{xyz_values[34][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[35][0]},{xyz_values[35][1]},{xyz_values[35][2]},{xyz_values[35][3]},{xyz_values[35][4]},{xyz_values[35][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[33][0]},{xyz_values[33][1]},{xyz_values[33][2]},{xyz_values[33][3]},{xyz_values[33][4]},{xyz_values[33][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[0][0]}, {xyz_values[0][1]}, {xyz_values[0][2]}, {xyz_values[0][3]}, {xyz_values[0][4]},{xyz_values[0][5]}," )
+            self.output_csv_file_right.write(f"{xyz_values[12][0]},{xyz_values[12][1]},{xyz_values[12][2]},{xyz_values[12][3]},{xyz_values[12][4]},{xyz_values[12][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[14][0]},{xyz_values[14][1]},{xyz_values[14][2]},{xyz_values[14][3]},{xyz_values[14][4]},{xyz_values[14][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[16][0]},{xyz_values[16][1]},{xyz_values[16][2]},{xyz_values[16][3]},{xyz_values[16][4]},{xyz_values[16][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[20][0]},{xyz_values[20][1]},{xyz_values[20][2]},{xyz_values[20][3]},{xyz_values[20][4]},{xyz_values[20][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[11][0]},{xyz_values[11][1]},{xyz_values[11][2]},{xyz_values[11][3]},{xyz_values[11][4]},{xyz_values[11][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[13][0]},{xyz_values[13][1]},{xyz_values[13][2]},{xyz_values[13][3]},{xyz_values[13][4]},{xyz_values[13][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[15][0]},{xyz_values[15][1]},{xyz_values[15][2]},{xyz_values[15][3]},{xyz_values[15][4]},{xyz_values[15][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[19][0]},{xyz_values[19][1]},{xyz_values[19][2]},{xyz_values[19][3]},{xyz_values[19][4]},{xyz_values[19][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[24][0]},{xyz_values[24][1]},{xyz_values[24][2]},{xyz_values[24][3]},{xyz_values[24][4]},{xyz_values[24][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[26][0]},{xyz_values[26][1]},{xyz_values[26][2]},{xyz_values[26][3]},{xyz_values[26][4]},{xyz_values[26][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[28][0]},{xyz_values[28][1]},{xyz_values[28][2]},{xyz_values[28][3]},{xyz_values[28][4]},{xyz_values[28][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[32][0]},{xyz_values[32][1]},{xyz_values[32][2]},{xyz_values[32][3]},{xyz_values[32][4]},{xyz_values[32][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[23][0]},{xyz_values[23][1]},{xyz_values[23][2]},{xyz_values[23][3]},{xyz_values[23][4]},{xyz_values[23][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[25][0]},{xyz_values[25][1]},{xyz_values[25][2]},{xyz_values[25][3]},{xyz_values[25][4]},{xyz_values[25][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[27][0]},{xyz_values[27][1]},{xyz_values[27][2]},{xyz_values[27][3]},{xyz_values[27][4]},{xyz_values[27][5]},")
+            self.output_csv_file_right.write(f"{xyz_values[31][0]},{xyz_values[31][1]},{xyz_values[31][2]},{xyz_values[31][3]},{xyz_values[31][4]},{xyz_values[31][5]}\n")
 
         else:
             # Write the filename and frame_num to a new row in the output csv file
             self.output_csv_file.write(f"{filename},{frame_idx},")
 
             # Write the x, y, and z values for the landmarks of interest to the output csv file
-            landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31]
-            for idx in landmark_idxs:
-                self.output_csv_file.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},{xyz_values[idx][5]},")
-            self.output_csv_file.write('\n') 
+            #landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31]
+            #for idx in landmark_idxs:
+            #    self.output_csv_file.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},{xyz_values[idx][5]},")
+            #self.output_csv_file.write('\n') 
+            self.output_csv_file.write(f"{xyz_values[34][0]},{xyz_values[34][1]},{xyz_values[34][2]},{xyz_values[34][3]},{xyz_values[34][4]},{xyz_values[34][5]},")
+            self.output_csv_file.write(f"{xyz_values[35][0]},{xyz_values[35][1]},{xyz_values[35][2]},{xyz_values[35][3]},{xyz_values[35][4]},{xyz_values[35][5]},")
+            self.output_csv_file.write(f"{xyz_values[33][0]},{xyz_values[33][1]},{xyz_values[33][2]},{xyz_values[33][3]},{xyz_values[33][4]},{xyz_values[33][5]},")
+            self.output_csv_file.write(f"{xyz_values[0][0]}, {xyz_values[0][1]}, {xyz_values[0][2]}, {xyz_values[0][3]}, {xyz_values[0][4]},{xyz_values[0][5]}," )
+            self.output_csv_file.write(f"{xyz_values[12][0]},{xyz_values[12][1]},{xyz_values[12][2]},{xyz_values[12][3]},{xyz_values[12][4]},{xyz_values[12][5]},")
+            self.output_csv_file.write(f"{xyz_values[14][0]},{xyz_values[14][1]},{xyz_values[14][2]},{xyz_values[14][3]},{xyz_values[14][4]},{xyz_values[14][5]},")
+            self.output_csv_file.write(f"{xyz_values[16][0]},{xyz_values[16][1]},{xyz_values[16][2]},{xyz_values[16][3]},{xyz_values[16][4]},{xyz_values[16][5]},")
+            self.output_csv_file.write(f"{xyz_values[20][0]},{xyz_values[20][1]},{xyz_values[20][2]},{xyz_values[20][3]},{xyz_values[20][4]},{xyz_values[20][5]},")
+            self.output_csv_file.write(f"{xyz_values[11][0]},{xyz_values[11][1]},{xyz_values[11][2]},{xyz_values[11][3]},{xyz_values[11][4]},{xyz_values[11][5]},")
+            self.output_csv_file.write(f"{xyz_values[13][0]},{xyz_values[13][1]},{xyz_values[13][2]},{xyz_values[13][3]},{xyz_values[13][4]},{xyz_values[13][5]},")
+            self.output_csv_file.write(f"{xyz_values[15][0]},{xyz_values[15][1]},{xyz_values[15][2]},{xyz_values[15][3]},{xyz_values[15][4]},{xyz_values[15][5]},")
+            self.output_csv_file.write(f"{xyz_values[19][0]},{xyz_values[19][1]},{xyz_values[19][2]},{xyz_values[19][3]},{xyz_values[19][4]},{xyz_values[19][5]},")
+            self.output_csv_file.write(f"{xyz_values[24][0]},{xyz_values[24][1]},{xyz_values[24][2]},{xyz_values[24][3]},{xyz_values[24][4]},{xyz_values[24][5]},")
+            self.output_csv_file.write(f"{xyz_values[26][0]},{xyz_values[26][1]},{xyz_values[26][2]},{xyz_values[26][3]},{xyz_values[26][4]},{xyz_values[26][5]},")
+            self.output_csv_file.write(f"{xyz_values[28][0]},{xyz_values[28][1]},{xyz_values[28][2]},{xyz_values[28][3]},{xyz_values[28][4]},{xyz_values[28][5]},")
+            self.output_csv_file.write(f"{xyz_values[32][0]},{xyz_values[32][1]},{xyz_values[32][2]},{xyz_values[32][3]},{xyz_values[32][4]},{xyz_values[32][5]},")
+            self.output_csv_file.write(f"{xyz_values[23][0]},{xyz_values[23][1]},{xyz_values[23][2]},{xyz_values[23][3]},{xyz_values[23][4]},{xyz_values[23][5]},")
+            self.output_csv_file.write(f"{xyz_values[25][0]},{xyz_values[25][1]},{xyz_values[25][2]},{xyz_values[25][3]},{xyz_values[25][4]},{xyz_values[25][5]},")
+            self.output_csv_file.write(f"{xyz_values[27][0]},{xyz_values[27][1]},{xyz_values[27][2]},{xyz_values[27][3]},{xyz_values[27][4]},{xyz_values[27][5]},")
+            self.output_csv_file.write(f"{xyz_values[31][0]},{xyz_values[31][1]},{xyz_values[31][2]},{xyz_values[31][3]},{xyz_values[31][4]},{xyz_values[31][5]}\n")
               
         return
     
@@ -414,8 +476,8 @@ class MatToCsv():
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
                 #     self._process_pose_landmarks(landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, frame_grayscale_rgb, filename)
                 
-                self._process_pose_landmarks(world_coord_left, landmarks_pixels_left, frame_idx, frame_depth_left, frame_intensity_left, frame_grayscale_rgb_left, filename+'_left_participant', participant='Left')
-                self._process_pose_landmarks(world_coord_right, landmarks_pixels_right, frame_idx, frame_depth_right, frame_intensity_right, frame_grayscale_rgb_right, filename+'_right_participant', participant='Right')
+                self._process_pose_landmarks(world_coord_left, landmarks_pixels_left, frame_idx, frame_depth_left, frame_intensity_left, frame_grayscale_rgb_left, self.left_participant_id+filename, participant='Left')
+                self._process_pose_landmarks(world_coord_right, landmarks_pixels_right, frame_idx, frame_depth_right, frame_intensity_right, frame_grayscale_rgb_right, self.right_participant_id+filename, participant='Right')
 
                 # Combine frame_grayscale_rgb_left and _right
                 frame_grayscale_rgb = np.append(frame_grayscale_rgb_left, frame_grayscale_rgb_right, 1)
@@ -525,11 +587,9 @@ class MatToCsv():
 
             if self.two_people == True:
                 # Create two output csv files (overwrite if it already exists)
-                #self.output_csv_filepath_left = os.path.join(self.input_dir, '249800_'+ self.output_filename + '_F_22.csv')
                 self.output_csv_filepath_left = os.path.join(self.input_dir + '/csv', self.left_participant_id + self.output_filename + '.csv')
                 self.output_csv_file_left = open(self.output_csv_filepath_left, 'w')
 
-                #self.output_csv_filepath_right = os.path.join(self.input_dir, '793320_' + self.output_filename + '_F_19.csv')
                 self.output_csv_filepath_right = os.path.join(self.input_dir + '/csv', self.right_participant_id + self.output_filename + '.csv')
                 self.output_csv_file_right = open(self.output_csv_filepath_right, 'w')
 
@@ -623,7 +683,7 @@ def main():
     print(mats_dir)
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
-    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=False, two_people=True, landscape=False, left_participant_id = '897433_', right_participant_id = '838373_')
+    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=True, landscape=False, left_participant_id = '446129_', right_participant_id = '689182_')
     myMatToCsv.run()
 
     return
