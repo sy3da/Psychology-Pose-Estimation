@@ -140,8 +140,8 @@ class PoseLandmarker():
             # Left and right shoulder landmarks are invalid, so shoulder_center landmark is invalid
             # TODO: Maybe try to create shoulder_center landmark by using some other available landmarks
             landmarks_pixels[33] = (-1, -1)
-
-            return landmarks_pixels
+            
+            return landmarks_pixels, world_coord
         
         # Left and right shoulder landmarks are valid
         
@@ -167,7 +167,7 @@ class PoseLandmarker():
             # Left and right hip landmarks are invalid, so hip_center landmark is invalid
             landmarks_pixels[34] = (-1, -1)
 
-            return landmarks_pixels
+            return landmarks_pixels, world_coord
         
         # Left and right hip landmarks are valid
         
@@ -211,7 +211,7 @@ class PoseLandmarker():
             # shoulder_center and hip_center landmarks are invalid, so spine landmark is invalid
             landmarks_pixels[35] = (-1, -1)
 
-            return landmarks_pixels
+            return landmarks_pixels, world_coord
         
         # shoulder_center and hip_center landmarks are valid
 
