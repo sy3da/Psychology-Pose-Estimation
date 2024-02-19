@@ -17,7 +17,7 @@ class MatToCsv():
     converts depth to x,y,z, and outputs them to a csv file
     """
 
-    def __init__(self, input_dir: str, image_width: int = 600, image_height: int = 804, image_fov: int = 77, 
+    def __init__(self, input_dir: str, image_width: int = 480, image_height: int = 640, image_fov: int = 77, 
                  left_participant_id: str = '00000L_', right_participant_id: str = '00000R_', visualize_Pose: bool = False, 
                  two_people: bool = False, landscape: bool = False):
         """
@@ -430,9 +430,9 @@ class MatToCsv():
         else:          
             # Loop through all frames
             for frame_idx in range(num_frames):
-                frame_xyz = x_all[:, :, frame_idx], y_all[:, :, frame_idx], z_all[:, :, frame_idx]
-                frame_rgb = r_all[:, :, frame_idx], g_all[:, :, frame_idx], b_all[:, :, frame_idx]
-                frame_rgb = frame_rgb/255
+                frame_xyz = np.stack(x_all[:, :, frame_idx], y_all[:, :, frame_idx], z_all[:, :, frame_idx])
+                frame_rgb = np.stack(r_all[:, :, frame_idx]/255, g_all[:, :, frame_idx]/255, b_all[:, :, frame_idx]/255)
+                print(np.shape(frame_rgb))
 
                 # Get pixel locations of all pose landmarks
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
