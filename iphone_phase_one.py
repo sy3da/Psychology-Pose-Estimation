@@ -16,35 +16,36 @@ from scipy.io import savemat
 import os
 from plyfile import PlyData, PlyElement
 
-def read_ply(filename, img_width, img_height, byteorder='>'):
+def read_ply(args):
+    filename, img_width, img_height = args
+    
     plydata = PlyData.read(filename)
-    xyz = np.zeros((img_height, img_width, 3))
-    rgb = np.zeros((img_height, img_width, 3))
+    xyz_rgb = np.zeros((img_height, img_width, 6))
 
     row_idx = 0
     col_idx = 0
     for i in range(640*480):
-        xyz[row_idx, col_idx, 0] = plydata['vertex'][i][0]
-        xyz[row_idx, col_idx, 1] = plydata['vertex'][i][1]
-        xyz[row_idx, col_idx, 2] = plydata['vertex'][i][2]
-        rgb[row_idx, col_idx, 0] = plydata['vertex'][i][3]
-        rgb[row_idx, col_idx, 1] = plydata['vertex'][i][4]
-        rgb[row_idx, col_idx, 2] = plydata['vertex'][i][5]
+        xyz_rgb[row_idx, col_idx, 0] = plydata['vertex'][i][0]
+        xyz_rgb[row_idx, col_idx, 1] = plydata['vertex'][i][1]
+        xyz_rgb[row_idx, col_idx, 2] = plydata['vertex'][i][2]
+        xyz_rgb[row_idx, col_idx, 3] = plydata['vertex'][i][3]
+        xyz_rgb[row_idx, col_idx, 4] = plydata['vertex'][i][4]
+        xyz_rgb[row_idx, col_idx, 5] = plydata['vertex'][i][5]
         
         col_idx += 1
         if col_idx == 480:
             col_idx = 0
             row_idx += 1
             
-    return xyz, rgb
+    return xyz_rgb
 
 
-def orientation_check(I_array, D_array):
+def orientation_check(rgb_array, z_array):
     # Checks if the intensity and depth arrays are in the same orientation by displaying a specific frame  
     plt.subplot(1,2,1)
-    plt.imshow(I_array)
+    plt.imshow(rgb_array)
     plt.subplot(1,2,2)
-    sns.heatmap(D_array)
+    sns.heatmap(z_array)
     plt.show()
 
 # If any of the tests that require image data to be processed are to be run, run them
@@ -72,24 +73,24 @@ if __name__=="__main__":
         num_frames = len(ply_names)
         print(f'Number of Frames to Process: {num_frames}')
 
-        x_values = np.zeros((img_height, img_width, num_frames))
-        y_values = np.zeros((img_height, img_width, num_frames))
-        z_values = np.zeros((img_height, img_width, num_frames))
+        xyz_values = np.zeros((img_height, img_width, 3, num_frames))
         rgb_values = np.zeros((img_height, img_width, 3, num_frames))
-        
-        i = 0
-        for name in tqdm(ply_names, total=num_frames):
-            xyz, rgb = read_ply(name, img_width, img_height)
-            x_values[:, :, i] = xyz[:, :, 0]
-            y_values[:, :, i] = xyz[:, :, 1]
-            z_values[:, :, i] = xyz[:, :, 2]
-            rgb_values[:, :, :, i] = rgb
-            
-            i = i + 1
-        
-        #orientation_check(I_values[:, :, 0], D_values[:, :, 0])
 
-        savemat(f'Data/mat/{filename}.mat', {'x_values': x_values, 'y_values': y_values, 'z_values': z_values, 'rgb_values': rgb_values})
+        num_processes = cpu_count()
+        args = [(ply_names[frame_index], img_width, img_height) for frame_index in range(num_frames)]
+        results = p_map(read_ply, args)
+        xyz_rgb = np.asarray(results)
+        
+        xyz_values_old = xyz_rgb[:, :, :, 0:3]
+        rgb_values_old = xyz_rgb[:, :, :, 3:6]
+        
+        for i in range(num_frames):
+            xyz_values[:, :, :, i] = xyz_values_old[i, :, :, :]
+            rgb_values[:, :, :, i] = rgb_values_old[i, :, :, :]
+            
+        rgb_values = rgb_values.astype(int)
+        orientation_check(rgb_values[:, :, :, 0], xyz_values[:, :, 2, 0])
+        savemat(f'Data/mat/{filename}.mat', {'xyz_values': xyz_values, 'rgb_values': rgb_values})
         ctr = ctr+1
         print()
     print('Done!')
