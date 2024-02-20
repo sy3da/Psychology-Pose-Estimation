@@ -5,19 +5,17 @@ import time
 import cv2
 from typing import Tuple
 from scipy.io import loadmat
-from scipy.optimize import fsolve
 import pandas as pd
-#from gekko import GEKKO
 
 from pose_module import PoseLandmarker
 
 class MatToCsv():
     """
-    MatToCsv is a class that loads in depths and intensities from a .mat file, runs them through the pose estimation pipeline,
-    converts depth to x,y,z, and outputs them to a csv file
+    MatToCsv is a class that loads in xyz and rgb data from a .mat file, runs them through the pose estimation pipeline,
+    and outputs xyz for identified landmarks to a csv file
     """
 
-    def __init__(self, input_dir: str, image_width: int = 480, image_height: int = 640, image_fov: int = 77, 
+    def __init__(self, input_dir: str, image_width: int = 480, image_height: int = 640, 
                  left_participant_id: str = '00000L_', right_participant_id: str = '00000R_', visualize_Pose: bool = False, 
                  two_people: bool = False, landscape: bool = False):
         """
@@ -42,15 +40,13 @@ class MatToCsv():
         self.landscape = landscape
 
         if self.landscape == True:
-            # Define image width, height, and fov (flipping height and width)
+            # Define image width and height (flipping height and width)
             self.image_width = image_height
             self.image_height = image_width
-            self.image_fov = image_fov
         else:
-            # Define image width, height, and fov
+            # Define image width and height
             self.image_width = image_width
             self.image_height = image_height
-            self.image_fov = image_fov
     
         # if there are two participants the left and right subject ids
         self.left_participant_id = left_participant_id
@@ -110,10 +106,10 @@ class MatToCsv():
 
         return filelist
     
-
+######## UPDATE HERE #########
     def load_mat_file(self, filepath: str) -> tuple[np.ndarray, np.ndarray]:
         """
-        Load in the mat file using scipy.io.loadmat and outputs depth and intensity
+        Load in the mat file using scipy.io.loadmat and outputs xyz and rgb
 
         Args:
             filepath: The path to the mat file to be read.
@@ -147,22 +143,6 @@ class MatToCsv():
             bool: True if the pixel coordinates are within the image bounds, False otherwise.
         """
         return (xy[0] >= 0 and xy[0] < self.image_width) and (xy[1] >= 0 and xy[1] < self.image_height)
-
-    def convert_unit_to_cm(self,depth_value):
-        """
-        A polyfit was done to convert the arbitrary units output by the thanos camera into cm. This was done in MATLAB,
-        and now the equation calculated will be used to convert to real units.
-
-        Args:
-            depth_value: An integer depth value in arbitrary units
-        
-        Returns:
-            depth_cm: An integer depth value in cm
-        """
-
-        depth_cm = (depth_value - 145.095238095238)/79.5742857142857
-
-        return depth_cm
 
     def _process_pose_landmarks(
         self,
@@ -430,8 +410,8 @@ class MatToCsv():
         else:          
             # Loop through all frames
             for frame_idx in range(num_frames):
-                frame_xyz = np.stack(x_all[:, :, frame_idx], y_all[:, :, frame_idx], z_all[:, :, frame_idx])
-                frame_rgb = np.stack(r_all[:, :, frame_idx]/255, g_all[:, :, frame_idx]/255, b_all[:, :, frame_idx]/255)
+                frame_xyz = np.stack([x_all[:, :, frame_idx], y_all[:, :, frame_idx], z_all[:, :, frame_idx]],axis=2)
+                frame_rgb = np.stack([r_all[:, :, frame_idx]/255, g_all[:, :, frame_idx]/255, b_all[:, :, frame_idx]/255], axis=2)
                 print(np.shape(frame_rgb))
 
                 # Get pixel locations of all pose landmarks
