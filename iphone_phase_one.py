@@ -64,10 +64,6 @@ if __name__=="__main__":
         img_width = 480
         img_height = 640
 
-        # Adjust frame rate accordingly
-        RGB_framerate = 60
-        Depth_framerate = 60
-
         # Get filenames for ply files
         ply_names = get_files(pathname + "*.ply*")
         ply_names.sort()
@@ -79,23 +75,21 @@ if __name__=="__main__":
         x_values = np.zeros((img_height, img_width, num_frames))
         y_values = np.zeros((img_height, img_width, num_frames))
         z_values = np.zeros((img_height, img_width, num_frames))
-        r_values = np.zeros((img_height, img_width, num_frames))
-        g_values = np.zeros((img_height, img_width, num_frames))
-        b_values = np.zeros((img_height, img_width, num_frames))
+        rgb_values = np.zeros((img_height, img_width, 3, num_frames))
+        
         i = 0
         for name in tqdm(ply_names, total=num_frames):
-            XYZ, RGB = read_ply(name, img_width, img_height)
-            x_values[:, :, i] = XYZ[:, :, 0]
-            y_values[:, :, i] = XYZ[:, :, 1]
-            z_values[:, :, i] = XYZ[:, :, 2]
-            r_values[:, :, i] = RGB[:, :, 0]
-            g_values[:, :, i] = RGB[:, :, 1]
-            b_values[:, :, i] = RGB[:, :, 2]
+            xyz, rgb = read_ply(name, img_width, img_height)
+            x_values[:, :, i] = xyz[:, :, 0]
+            y_values[:, :, i] = xyz[:, :, 1]
+            z_values[:, :, i] = xyz[:, :, 2]
+            rgb_values[:, :, :, i] = rgb
+            
             i = i + 1
         
         #orientation_check(I_values[:, :, 0], D_values[:, :, 0])
 
-        savemat(f'Data/mat/{filename}.mat', {'x_values': x_values, 'y_values': y_values, 'z_values': z_values, 'r_values': r_values, 'g_values': g_values, 'b_values': b_values})
+        savemat(f'Data/mat/{filename}.mat', {'x_values': x_values, 'y_values': y_values, 'z_values': z_values, 'rgb_values': rgb_values})
         ctr = ctr+1
         print()
     print('Done!')
