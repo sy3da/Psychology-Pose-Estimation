@@ -17,3 +17,4 @@ Data/skvs/example_skvs/
 *.avi
 .DS_Store
 .venv
+*.ply
