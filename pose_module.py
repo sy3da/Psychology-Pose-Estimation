@@ -73,7 +73,7 @@ class PoseLandmarker():
 
         # CV2 loads images/videos in BGR format, convert to RGB
         # image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
+        image = cv2.cvtColor(np.ascontiguousarray(image, dtype=np.uint8), cv2.COLOR_RGB2BGR)
         results = self.pose.process(image)
 
         # landmarks_pixels is an array of shape (36, 2) with x, y coordinates (as pixels) for each landmark
@@ -128,7 +128,7 @@ class PoseLandmarker():
             # Add spine landmark
             landmarks_pixels, world_coord = self._add_landmark_spine(landmarks_pixels, world_coord, image, draw)
 
-        return pose_detected, contains_invalid_landmarks, landmarks_pixels, world_coord
+        return pose_detected, contains_invalid_landmarks, landmarks_pixels, world_coord, image
     
     
     def _add_landmark_shoulder_center(self, landmarks_pixels: np.ndarray, world_coord, image: np.ndarray, draw: bool) -> np.ndarray:

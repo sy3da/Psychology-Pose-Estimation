@@ -185,9 +185,9 @@ class MatToCsv():
 
             else:
             # Set the x, y, and z values to the values from world landmarks
-                xyz_values[landmark_idx][0] = frame_xyz[landmark_idx][0]
-                xyz_values[landmark_idx][1] = frame_xyz[landmark_idx][1]
-                xyz_values[landmark_idx][2] = frame_xyz[landmark_idx][2]
+                xyz_values[landmark_idx][0] = frame_xyz[landmark_pixel_coord_y, landmark_pixel_coord_x][0]
+                xyz_values[landmark_idx][1] = frame_xyz[landmark_pixel_coord_y, landmark_pixel_coord_x][1]
+                xyz_values[landmark_idx][2] = frame_xyz[landmark_pixel_coord_y, landmark_pixel_coord_x][2]
                 xyz_values[landmark_idx][3] = landmark_pixel_coord_x
                 xyz_values[landmark_idx][4] = landmark_pixel_coord_y
             
@@ -337,8 +337,8 @@ class MatToCsv():
 
                 # Get pixel locations of all pose landmarks for both skeletons
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
-                pose_detected_left, contains_invalid_landmarks_left, landmarks_pixels_left, world_coord_left = pose_detector_1.get_landmarks(image=frame_rgb_left, draw=self.visualize_Pose)
-                pose_detected_right, contains_invalid_landmarks_right, landmarks_pixels_right, world_coord_right = pose_detector_2.get_landmarks(image=frame_rgb_right, draw=self.visualize_Pose)
+                pose_detected_left, contains_invalid_landmarks_left, landmarks_pixels_left, world_coord_left, frame_rgb_left = pose_detector_1.get_landmarks(image=frame_rgb_left, draw=self.visualize_Pose)
+                pose_detected_right, contains_invalid_landmarks_right, landmarks_pixels_right, world_coord_right, frame_rgb_right = pose_detector_2.get_landmarks(image=frame_rgb_right, draw=self.visualize_Pose)
 
                 # if pose_detected:
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
@@ -356,22 +356,21 @@ class MatToCsv():
                 # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
                 fps = 1 / (current_time - previous_time)
                 previous_time = current_time
-                frame_bgr = cv2.cvtColor(np.ascontiguousarray(frame_rgb, dtype=np.uint8), cv2.COLOR_RGB2BGR)
                 
-                cv2.putText(frame_bgr, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
+                cv2.putText(frame_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
 
                 # Overlay frame number in top right corner
                 text = f'{frame_idx + 1}'
                 text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 1, 2)[0]
                 text_x = frame_rgb.shape[1] - text_size[0] - 20  # Position text at the top right corner
                 text_y = text_size[1] + 20
-                cv2.putText(frame_bgr, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
+                cv2.putText(frame_rgb, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
 
-                writer.write(frame_bgr)
+                writer.write(frame_rgb)
 
                 if self.visualize_Pose == True:
                     # Display frame
-                    cv2.imshow("Image", frame_bgr)
+                    cv2.imshow("Image", frame_rgb)
                     cv2.waitKey(1)
                     
                 
@@ -383,7 +382,7 @@ class MatToCsv():
 
                 # Get pixel locations of all pose landmarks
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
-                pose_detected, contains_invalid_landmarks, landmarks_pixels, world_coord = pose_detector_1.get_landmarks(image=frame_rgb, draw=self.visualize_Pose)
+                pose_detected, contains_invalid_landmarks, landmarks_pixels, world_coord, frame_rgb = pose_detector_1.get_landmarks(image=frame_rgb, draw=self.visualize_Pose)
 
                 # if pose_detected:
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
@@ -397,22 +396,22 @@ class MatToCsv():
                 # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
                 fps = 1 / (current_time - previous_time)
                 previous_time = current_time
-                frame_bgr = cv2.cvtColor(np.ascontiguousarray(frame_rgb, dtype=np.uint8), cv2.COLOR_RGB2BGR)
                 
-                cv2.putText(frame_bgr, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
+                
+                cv2.putText(frame_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
 
                 # Overlay frame number in top right corner
                 text = f'{frame_idx + 1}'
                 text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 1, 2)[0]
                 text_x = frame_rgb.shape[1] - text_size[0] - 20  # Position text at the top right corner
                 text_y = text_size[1] + 20
-                cv2.putText(frame_bgr, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
+                cv2.putText(frame_rgb, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
 
-                writer.write(frame_bgr) 
+                writer.write(frame_rgb) 
                  
                 if self.visualize_Pose == True:
                     # Display frame
-                    cv2.imshow("Image", frame_bgr)
+                    cv2.imshow("Image", frame_rgb)
                     cv2.waitKey(1)
                        
             
@@ -544,7 +543,7 @@ def main():
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
     # , left_participant_id = '965142_', right_participant_id = '510750_'
-    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=True, landscape=False)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=False, landscape=False)
     myMatToCsv.run()
 
     return
