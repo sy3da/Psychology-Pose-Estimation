@@ -24,7 +24,7 @@ def read_ply(args):
 
     row_idx = 0
     col_idx = 0
-    for i in range(640*480):
+    for i in range(len(plydata['vertex'])):
         xyz_rgb[row_idx, col_idx, 0] = plydata['vertex'][i][0]
         xyz_rgb[row_idx, col_idx, 1] = plydata['vertex'][i][1]
         xyz_rgb[row_idx, col_idx, 2] = plydata['vertex'][i][2]
