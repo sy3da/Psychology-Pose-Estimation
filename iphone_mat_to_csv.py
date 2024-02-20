@@ -106,7 +106,6 @@ class MatToCsv():
 
         return filelist
     
-######## UPDATE HERE #########
     def load_mat_file(self, filepath: str) -> tuple[np.ndarray, np.ndarray]:
         """
         Load in the mat file using scipy.io.loadmat and outputs xyz and rgb
@@ -115,20 +114,16 @@ class MatToCsv():
             filepath: The path to the mat file to be read.
 
         Returns:
-            A tuple containing two NumPy arrays: depth_all and intensity_all
-            - depth_all: An (n,d) array of depth values
-            - intensity_all: An (n,d) array of intensity values
+            A tuple containing two NumPy arrays: xyz_all and rgb_all
+            - xyz_all: An (n, d, 3, frame_num) array of spatial coordinate values
+            - rgb_all: An (n, d, 3, frame_num) array of rgb intensity values
         """
         
         mat_file = loadmat(filepath)
-        x_all = mat_file['x_values']
-        y_all = mat_file['y_values']
-        z_all = mat_file['z_values']
-        r_all = mat_file['r_values']
-        g_all = mat_file['g_values']
-        b_all = mat_file['b_values']
+        xyz_all = mat_file['xyz_values']
+        rgb_all = mat_file['rgb_values']
 
-        return x_all, y_all, z_all, r_all, g_all, b_all
+        return xyz_all, rgb_all
   
     def _is_valid_pixel_coordinate(self, xy: Tuple[int, int]) -> bool:
         """
@@ -224,10 +219,6 @@ class MatToCsv():
 
             # Write the x, y, and z values for the landmarks of interest to the output csv file
             #landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31]
-            #for idx in landmark_idxs:
-            #    self.output_csv_file_left.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},")
-            #self.output_csv_file_left.write('\n')
-
             self.output_csv_file_left.write(f"{xyz_values[34][0]},{xyz_values[34][1]},{xyz_values[34][2]},{xyz_values[34][3]},{xyz_values[34][4]},")
             self.output_csv_file_left.write(f"{xyz_values[35][0]},{xyz_values[35][1]},{xyz_values[35][2]},{xyz_values[35][3]},{xyz_values[35][4]},")
             self.output_csv_file_left.write(f"{xyz_values[33][0]},{xyz_values[33][1]},{xyz_values[33][2]},{xyz_values[33][3]},{xyz_values[33][4]},")
@@ -256,9 +247,6 @@ class MatToCsv():
 
             # Write the x, y, and z values for the landmarks of interest to the output csv file
             #landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31]
-            #for idx in landmark_idxs:
-            #    self.output_csv_file_right.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},")
-            #self.output_csv_file_right.write('\n')
             self.output_csv_file_right.write(f"{xyz_values[34][0]},{xyz_values[34][1]},{xyz_values[34][2]},{xyz_values[34][3]},{xyz_values[34][4]},")
             self.output_csv_file_right.write(f"{xyz_values[35][0]},{xyz_values[35][1]},{xyz_values[35][2]},{xyz_values[35][3]},{xyz_values[35][4]},")
             self.output_csv_file_right.write(f"{xyz_values[33][0]},{xyz_values[33][1]},{xyz_values[33][2]},{xyz_values[33][3]},{xyz_values[33][4]},")
@@ -285,10 +273,7 @@ class MatToCsv():
             self.output_csv_file.write(f"{filename},{frame_idx},")
 
             # Write the x, y, and z values for the landmarks of interest to the output csv file
-            #landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31]
-            #for idx in landmark_idxs:
-            #    self.output_csv_file.write(f"{xyz_values[idx][0]},{xyz_values[idx][1]},{xyz_values[idx][2]},{xyz_values[idx][3]},{xyz_values[idx][4]},")
-            #self.output_csv_file.write('\n') 
+            #landmark_idxs = [34, 35, 33, 0, 12, 14, 16, 20, 11, 13, 15, 19, 24, 26, 28, 32, 23, 25, 27, 31] 
             self.output_csv_file.write(f"{xyz_values[34][0]},{xyz_values[34][1]},{xyz_values[34][2]},{xyz_values[34][3]},{xyz_values[34][4]},")
             self.output_csv_file.write(f"{xyz_values[35][0]},{xyz_values[35][1]},{xyz_values[35][2]},{xyz_values[35][3]},{xyz_values[35][4]},")
             self.output_csv_file.write(f"{xyz_values[33][0]},{xyz_values[33][1]},{xyz_values[33][2]},{xyz_values[33][3]},{xyz_values[33][4]},")
@@ -330,10 +315,10 @@ class MatToCsv():
 
         # Load the file
         filepath = os.path.join(self.input_dir, filename + '.mat')
-        x_all, y_all, z_all, r_all, g_all, b_all = self.load_mat_file(filepath)
+        xyz_all, rgb_all = self.load_mat_file(filepath)
 
         # Get number of frames in this video clip
-        num_frames = np.shape(x_all)[2]
+        num_frames = np.shape(xyz_all)[3]
 
         # Used to calculate FPS
         previous_time = 0
@@ -345,29 +330,10 @@ class MatToCsv():
             # Loop through all frames
             for frame_idx in range(num_frames):
                 # Split to left and right participants (relative to viewer)
-                frame_x_left = x_all[:, 0:int((self.image_width/2)), frame_idx]
-                frame_x_right = x_all[:, int(self.image_width/2):(self.image_width), frame_idx]
-                frame_y_left = y_all[:, 0:int((self.image_width/2)), frame_idx]
-                frame_y_right = y_all[:, int(self.image_width/2):(self.image_width), frame_idx]
-                frame_z_left = z_all[:, 0:int((self.image_width/2)), frame_idx]
-                frame_z_right = z_all[:, int(self.image_width/2):(self.image_width), frame_idx]
-                frame_r_left = r_all[:, 0:int((self.image_width/2)), frame_idx]
-                frame_r_right = r_all[:, int(self.image_width/2):(self.image_width), frame_idx]
-                frame_g_left = g_all[:, 0:int((self.image_width/2)), frame_idx]
-                frame_g_right = g_all[:, int(self.image_width/2):(self.image_width), frame_idx]
-                frame_b_left = b_all[:, 0:int((self.image_width/2)), frame_idx]
-                frame_b_right = b_all[:, int(self.image_width/2):(self.image_width), frame_idx]
-
-                # Track face and extract intensity and depth for all ROIs in each side of this frame
-
-
-                # # To improve performance, optionally mark the image as not writeable to
-                # # pass by reference.
-                # frame_grayscale.flags.writeable = False
-                frame_rgb_left = [frame_r_left, frame_g_left, frame_b_left]/255
-                frame_rgb_right = [frame_r_right, frame_g_right, frame_b_right]/255
-                frame_xyz_left = [frame_x_left, frame_y_left, frame_z_left]
-                frame_xyz_right = [frame_x_right, frame_y_right, frame_z_right]
+                frame_xyz_left = xyz_all[:, 0:int((self.image_width/2)), :,  frame_idx]
+                frame_xyz_right = xyz_all[:, int(self.image_width/2):(self.image_width), :, frame_idx]
+                frame_rgb_left = rgb_all[:, 0:int((self.image_width/2)), :, frame_idx]
+                frame_rgb_right = rgb_all[:, int(self.image_width/2):(self.image_width), :, frame_idx]
 
                 # Get pixel locations of all pose landmarks for both skeletons
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
@@ -390,29 +356,30 @@ class MatToCsv():
                 # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
                 fps = 1 / (current_time - previous_time)
                 previous_time = current_time
-                cv2.putText(frame_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
+                frame_bgr = cv2.cvtColor(np.ascontiguousarray(frame_rgb, dtype=np.uint8), cv2.COLOR_RGB2BGR)
+                
+                cv2.putText(frame_bgr, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
 
                 # Overlay frame number in top right corner
                 text = f'{frame_idx + 1}'
                 text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 1, 2)[0]
                 text_x = frame_rgb.shape[1] - text_size[0] - 20  # Position text at the top right corner
                 text_y = text_size[1] + 20
-                cv2.putText(frame_rgb, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
+                cv2.putText(frame_bgr, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
 
-                writer.write(frame_rgb)
+                writer.write(frame_bgr)
 
                 if self.visualize_Pose == True:
                     # Display frame
-                    cv2.imshow("Image", frame_rgb)
+                    cv2.imshow("Image", frame_bgr)
                     cv2.waitKey(1)
                     
                 
         else:          
             # Loop through all frames
             for frame_idx in range(num_frames):
-                frame_xyz = np.stack([x_all[:, :, frame_idx], y_all[:, :, frame_idx], z_all[:, :, frame_idx]],axis=2)
-                frame_rgb = np.stack([r_all[:, :, frame_idx]/255, g_all[:, :, frame_idx]/255, b_all[:, :, frame_idx]/255], axis=2)
-                print(np.shape(frame_rgb))
+                frame_xyz = xyz_all[:, :, :, frame_idx]
+                frame_rgb = rgb_all[:, :, :, frame_idx]
 
                 # Get pixel locations of all pose landmarks
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
@@ -430,20 +397,22 @@ class MatToCsv():
                 # FPS = (# frames processed (1)) / (# seconds taken to process those frames)
                 fps = 1 / (current_time - previous_time)
                 previous_time = current_time
-                cv2.putText(frame_rgb, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
+                frame_bgr = cv2.cvtColor(np.ascontiguousarray(frame_rgb, dtype=np.uint8), cv2.COLOR_RGB2BGR)
+                
+                cv2.putText(frame_bgr, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 3)
 
                 # Overlay frame number in top right corner
                 text = f'{frame_idx + 1}'
                 text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 1, 2)[0]
                 text_x = frame_rgb.shape[1] - text_size[0] - 20  # Position text at the top right corner
                 text_y = text_size[1] + 20
-                cv2.putText(frame_rgb, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
+                cv2.putText(frame_bgr, text, (text_x, text_y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
 
-                writer.write(frame_rgb) 
+                writer.write(frame_bgr) 
                  
                 if self.visualize_Pose == True:
                     # Display frame
-                    cv2.imshow("Image", frame_rgb)
+                    cv2.imshow("Image", frame_bgr)
                     cv2.waitKey(1)
                        
             
@@ -575,7 +544,7 @@ def main():
 
     # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
     # , left_participant_id = '965142_', right_participant_id = '510750_'
-    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=False, landscape=False)
+    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=True, landscape=False)
     myMatToCsv.run()
 
     return

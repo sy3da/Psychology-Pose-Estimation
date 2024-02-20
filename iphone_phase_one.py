@@ -88,7 +88,7 @@ if __name__=="__main__":
             xyz_values[:, :, :, i] = xyz_values_old[i, :, :, :]
             rgb_values[:, :, :, i] = rgb_values_old[i, :, :, :]
             
-        rgb_values = rgb_values.astype(int)
+        rgb_values = rgb_values.astype('uint8')
         orientation_check(rgb_values[:, :, :, 0], xyz_values[:, :, 2, 0])
         savemat(f'Data/mat/{filename}.mat', {'xyz_values': xyz_values, 'rgb_values': rgb_values})
         ctr = ctr+1
