@@ -21,22 +21,23 @@ def read_ply(args):
     
     plydata = PlyData.read(filename)
     xyz_rgb = np.zeros((img_height, img_width, 6))
-
-    row_idx = 0
-    col_idx = 0
-    for i in range(len(plydata['vertex'])):
-        xyz_rgb[row_idx, col_idx, 0] = plydata['vertex'][i][0]
-        xyz_rgb[row_idx, col_idx, 1] = plydata['vertex'][i][1]
-        xyz_rgb[row_idx, col_idx, 2] = plydata['vertex'][i][2]
-        xyz_rgb[row_idx, col_idx, 3] = plydata['vertex'][i][3]
-        xyz_rgb[row_idx, col_idx, 4] = plydata['vertex'][i][4]
-        xyz_rgb[row_idx, col_idx, 5] = plydata['vertex'][i][5]
-        
-        col_idx += 1
-        if col_idx == 480:
-            col_idx = 0
-            row_idx += 1
+ 
+    if len(plydata['vertex']) == 480*640:
+        row_idx = 0
+        col_idx = 0
+        for i in range(480*640):
+            xyz_rgb[row_idx, col_idx, 0] = plydata['vertex'][i][0]
+            xyz_rgb[row_idx, col_idx, 1] = plydata['vertex'][i][1]
+            xyz_rgb[row_idx, col_idx, 2] = plydata['vertex'][i][2]
+            xyz_rgb[row_idx, col_idx, 3] = plydata['vertex'][i][3]
+            xyz_rgb[row_idx, col_idx, 4] = plydata['vertex'][i][4]
+            xyz_rgb[row_idx, col_idx, 5] = plydata['vertex'][i][5]
             
+            col_idx += 1
+            if col_idx == 480:
+                col_idx = 0
+                row_idx += 1
+                
     return xyz_rgb
 
 
@@ -81,6 +82,14 @@ if __name__=="__main__":
         results = p_map(read_ply, args)
         xyz_rgb = np.asarray(results)
         
+        i = 0
+        while i<num_frames:
+            if np.sum(xyz_rgb[i, :, :, :]) == 0:
+                xyz_rgb = np.delete(xyz_rgb, i, 0)
+                num_frames -= 1
+            else:
+                i += 1
+                
         xyz_values_old = xyz_rgb[:, :, :, 0:3]
         rgb_values_old = xyz_rgb[:, :, :, 3:6]
         
