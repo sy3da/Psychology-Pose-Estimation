@@ -13,3 +13,7 @@ typing-extensions
 gekko
 opencv-python
 pyarrow
+ffprobe
+scikit-video
+Open3d
+FFmpeg
