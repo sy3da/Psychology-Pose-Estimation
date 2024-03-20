@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 from matplotlib import colors
 #import cv2
 
-plydata = PlyData.read('0000050.ply')
+plydata = PlyData.read('Data/wall_test_3-10-24/0000120.ply')
 data = np.zeros((640, 480, 6))
-
+print(plydata['vertex'][0])
 row_idx = 0
 col_idx = 0
 for i in range(640*480):
