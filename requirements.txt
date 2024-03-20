@@ -17,3 +17,8 @@ ffprobe
 scikit-video
 Open3d
 FFmpeg
+opencv-python
+Pillow
+imageio
+requests
+open3d
