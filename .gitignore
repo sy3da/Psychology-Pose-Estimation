@@ -18,3 +18,4 @@ Data/skvs/example_skvs/
 .DS_Store
 .venv
 *.ply
+*.mp4
