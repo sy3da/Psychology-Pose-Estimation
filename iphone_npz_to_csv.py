@@ -4,7 +4,6 @@ import numpy.typing as npt
 import time
 import cv2
 from typing import Tuple
-from scipy.io import loadmat
 import pandas as pd
 
 from pose_module import PoseLandmarker
@@ -15,7 +14,7 @@ class NpzToCsv():
     and outputs xyz for identified landmarks to a csv file
     """
 
-    def __init__(self, input_dir: str, image_width: int = 480, image_height: int = 640, 
+    def __init__(self, input_dir: str, image_width: int = 720, image_height: int = 960, 
                  left_participant_id: str = '00000L_', right_participant_id: str = '00000R_', visualize_Pose: bool = False, 
                  two_people: bool = False, landscape: bool = False):
         """
@@ -87,31 +86,31 @@ class NpzToCsv():
             self.cleaned_up = True
 
 
-    def _get_mat_files(self):
+    def _get_npz_files(self):
         """
-        Get list of .mat files in input_dir
+        Get list of .npz files in input_dir
 
         Returns:
-            mat_files (list): list of .mat files in input_dir
+            npz_files (list): list of .npz files in input_dir
         """
 
-        # Get list of .mat files in input_dir
+        # Get list of .npz files in input_dir
         filelist = []
 
         for filename in sorted(os.listdir(self.input_dir)):
-            if filename.endswith(".mat"):
-                # Remove the ".mat" suffix
+            if filename.endswith(".npz"):
+                # Remove the ".npz" suffix
                 filename = filename[:-4]
                 filelist.append(filename)
 
         return filelist
     
-    def load_mat_file(self, filepath: str) -> tuple[np.ndarray, np.ndarray]:
+    def load_npz_file(self, filepath: str) -> tuple[np.ndarray, np.ndarray]:
         """
-        Load in the mat file using scipy.io.loadmat and outputs xyz and rgb
+        Load in the npz file using   and outputs xyz and rgb
 
         Args:
-            filepath: The path to the mat file to be read.
+            filepath: The path to the npz file to be read.
 
         Returns:
             A tuple containing two NumPy arrays: xyz_all and rgb_all
@@ -119,9 +118,9 @@ class NpzToCsv():
             - rgb_all: An (n, d, 3, frame_num) array of rgb intensity values
         """
         
-        mat_file = loadmat(filepath)
-        xyz_all = mat_file['xyz_values']
-        rgb_all = mat_file['rgb_values']
+        npz_file = np.load(filepath)
+        xyz_all = npz_file['xyz_values']
+        rgb_all = npz_file['rgb_values']
 
         return xyz_all, rgb_all
   
@@ -300,7 +299,7 @@ class NpzToCsv():
 
     def _process_file(self, file_num: int, num_files_to_process: int, filename: str, pose_detector_1: PoseLandmarker, pose_detector_2: PoseLandmarker) -> None:
         """
-        Load and process .mat file
+        Load and process .npz file
 
         Args:
             file_num (int): number of file being processed
@@ -314,8 +313,8 @@ class NpzToCsv():
         print(f"Processing file {file_num}/{num_files_to_process}: {filename}...")
 
         # Load the file
-        filepath = os.path.join(self.input_dir, filename + '.mat')
-        xyz_all, rgb_all = self.load_mat_file(filepath)
+        filepath = os.path.join(self.input_dir, filename + '.npz')
+        xyz_all, rgb_all = self.load_npz_file(filepath)
 
         # Get number of frames in this video clip
         num_frames = np.shape(xyz_all)[3]
@@ -323,7 +322,7 @@ class NpzToCsv():
         # Used to calculate FPS
         previous_time = 0
         start_time = time.time()
-        writer = cv2.VideoWriter(f'Data/mat/video/{self.output_filename}.avi', cv2.VideoWriter_fourcc(*'MJPG'), 12, (self.image_width, self.image_height))
+        writer = cv2.VideoWriter(f'Data/npz/video/{self.output_filename}.avi', cv2.VideoWriter_fourcc(*'MJPG'), 12, (self.image_width, self.image_height))
         
         # Check if two people need to be tracked
         if self.two_people == True:
@@ -426,21 +425,21 @@ class NpzToCsv():
 
     def run(self):
         """
-        Run pose estimation pipeline on all .mat files.
+        Run pose estimation pipeline on all .npz files.
         """
 
-        # Get list of .mat files in input_dir
-        mat_files = self._get_mat_files()
+        # Get list of .npz files in input_dir
+        npz_files = self._get_npz_files()
 
         # Load and process every input video file
         file_num = 0
-        num_files_to_process = len(mat_files)
+        num_files_to_process = len(npz_files)
 
         # Define MediaPipe detectors
         pose_detector_1 = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.9, min_tracking_confidence=0.9)
         pose_detector_2 = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.9, min_tracking_confidence=0.9)
 
-        for filename in mat_files:
+        for filename in npz_files:
             file_num += 1
             self.output_filename = filename
 
@@ -537,14 +536,14 @@ class NpzToCsv():
     
 
 def main():
-    # Get absolute path of directory where .mat files are located
-    mats_dir = os.path.join(os.getcwd(), 'Data', 'mat')
-    print(mats_dir)
+    # Get absolute path of directory where .npz files are located
+    npzs_dir = os.path.join(os.getcwd(), 'Data', 'npz')
+    print(npzs_dir)
 
-    # Run pose estimation pipeline on all .mat files in mats_dir and save output to csvs_dir
+    # Run pose estimation pipeline on all .npz files in npz_dir and save output to csvs_dir
     # , left_participant_id = '965142_', right_participant_id = '510750_'
-    myMatToCsv = MatToCsv(input_dir=mats_dir, visualize_Pose=True, two_people=False, landscape=False)
-    myMatToCsv.run()
+    myNpzToCsv = NpzToCsv(input_dir=npzs_dir, visualize_Pose=True, two_people=False, landscape=False)
+    myNpzToCsv.run()
 
     return
 
