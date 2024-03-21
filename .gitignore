@@ -19,3 +19,4 @@ Data/skvs/example_skvs/
 .venv
 *.ply
 *.mp4
+*.npz
