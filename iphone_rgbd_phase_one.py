@@ -123,5 +123,5 @@ if __name__ == '__main__':
         rgb_values = np.stack(rgb_values_list, axis=-1, dtype=np.uint8)
         xyz_values = np.stack(xyz_values_list, axis=-1, dtype=np.float32)
         
-        np.savez(f'Data/mat/{mp4_name[:-4]}.npz', xyz_values, rgb_values)
+        np.savez(f'Data/npz/{mp4_name[:-4]}.npz', xyz_values, rgb_values)
         print()

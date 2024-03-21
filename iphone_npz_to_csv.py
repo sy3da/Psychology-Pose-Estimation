@@ -9,9 +9,9 @@ import pandas as pd
 
 from pose_module import PoseLandmarker
 
-class MatToCsv():
+class NpzToCsv():
     """
-    MatToCsv is a class that loads in xyz and rgb data from a .mat file, runs them through the pose estimation pipeline,
+    NpzToCsv is a class that loads in xyz and rgb data from a .npz file, runs them through the pose estimation pipeline,
     and outputs xyz for identified landmarks to a csv file
     """
 
@@ -19,15 +19,15 @@ class MatToCsv():
                  left_participant_id: str = '00000L_', right_participant_id: str = '00000R_', visualize_Pose: bool = False, 
                  two_people: bool = False, landscape: bool = False):
         """
-        Initialize MatToCsv object
+        Initialize NpzToCsv object
 
         Args:
-            input_dir (str): absolute path to directory containing .mat files
+            input_dir (str): absolute path to directory containing .npz files
             output_filename (str): name of output .csv file
             visualize_Pose (bool): whether or not to visualize pose skeleton.
         """
 
-        # Directory containing input .mat files
+        # Directory containing input .npz files
         self.input_dir = input_dir
 
         # Whether or not to visualize pose skeleton
