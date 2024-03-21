@@ -41,7 +41,7 @@ for file_num, file_name in enumerate(mp4_files):
     num_cols = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
 
     rgb_values = np.zeros((num_rows, num_cols//2, 3, num_frames), dtype=np.uint8)
-    xyz_values_c = np.zeros((num_rows, num_cols//2, 3, num_frames), dtype=np.double)
+    xyz_values = np.zeros((num_rows, num_cols//2, 3, num_frames), dtype=np.double)
 
     i = 0
     p_bar = tqdm(range(num_frames))
@@ -71,9 +71,9 @@ for file_num, file_name in enumerate(mp4_files):
         # convert depth to point cloud (camera coordinate frame)
         rows, cols = depth_array.shape
         c, r = np.meshgrid(np.arange(cols), np.arange(rows), sparse=True)
-        xyz_values_c[:,:,0,i] = depth_array*(c - cx)/fx
-        xyz_values_c[:,:,1,i] = depth_array*(r - cy)/fy
-        xyz_values_c[:,:,2,i] = depth_array
+        xyz_values[:,:,0,i] = depth_array*(c - cx)/fx
+        xyz_values[:,:,1,i] = depth_array*(r - cy)/fy
+        xyz_values[:,:,2,i] = depth_array
         
         i += 1
         

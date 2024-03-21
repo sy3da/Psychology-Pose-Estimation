@@ -3,10 +3,9 @@ import multiprocessing
 from tqdm import tqdm
 import numpy as np
 import json
-from scipy.io import savemat
 import os
 
-def process_frame(frame, max_depth, min_depth, num_rows, num_cols):
+def process_frame(frame, max_depth, min_depth, num_rows, num_cols, fx, fy, cx, cy):
     
     rgb = cv2.cvtColor(frame[:, num_cols//2:, :], cv2.COLOR_BGR2RGB)
     
@@ -14,20 +13,21 @@ def process_frame(frame, max_depth, min_depth, num_rows, num_cols):
     depth_temp = np.asarray(depth_temp, dtype=np.float32)/255
     depth_temp = min_depth + (depth_temp*(max_depth - min_depth))
     
-    x = depth_temp
-    y = depth_temp
-    z = depth_temp
+    c, r = np.meshgrid(np.arange(num_cols//2), np.arange(num_rows), sparse=True)
+    x = depth_temp*(c - cx)/fx
+    y = depth_temp*(r - cy)/fy
+    z = np.sqrt(depth_temp**2 - x**2 - y**2) ## need to check this
     
     xyz = np.dstack((x, y, z))
     
     return (rgb, xyz)
 
-def worker(input_queue, output_queue, max_depth, min_depth, num_rows, num_cols):
+def worker(input_queue, output_queue, max_depth, min_depth, num_rows, num_cols, fx, fy, cx, cy):
     while True:
         frame = input_queue.get()  # Get a frame from input queue
         if frame is None:  # If None is received, break the loop
             break
-        processed_frame = process_frame(frame, max_depth, min_depth, num_rows, num_cols)  # Process the frame
+        processed_frame = process_frame(frame, max_depth, min_depth, num_rows, num_cols, fx, fy, cx, cy)  # Process the frame
         output_queue.put(processed_frame)  # Put the processed frame into output queue
 
 if __name__ == '__main__':
@@ -77,7 +77,10 @@ if __name__ == '__main__':
         num_workers = multiprocessing.cpu_count()  # Get the number of CPU cores
         processes = []
         for _ in range(num_workers):
-            p = multiprocessing.Process(target=worker, args=(input_queue, output_queue, max_depth, min_depth, num_rows, num_cols))
+            p = multiprocessing.Process(target=worker, args=(input_queue, output_queue, 
+                                                             max_depth, min_depth, 
+                                                             num_rows, num_cols, 
+                                                             fx, fy, cx, cy))
             p.start()
             processes.append(p)
             
