@@ -22,8 +22,15 @@ class NpzToCsv():
 
         Args:
             input_dir (str): absolute path to directory containing .npz files
-            output_filename (str): name of output .csv file
-            visualize_Pose (bool): whether or not to visualize pose skeleton.
+            image_width (int): depends on the camera resolution
+            image_height (int): depends on the camera resolution
+            left_participant_id (str): 6-digit id number for left participant in collective condition
+            right_participant_id (str): 6-digit id number for right participant in collective condition
+            visualize_Pose (bool): whether or not to visualize pose skeleton
+            two_people (bool): whether or not there are two participants
+            landscape (bool): whether or not the recording was taken in landscape
+
+            NOTE: left and right participant is relative to the camera -- not the participant
         """
 
         # Directory containing input .npz files
@@ -107,13 +114,12 @@ class NpzToCsv():
     
     def load_npz_file(self, filepath: str) -> tuple[np.ndarray, np.ndarray]:
         """
-        Load in the npz file using   and outputs xyz and rgb
+        Load in the npz file using np.load and outputs xyz and rgb arrays
 
         Args:
             filepath: The path to the npz file to be read.
 
         Returns:
-            A tuple containing two NumPy arrays: xyz_all and rgb_all
             - xyz_all: An (n, d, 3, frame_num) array of spatial coordinate values
             - rgb_all: An (n, d, 3, frame_num) array of rgb intensity values
         """
@@ -130,8 +136,6 @@ class NpzToCsv():
     
         Args:
             xy (Tuple[int, int]): The pixel coordinates (x, y) to be checked.
-            image_width (int): The width of the image in pixels.
-            image_height (int): The height of the image in pixels.
         
         Returns:
             bool: True if the pixel coordinates are within the image bounds, False otherwise.
@@ -305,6 +309,8 @@ class NpzToCsv():
             file_num (int): number of file being processed
             num_files_to_process (int): total number of files to process
             filename (str): name of file to process
+            pose_detector_1 (PoseLandmarker): mediapipe -- used to get the landmarks
+            pose_detector_2 (PoseLandmarker): mediapipe -- used to get the landmarks
 
         Returns:
             None
@@ -439,6 +445,7 @@ class NpzToCsv():
         pose_detector_1 = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.9, min_tracking_confidence=0.9)
         pose_detector_2 = PoseLandmarker(static_image_mode=False, min_detection_confidence=0.9, min_tracking_confidence=0.9)
 
+        # loop through all the files in the npz folder
         for filename in npz_files:
             file_num += 1
             self.output_filename = filename
@@ -541,8 +548,7 @@ def main():
     print(npzs_dir)
 
     # Run pose estimation pipeline on all .npz files in npz_dir and save output to csvs_dir
-    # , left_participant_id = '965142_', right_participant_id = '510750_'
-    myNpzToCsv = NpzToCsv(input_dir=npzs_dir, visualize_Pose=True, two_people=False, landscape=False)
+    myNpzToCsv = NpzToCsv(input_dir=npzs_dir, visualize_Pose=True, two_people=False, landscape=False)  # , left_participant_id = '965142_', right_participant_id = '510750_'
     myNpzToCsv.run()
 
     return
