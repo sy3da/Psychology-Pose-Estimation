@@ -1,6 +1,6 @@
-# Kinect - Body Posture Analysis
+# iPhone - Body Posture Analysis
 
-This repository contains all relevant scripts to run, process, and analyze posture data from studies using the Kinect depth sensor. Each script is named after the processing step it reflects in the overall process.
+This repository contains all relevant scripts to run, process, and analyze rgb and depth data from studies using the LiDAR sensor in iPhones/iPads. All recordings are taken with the third party "Record3d" app availble on the Apple App Store.
 
 ## Getting Started
 
@@ -8,113 +8,84 @@ This repository contains all relevant scripts to run, process, and analyze postu
 
 __Compatibility__:
 
-- The Recording Script runs on Windows __only__ due to compatibility issues with the Kinect sensor.
-- These scripts are written for use with the Kinect for Windows v1 (Model 1517). Due to limitations of the hardware support the Kinect for Xbox 360 is __not__ suitable for use with the script provided here.
+- The recording "Record3d" app can __only__ be used on the iPhone Pro 12 or later, iPad Pro 11 inch 3rd generation or later, and iPad Pro 12.9 inch 5th generation or later (hasto have LiDAR scanner).
 
 __Installation Instructions__:
 
-- Download and install the most recent version of Matlab including the Image Acquisition Toolbox and the Image Processing Toolbox. <br/>
-In order to check if the Image Acquisition Toolbox is installed navigate to the Add-On Manager in MATLAB (Home tab - Add-Ons - Manage Add-Ons) or type the following code in the MATLAB command window:
+Recording:
+- Install the latest version of "Record3d" onto the iPhone/iPad that will be used for recording.
 
-```Matlab
-license('test', 'Image_Acquisition_Toolbox')
-license('test', 'Image_Toolbox') % check for the Image Processing Toolbox 
-```
-- In addition the following hardware support is necessary: [Image Acquisition Toolbox Support Package for Kinect for Windows Sensor](https://de.mathworks.com/hardware-support/kinect-windows.html). For further information and to download the package navigate to the Add-On Explorer in MATLAB (Home tab - Add-Ons - Get Hardware Support Packages) and search for the package or follow the link above.
-  - This requires:
-    - MATLAB compatibility: R2013a and later; with
-      - Image Acquisition Toolbox
-      - Image Processing Toolbox
-  - platform compatibility: Windows (MATLAB R2016a or later only for Windows 64-Bit)
-  - Third-party requirements: [Kinect for Windows Runtime v1.6](https://www.microsoft.com/en-us/download/details.aspx?id=34811); should be installed using the hardware support package
+Processing:
+- Download and install the most recent version of Python onto your operating system. This can be done at the following link: https://www.python.org/downloads/ 
+- Download and install VSCode onot your operating system. This can be done at the following link: https://code.visualstudio.com/download 
+- Link your GitHub account to your VSCode profile:  
+    - Navigate to the “Extensions” tab on the left hand side of VS Code. Search and install “GitHub Pull Requests”.
+    Relaunch VS Code.
+    - Navigate to the “Accounts” tab in the lower left corner of VS Code. Select “Log into GitHub”. 
+    - On the VS Code Home Page select “Clone Git Repository…”
+    - Paste https://github.com/sy3da/Psychology-Pose-Estimation at the top of the window where it says “Provide repository URL or pick a repository source.”
+- Install packages in VSCode and create virtual environment:
+    - Navigate to the “Extensions” tab on the left hand side. Search and install “Python” v2024.0.1.
+    - Within VS Code open the Command Palette (⇧⌘P) and search and select “Python: Create Environment”.
+    - Select “Venv” for the environment type and the “Python {version that was installed onto operating system}” as the interpreter.
+    - Select “requirements.txt” as the dependencies file to be installed in the virtual environment. 
 
-The Processing Script is written in Matlab and runs on Windows, Mac OS and Linux.
+
+The processing scripts are written in Python and run on Windows and Mac OS.
 
 ## Usage
 
 ### Step 1 - Recording
-Collect data by using the recording script (RecordingScript.m). The recording script should be located at the same level as the "sub" folder. The recording script accesses the "recording" support functions within this folder.
+Follow the instructions outlined in the following powerpoint for setting up "Record3d" with the proper settings and for exporting files:
+https://docs.google.com/presentation/d/1p2FjMWa6pQhxtKmbjKskehwqDIX7YroxsdVIMqZcKnU/edit?usp=sharing 
 
-To use the recording script the Kinect should already be connected to your computer via a USB-port. <br/>
-Once the script is executed input of the study name and subsequently the subject name will be requested via the command line. Next, the recording GUI (see the image below) appears and continuously visualizes the the camera input.
-- By pressing the "Record"-button a recording can be started and stopped.
-- By pressing the button in the right corner a new folder below the subject folder level will be generated.
-
-![Image of the Recording GUI](ressources/RecordingGUI.PNG)
-
-<br/>
-
-For further information concerning options and usage see the preamble of the recording script [(RecordingScript.m)](https://github.com/rhepach/Kinect/blob/master/RecordingScript.m).
 
 ### Preparations for Step 2
-The processing script should be located at the same level as the "sub" folder. The required support functions should be located in the folder "processing" which is a subfolder of "sub".
+After exporting the recordings to the RGBD.mp4 file format, place them in the "Data" folder. Remove any old .mp4 files that you do not wish to run the processing on.
+
+Additionally, remove any old .npz files from "Data\npz" that you do not wish to run processing on.
 
 
-In order to use the processing script, it is necessary to specify the directory to the study data folder. The structure below the indicated folder has to comprise three levels.
-1. The first level should be the subject level with one folder for each subject.
-2. Each subject folder comprises baseline and test folders.
-3. Each of these show recording folders, which contain the .mat files.
+### Step 2 - Inital Processing
+Ensure the Pyschology-Pose-Estimation directory is selected.
 
+Run the "iphone_rgbd_phase_one.py" processing script to get rgb and xyz data for each pixel in every frame from the .mp4 files. The output will be .npz files (one for each .mp4 file) located under "Data\npz".
 
-See the image below for an illustrative folder structure. <br/>
-In this case the study data folder "ExampleData" is situated below the general Data folder. Inside the study data folder, two subject folders are located. The files on the right-hand side of the image show the content of the "Recording_2" folder inside the "Baseline 3" folder.
-<br/>
+Navigate to the "iphone_npz_to_csv.py" script.
 
-![Image of an illustrative folder structure](ressources/folderStructure.PNG)
+Select the conditions for the trial where the class NpzToCsv() is called at the bottom of the script.
+  Ex. for one participant:
+  - NpzToCsv(input_dir=npzs_dir, visualize_Pose=True, two_people=False, landscape=False)
+  Ex. for two participants:
+  - NpzToCsv(input_dir=npzs_dir, visualize_Pose=True, two_people=True, , left_participant_id = '965142_', right_participant_id = '510750_, landscape=False)
 
-<br/>
-The necessary data structure is given for the ExampleData in the Kinect repository and will be generated automatically by the attached recording script.
+Run the "phone_npz_to_csv.py" processing script to get a .csv file with xyz for identified landmarks saved in "Data/npz/csv" and a video with the skeleton visualization saved in "Data/npz/video".
 
-### Step 2 - Processing
-Run the MATLAB processing script to extract body posture information and images from the .mat files for each frame or delete data to reduce the .mat file size.
-
-Before you are ready to start the processing script, it is necessary to change the directory to the study data folder. Therefore you have to modify the variable "source". If you change the name of the study data folder (e.g. from "ExampleData" to "myData"), then this needs to be changed in the processing script accordingly (see example image below).
-
-example                    |  modified
-:-------------------------:|:-------------------------:
-![modify Source](ressources/changeSource.png) | ![modified Source](ressources/changedSource.png)
-
-
-Once you run the script a window will pop up - the processing GUI (see the image below).
-- By ticking the individual checkboxes the corresponding processing will be executed as soon as you press "ok"
-- The listbox on the right-hand side of the GUI could be used to browse through the content of the folders. Selecting a folder inside the listbox won't change the indicated folder with the data to be processed.
-- Experience shows that selecting the delete function __individually__ as soon as all processing is already done works best. 
- 
-![Image of the ProcessingGUI](ressources/ProcessingGUI.PNG)
 
 ### Step 3 - Processing and Data Analysis in R
-Step 2 ("Extract and save skeleton data") creates a .txt file showing the x-, y-, and z-coordinates for each of the tracked skeletons for each .mat frame, which can be used for further body posture analyses. The generated .txt file is situated inside the "SummaryData" folder. <br/>
-The "R-processing" folder in this repository shows an example of the further processing and analysis steps in R with data from two adults. <br/>
-For further examples see: [https://osf.io/xem8k/](https://osf.io/xem8k/).
+
+
+## Additional Files
+plot_rgb_frame.py
+- This file can be used to plot/visualize rgb and xyz data for one frame within a .npz file.
+- To run update the line with the path to the .npz file you would like to visualize along with the frame number.
+
+pose_module.py
+- This is an accessory file needed to call and run mediapipe on the videos within the "iphone_npz_to_csv.py" processing script.
+- If changes need to be made to the conditions mediapipe is being run on, this is where it can be done.
+
+calc_accuracy.py
+- This can be used to compare real world distances between landmarks to pre-measured distances for a particular subject
+- To use update the true_lengths variable with the pre-measured lengths in mm for [shoulder to shoulder, hip to hip, left shoulder to elbow, right shoulder to elbow, left hip to knee, right hip to knee] and place .csv files of interest in "Data\npz\csv"
 
 ## Support
 If you are experiencing issues installing the hardware, or running the scripts, please contact <br/>
-Robert Hepach, robert.hepach@uni-leipzig.de or <br/>
-Stella Gerdemann, stella.gerdemann@uni-leipzig.de or <br/>
-Kim-Laura Speck, ks56cyvu@studserv.uni.leipzig.de
-
-## Roadmap
-
-- Script adaptations to make it suitable for the Application Compiler. 
-- Script modifications to enable the use of the Kinect for Windows v2 and therefore overcome frame rate limitations.
-
-## Contributing
-
-The processing script is part of an ongoing line of research and it is continuously updated. Those familiar with Matlab will notice redundancies in the code and room for improvement. <br/>
-Pull requests are welcome. You are, of course, free to make changes to the script for your own purposes but you do so at your own risk.
-For major changes, please open an issue first to discuss what you would like to change.
+Lauren Terry, leterryy@umich.edu or <br/>
+George Rabadi, grabadi@umich.edu
 
 ## Authors and Acknowledgment
-Processing Script:
-- written by Elmar Tarajan and Anja Neumann.
-- maintained by Robert Hepach, Stella Gerdemann, and Kim-Laura Speck.
+Inital Processing Scripts:
+- written by Lauren Terry and George Rabadi.
 
-Recording Script:
-- written by Anja Neumann.
-- maintained by Robert Hepach, Stella Gerdemann, and Kim-Laura Speck.
-
-If you use the script or find it generally useful kindly support our research by citing our work.
-
--  Hepach, R., Vaish, A., & Tomasello, M. (2015). Novel paradigms to measure variability of behavior in early childhood: posture, gaze, and pupil dilation. _Frontiers in Psychology, 6_, 858. [https://doi.org/10.3389/fpsyg.2015.00858](https://doi.org/10.3389/fpsyg.2015.00858)
-
-- Hepach, R., Vaish, A., & Tomasello, M. (2017). The fulfillment of others’ needs elevates children’s body posture. _Developmental Psychology, 53(1)_, 100. [http://dx.doi.org/10.1037/dev0000173](http://dx.doi.org/10.1037/dev0000173)
+Additional File Scripts:
+- written by Lauren Terry and George Rabadi.
