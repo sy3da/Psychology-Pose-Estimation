@@ -19,20 +19,20 @@ def process_frame(frame, max_depth, min_depth, num_rows, num_cols, fx, fy, cx, c
     instrinsics.
 
     Args:
-        filepath: 
-        max_depth:
-        min_depth:
-        num_rows:
-        num_cols:
-        fx:
-        fy:
-        cx:
-        cy:
+        frame: the xyz and rgb data for the frame being processed.
+        max_depth: the maximum depth recorded by the LiDAR sensor
+        min_depth: the minimum depth recorded by the LiDAR sensor
+        num_rows: the number of rows in the array for the frame (should be the same as the resolution height: 960)
+        num_cols: the number of columns in the array for the frame (should be twice the resolution width: 2*720)
+        fx: x-axis focal length of the camera in pixels (part of the camera intrinsics)
+        fy: y-axis focal length of the camera in pixels (part of the camera intrinsics)
+        cx: x-axis optical center of the camera in pixels (part of the camera intrinsics)
+        cy: y-axis optical center of the camera in pixels (part of the camera intrinsics)
 
     Returns:
         A Tuple containing:
-        - xyz: An (n, d, 3) array of spatial coordinate values
-        - rgb: An (n, d, 3) array of rgb intensity values
+        - xyz: An (rows, cols, 3) array of spatial coordinate values
+        - rgb: An (rows, cols, 3) array of rgb intensity values
     """
     # select right side of the frame as rgb data
     rgb = cv2.cvtColor(frame[:, num_cols//2:, :], cv2.COLOR_BGR2RGB)
@@ -53,6 +53,26 @@ def process_frame(frame, max_depth, min_depth, num_rows, num_cols, fx, fy, cx, c
     return (rgb, xyz)
 
 def worker(input_queue, output_queue, max_depth, min_depth, num_rows, num_cols, fx, fy, cx, cy):
+    
+    """
+    !!! George can you fill out the description for this one? !!!
+
+    Args:
+        input_queue:
+        output_queue: 
+        max_depth: the maximum depth recorded by the LiDAR sensor
+        min_depth: the minimum depth recorded by the LiDAR sensor
+        num_rows: the number of rows in the array for the frame (should be the same as the resolution height: 960)
+        num_cols: the number of columns in the array for the frame (should be twice the resolution width: 2*720)
+        fx: x-axis focal length of the camera in pixels (part of the camera intrinsics)
+        fy: y-axis focal length of the camera in pixels (part of the camera intrinsics)
+        cx: x-axis optical center of the camera in pixels (part of the camera intrinsics)
+        cy: y-axis optical center of the camera in pixels (part of the camera intrinsics)
+
+    Returns:
+        None
+    """
+
     while True:
         frame = input_queue.get()  # Get a frame from input queue
         if frame is None:  # If None is received, break the loop
@@ -156,7 +176,7 @@ if __name__ == '__main__':
         video_capture.release()
         cv2.destroyAllWindows()
 
-        # stack arrays so that they are (960, 720, 3, num_frames)
+        # stack arrays so that they are (rows, cols, 3, num_frames)
         rgb_values = np.stack(rgb_values_list, axis=-1, dtype=np.uint8)
         xyz_values = np.stack(xyz_values_list, axis=-1, dtype=np.float32)
         

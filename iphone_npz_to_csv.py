@@ -157,9 +157,8 @@ class NpzToCsv():
         Args:
             landmarks_pixels: An (n, 2) array of landmark pixel coordinates.
             frame_idx: The index of the current frame.
-            frame_depth: An (n, d) array of depths.
-            frame_intensity: An (n, d) array of confidence values.
-            frame_grayscale_rgb: An (n, d, 3) array of RGB values.
+            frame_xyz: An (n, d, 3) array of coordinate distances.
+            frame_rgb: An (n, d, 3) array of RGB values.
             filename: The name of the file being processed.
             participant: Left or right if two people are in frame.
         """
