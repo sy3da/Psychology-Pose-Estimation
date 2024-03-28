@@ -34,15 +34,15 @@ def process_frame(frame, max_depth, min_depth, num_rows, num_cols, fx, fy, cx, c
         - xyz: An (rows, cols, 3) array of spatial coordinate values
         - rgb: An (rows, cols, 3) array of rgb intensity values
     """
-    # select right side of the frame as rgb data
+    # Select right side of the frame as rgb data
     rgb = cv2.cvtColor(frame[:, num_cols//2:, :], cv2.COLOR_BGR2RGB)
     
-    # select left side of the frame as depth data and convert from hue to mm values
+    # Select left side of the frame as depth data and convert from hue to mm values
     depth_temp = cv2.cvtColor(frame[:, :num_cols//2, :], cv2.COLOR_BGR2HSV)[:,:,0]
     depth_temp = np.asarray(depth_temp, dtype=np.float32)/255
     depth_temp = min_depth + (depth_temp*(max_depth - min_depth))
     
-    # use the camera intrinsics (fx,fy,cx,cy) to convert depth to xyz
+    # Use the camera intrinsics (fx,fy,cx,cy) to convert depth to xyz
     c, r = np.meshgrid(np.arange(num_cols//2), np.arange(num_rows), sparse=True)
     x = depth_temp*(c - cx)/fx
     y = depth_temp*(r - cy)/fy
@@ -82,10 +82,10 @@ def worker(input_queue, output_queue, max_depth, min_depth, num_rows, num_cols, 
 
 if __name__ == '__main__':
     
-    # define the path to the .mp4 files
+    # Define the path to the .mp4 files
     pathname = 'Data/'
     
-    # look within the path for mp4 files and create array with .mp4 file names
+    # Look within the path for mp4 files and create array with .mp4 file names
     mp4_files = []
     for file_name in sorted(os.listdir(pathname)):
         if file_name.endswith(".mp4"):
@@ -93,13 +93,13 @@ if __name__ == '__main__':
             file_name = file_name
             mp4_files.append(file_name)
     
-    # loop through and run processing on each of the .mp4 files
+    # Loop through and run processing on each of the .mp4 files
     for file_num, mp4_name in enumerate(mp4_files):
         print(f'Processing file {file_num+1}/{len(mp4_files)}: {mp4_name}')
 
         file_name = pathname + mp4_name
         
-        # define camera intrinsics (fx,fy,cx,cy), max_depth, and min_depth from meta data in .mp4 file
+        # Define camera intrinsics (fx,fy,cx,cy), max_depth, and min_depth from meta data in .mp4 file
         with open(file_name, "rb") as file:
             file_content = file.read()
             meta = file_content[file_content.rindex(b'{"intrinsic'):]
@@ -116,7 +116,7 @@ if __name__ == '__main__':
             min_depth = depthInfo[0]
             max_depth = depthInfo[1]
         
-        # establish frame queues (multiprocessing)
+        # Establish frame queues (multiprocessing)
         input_queue = multiprocessing.Queue()  # Queue to hold incoming frames
         output_queue = multiprocessing.Queue()  # Queue to hold processed frames
 
@@ -139,7 +139,7 @@ if __name__ == '__main__':
             p.start()
             processes.append(p)
 
-        # create empty arrays to hold rgb and xyz data for each frame   
+        # Create empty arrays to hold rgb and xyz data for each frame   
         rgb_values_list = []
         xyz_values_list = []
         
@@ -154,7 +154,7 @@ if __name__ == '__main__':
                 input_queue.put(frame)  # Put the frame into the input queue (multiprocessing)
                 rgb, xyz = output_queue.get()  # Get the processed frame from output queue (multiprocessing)
 
-                # add rgb and xyz data for that frame to lists for respective data
+                # Add rgb and xyz data for that frame to lists for respective data
                 rgb_values_list.append(rgb)
                 xyz_values_list.append(xyz)
                 # Display the processed frame
@@ -176,10 +176,10 @@ if __name__ == '__main__':
         video_capture.release()
         cv2.destroyAllWindows()
 
-        # stack arrays so that they are (rows, cols, 3, num_frames)
+        # Stack arrays so that they are (rows, cols, 3, num_frames)
         rgb_values = np.stack(rgb_values_list, axis=-1, dtype=np.uint8)
         xyz_values = np.stack(xyz_values_list, axis=-1, dtype=np.float32)
         
-        # save data for this clip to .npz file in the "npz" folder within the "Data" folder
+        # Save data for this clip to .npz file in the "npz" folder within the "Data" folder
         np.savez(f'Data/npz/{mp4_name[:-4]}.npz', xyz_values=xyz_values, rgb_values=rgb_values)
         print()

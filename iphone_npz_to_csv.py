@@ -5,8 +5,15 @@ import time
 import cv2
 from typing import Tuple
 import pandas as pd
-
 from pose_module import PoseLandmarker
+
+"""
+This file loads in depth and rgb data from a .npz file, runs them through the pose estimation pipeline,
+and outputs xyz for identified landmarks to a .csv file in the "Data/npz/csv" folder along with a video with 
+the skeleton visualization in the "Data/npz/video" folder.
+
+Runs on all .npz files in the "Data/npz" folder individually.
+"""
 
 class NpzToCsv():
     """
@@ -54,7 +61,7 @@ class NpzToCsv():
             self.image_width = image_width
             self.image_height = image_height
     
-        # if there are two participants the left and right subject ids
+        # If there are two participants the left and right subject ids
         self.left_participant_id = left_participant_id
         self.right_participant_id = right_participant_id
 
@@ -98,7 +105,7 @@ class NpzToCsv():
         Get list of .npz files in input_dir
 
         Returns:
-            npz_files (list): list of .npz files in input_dir
+            filelist (list): list of .npz files in input_dir
         """
 
         # Get list of .npz files in input_dir
@@ -120,8 +127,8 @@ class NpzToCsv():
             filepath: The path to the npz file to be read.
 
         Returns:
-            - xyz_all: An (n, d, 3, frame_num) array of spatial coordinate values
-            - rgb_all: An (n, d, 3, frame_num) array of rgb intensity values
+            - xyz_all: An (rows, cols, 3, frame_num) array of spatial coordinate values
+            - rgb_all: An (rows, cols, 3, frame_num) array of rgb intensity values
         """
         
         npz_file = np.load(filepath)
@@ -155,10 +162,10 @@ class NpzToCsv():
         Process the pose landmarks for a single frame.
 
         Args:
-            landmarks_pixels: An (n, 2) array of landmark pixel coordinates.
+            landmarks_pixels: An (34?, 2) array of landmark pixel coordinates.
             frame_idx: The index of the current frame.
-            frame_xyz: An (n, d, 3) array of coordinate distances.
-            frame_rgb: An (n, d, 3) array of RGB values.
+            frame_xyz: An (rows, cols, 3) array of coordinate distances.
+            frame_rgb: An (rows, cols, 3) array of RGB values.
             filename: The name of the file being processed.
             participant: Left or right if two people are in frame.
         """
