@@ -88,7 +88,7 @@ if __name__ == '__main__':
     # Look within the path for mp4 files and create array with .mp4 file names
     mp4_files = []
     for file_name in sorted(os.listdir(pathname)):
-        if file_name.endswith(".mp4"):
+        if file_name.endswith(".mp4") or file_name.endswith(".MP4"):
             # Remove the ".mp4" suffix
             file_name = file_name
             mp4_files.append(file_name)
