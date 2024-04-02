@@ -55,11 +55,15 @@ def process_frame(frame, max_depth, min_depth, num_rows, num_cols, fx, fy, cx, c
 def worker(input_queue, output_queue, max_depth, min_depth, num_rows, num_cols, fx, fy, cx, cy):
     
     """
-    !!! George can you fill out the description for this one? !!!
+    Defines an individual "worker" for multiprocessing to process the full video.
+    Frames will be processed from the input_queue and processed frames will be placed in the output_queue.
+    All parameters required for processing must be fed in to the worker, along with the queues.
+
+    NOTE More information on multiprocessing in Python can be found at https://docs.python.org/3/library/multiprocessing.html
 
     Args:
-        input_queue:
-        output_queue: 
+        input_queue: multiprocessing.Queue() of input frames
+        output_queue: multiprocessing.Queue() of processed frames
         max_depth: the maximum depth recorded by the LiDAR sensor
         min_depth: the minimum depth recorded by the LiDAR sensor
         num_rows: the number of rows in the array for the frame (should be the same as the resolution height: 960)
