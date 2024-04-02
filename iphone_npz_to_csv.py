@@ -22,8 +22,8 @@ class NpzToCsv():
     """
 
     def __init__(self, input_dir: str, image_width: int = 720, image_height: int = 960, 
-                 left_participant_id: str = '00000L_', right_participant_id: str = '00000R_', visualize_Pose: bool = False, 
-                 two_people: bool = False, landscape: bool = False):
+                 left_participant_id: str = '00000L_', right_participant_id: str = '00000R_', draw_Pose: bool = True, 
+                 visualize_Pose: bool = False, two_people: bool = False, landscape: bool = False):
         """
         Initialize NpzToCsv object
 
@@ -33,7 +33,8 @@ class NpzToCsv():
             image_height (int): depends on the camera resolution
             left_participant_id (str): 6-digit id number for left participant in collective condition
             right_participant_id (str): 6-digit id number for right participant in collective condition
-            visualize_Pose (bool): whether or not to visualize pose skeleton
+            draw_Pose (bool): whether or not to draw pose skeleton
+            visualize_Pose (bool): whether or not to display the vizualized pose skeletons while processing
             two_people (bool): whether or not there are two participants
             landscape (bool): whether or not the recording was taken in landscape
 
@@ -50,8 +51,8 @@ class NpzToCsv():
             os.mkdir(input_dir + '/video/')
         
         # Whether or not to visualize pose skeleton
+        self.draw_Pose = draw_Pose
         self.visualize_Pose = visualize_Pose
-
         # Whether or not there are two people
         self.two_people = two_people
 
@@ -354,8 +355,8 @@ class NpzToCsv():
 
                 # Get pixel locations of all pose landmarks for both skeletons
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
-                pose_detected_left, contains_invalid_landmarks_left, landmarks_pixels_left, world_coord_left, frame_rgb_left = pose_detector_1.get_landmarks(image=frame_rgb_left, draw=self.visualize_Pose)
-                pose_detected_right, contains_invalid_landmarks_right, landmarks_pixels_right, world_coord_right, frame_rgb_right = pose_detector_2.get_landmarks(image=frame_rgb_right, draw=self.visualize_Pose)
+                pose_detected_left, contains_invalid_landmarks_left, landmarks_pixels_left, world_coord_left, frame_rgb_left = pose_detector_1.get_landmarks(image=frame_rgb_left, draw=self.draw_Pose)
+                pose_detected_right, contains_invalid_landmarks_right, landmarks_pixels_right, world_coord_right, frame_rgb_right = pose_detector_2.get_landmarks(image=frame_rgb_right, draw=self.draw_Pose)
 
                 # if pose_detected:
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
@@ -399,7 +400,7 @@ class NpzToCsv():
 
                 # Get pixel locations of all pose landmarks
                 # face_detected, landmarks_pixels = face_mesh_detector.find_face_mesh(image=frame_grayscale_rgb, draw=self.visualize_FaceMesh)
-                pose_detected, contains_invalid_landmarks, landmarks_pixels, world_coord, frame_rgb = pose_detector_1.get_landmarks(image=frame_rgb, draw=self.visualize_Pose)
+                pose_detected, contains_invalid_landmarks, landmarks_pixels, world_coord, frame_rgb = pose_detector_1.get_landmarks(image=frame_rgb, draw=self.draw_Pose)
 
                 # if pose_detected:
                 #     # multithreading_tasks.append(self.thread_pool.submit(self._process_face_landmarks, landmarks_pixels, frame_idx, frame_x, frame_y, frame_z, frame_confidence, intensity_signal_current_file, depth_signal_current_file, ear_signal_current_file, frame_grayscale_rgb))
@@ -560,7 +561,7 @@ def main():
     print(npzs_dir)
 
     # Run pose estimation pipeline on all .npz files in npz_dir and save output to csvs_dir
-    myNpzToCsv = NpzToCsv(input_dir=npzs_dir, visualize_Pose=True, two_people=False, landscape=False)  # , left_participant_id = '965142_', right_participant_id = '510750_'
+    myNpzToCsv = NpzToCsv(input_dir=npzs_dir, visualize_Pose=False, two_people=False, landscape=False)  # , left_participant_id = '965142_', right_participant_id = '510750_'
     myNpzToCsv.run()
 
     return
