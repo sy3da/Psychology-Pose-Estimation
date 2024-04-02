@@ -42,7 +42,13 @@ class NpzToCsv():
 
         # Directory containing input .npz files
         self.input_dir = input_dir
-
+        
+        if not os.path.exists(input_dir + '/csv/'): 
+            os.mkdir(input_dir + '/csv/')
+        
+        if not os.path.exists(input_dir + '/video/'): 
+            os.mkdir(input_dir + '/video/')
+        
         # Whether or not to visualize pose skeleton
         self.visualize_Pose = visualize_Pose
 

@@ -181,5 +181,8 @@ if __name__ == '__main__':
         xyz_values = np.stack(xyz_values_list, axis=-1, dtype=np.float32)
         
         # Save data for this clip to .npz file in the "npz" folder within the "Data" folder
+        if not os.path.exists(pathname + 'npz/'): 
+            os.mkdir(pathname + 'npz/')
+            
         np.savez(f'Data/npz/{mp4_name[:-4]}.npz', xyz_values=xyz_values, rgb_values=rgb_values)
         print()
